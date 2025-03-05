@@ -67,6 +67,7 @@ const authService = {
       throw error;
     }
   },
+  //gestion de profil : voir les informations de user connecté
   getProfile: async (userId) => {
     try {
       const response = await api.get(`/agent/profile?userId=${userId}`);
@@ -75,12 +76,114 @@ const authService = {
       throw error;
     }
   },
-
+//modifier les informations de user connecté 
   updateProfile: async (profileData) => {
     try {
       const response = await api.put('/agent/profile', profileData);
       return response;
     } catch (error) {
+      throw error;
+    }
+  },
+
+//gestion de stock
+  getProduits: async (userId, nombrePatients) => {
+    try {
+      const response = await api.get(`/stock/produits?userId=${userId}&nombrePatients=${nombrePatients}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  setSeuilAlerte: async (produitId, seuilAlerte) => {
+    try {
+      const response = await api.put(`/stock/seuil/${produitId}?seuilAlerte=${seuilAlerte}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  checkStockAlerts: async (userId, nombrePatients) => {
+    try {
+      const response = await api.get(`/stock/alertes?userId=${userId}&nombrePatients=${nombrePatients}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateQuantite: async (produitId, nouvelleQuantite) => {
+    try {
+      const response = await api.put(`/stock/quantite/${produitId}?nouvelleQuantite=${nouvelleQuantite}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  //gestion des agents 
+  //ajouter un agent
+  addAgent: async (agentData) => {
+    try {
+      const response = await api.post('/intendant/agents/add', agentData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+//modifier les infos d'un agent
+  updateAgent: async (userId, agentData) => {
+    try {
+      const response = await api.put(`/intendant/agents/update/${userId}`, agentData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+//supprimer un agent
+  deleteAgent: async (userId) => {
+    try {
+      const response = await api.delete(`/intendant/agents/delete/${userId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+//récupérer tous les agents
+  getAllAgents: async () => {
+    try {
+      const response = await api.get('/intendant/agents/all');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+//récupérer les agents qui ont un accées à l'application
+  getAgentsWithAccess: async () => {
+    try {
+      const response = await api.get('/intendant/agents/with-access');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+//récupérer les agents qui n'ont pas encore d'accées à l'application
+  getAgentsWithoutAccess: async () => {
+    try {
+      const response = await api.get('/intendant/agents/without-access');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getAgentById: async (userId) => {
+    try {
+      const response = await api.get(`/intendant/agents/${userId}`);
+      return response.data;
+    } catch (error) {
+      Swal.fire('Erreur', 'Impossible de récupérer les détails de l’agent', 'error');
       throw error;
     }
   }

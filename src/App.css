@@ -1,17 +1,12 @@
-body {
-  font-family: Arial, sans-serif;
-}
+
 button {
   padding: 10px 20px;
   margin: 5px;
-  background-color: #007bff;
-  color: white;
   border: none;
   cursor: pointer;
+  border-radius: 4px;
 }
-button:hover {
-  background-color: #0056b3;
-}
+
 input {
   padding: 8px;
   margin: 5px;
@@ -23,19 +18,10 @@ ul {
 }
 li {
   padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-li:hover {
-  background-color: #f0f0f0;
 }
 /* src/App.css */
 body {
   font-family: 'Source Sans Pro', sans-serif;
-}
-
-/* Surcharge pour les boutons React */
-button {
-  border-radius: 4px;
 }
 
 /* Ajuster les conteneurs pour AdminLTE */
@@ -46,7 +32,4 @@ button {
 .user-panel .nav-link {
   padding: 0.5rem;
   font-size: 14px;
-}
-.user-panel .nav-link:hover {
-  color: #cccccc; /* Optionnel, pour un effet hover personnalisé */
 }

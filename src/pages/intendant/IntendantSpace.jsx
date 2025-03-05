@@ -22,7 +22,9 @@ const IntendantSpace = () => {
               <div className="card-body">
                 <p>Bienvenue dans votre espace intendant.</p>
                 <Link to="/intendant/habilitation" className="btn btn-primary mr-2">Habilitation des agents</Link>
-                <Link to="/agent/profile" className="btn btn-info">Voir mon profil</Link>
+                <Link to="/agent/profile" className="btn btn-info mr-2">Voir mon profil</Link>
+                <Link to="/intendant/agents/add" className="btn btn-success mr-2">Ajouter un personnel</Link>
+                <Link to="/intendant/agents" className="btn btn-info">Liste de personnels</Link>
               </div>
             </div>
           </div>

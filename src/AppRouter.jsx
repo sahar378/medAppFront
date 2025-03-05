@@ -11,6 +11,9 @@ import AgentSpace from './pages/agent/AgentSpace';
 import Profile from './pages/agent/Profile'; 
 import Home from './pages/Home';
 import PrivateRoute from './components/PrivateRoute';
+import AgentList from './pages/intendant/AgentList'; // Nouvelle importation
+import AddAgent from './pages/intendant/AddAgent'; // Nouvelle importation
+import AgentDetails from './pages/intendant/AgentDetails';
 
 const AppRouter = () => {
   return (
@@ -20,6 +23,9 @@ const AppRouter = () => {
       <Route element={<PrivateRoute requiredRole="INTENDANT" />}>
         <Route path="/intendant" element={<IntendantSpace />} />
         <Route path="/intendant/habilitation" element={<Habilitation />} />
+        <Route path="/intendant/agents/add" element={<AddAgent />} />
+        <Route path="/intendant/agents" element={<AgentList />} />
+        <Route path="/intendant/agents/:userId" element={<AgentDetails />} />
       </Route>
       <Route element={<PrivateRoute />}>
         <Route path="/agent" element={<AgentSpace />} />

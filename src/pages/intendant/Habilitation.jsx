@@ -49,7 +49,8 @@ const Habilitation = () => {
         'Succès',
         `Habilitation mise à jour pour ${selectedAgent.prenom} ${selectedAgent.nom}. Un email a été envoyé à ${selectedAgent.prenom} ${selectedAgent.nom} avec ses identifiants (matricule: ${selectedAgent.userId}, mot de passe temporaire: ${tempPassword}).`,
         'success'
-      );      const updatedAgents = await authService.getAgents();
+      );
+      const updatedAgents = await authService.getAgents();
       setAgents(updatedAgents);
       setSelectedAgent(null);
     } catch (error) {
@@ -65,7 +66,7 @@ const Habilitation = () => {
       <div className="content-wrapper">
         <div className="content-header">
           <div className="container-fluid">
-            <h1 className="m-0">Habilitation des agents</h1>
+            <h1 className="m-0">Habilitation de personnels</h1>
           </div>
         </div>
         <section className="content">
@@ -74,20 +75,28 @@ const Habilitation = () => {
               <div className="col-md-6">
                 <div className="card">
                   <div className="card-header">
-                    <h3 className="card-title">Liste des agents</h3>
+                    <h3 className="card-title">Liste de personnels</h3>
                   </div>
                   <div className="card-body">
                     <ul className="list-group">
-                      {agents.map(agent => (
-                        <li
-                          key={agent.userId}
-                          className="list-group-item"
-                          onClick={() => handleAgentClick(agent)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {agent.prenom} {agent.nom} ({agent.userId})
-                        </li>
-                      ))}
+                      {agents.map(agent => {
+                        const hasAccess = agent.password && agent.password.length > 0;
+                        return (
+                          <li
+                            key={agent.userId}
+                            className="list-group-item"
+                            onClick={() => handleAgentClick(agent)}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            {hasAccess ? (
+                              <i className="fas fa-check-circle text-success mr-2" />
+                            ) : (
+                              <i className="fas fa-times-circle text-danger mr-2" />
+                            )}
+                            {agent.prenom} {agent.nom} ({agent.userId})
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 </div>
