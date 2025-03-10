@@ -22,6 +22,7 @@ const authService = {
       await api.post('/auth/logout');
       localStorage.removeItem('token');
       localStorage.removeItem('authorities'); // Supprime aussi les authorities
+      localStorage.removeItem('userId');
     } catch (error) {
       console.error('Erreur lors de la déconnexion', error);
     }
@@ -57,16 +58,16 @@ const authService = {
       throw error;
     }
   },
-  //pour assigner un rôle.
-  assignRole: async (userId, profilId) => {
+  //pour assigner plusieurs rôle.
+  assignRoles: async (userId, profilIds) => {
     try {
-      const response = await api.post('/intendant/assign-role', { userId, profilId });
-      return response.data;
+        const response = await api.post('/intendant/assign-roles', { userId, profilIds });
+        return response.data;
     } catch (error) {
-      Swal.fire('Erreur', 'Erreur lors de l’assignation du rôle', 'error');
-      throw error;
+        Swal.fire('Erreur', 'Erreur lors de l’assignation des rôles', 'error');
+        throw error;
     }
-  },
+},
   //gestion de profil : voir les informations de user connecté
   getProfile: async (userId) => {
     try {
@@ -86,50 +87,91 @@ const authService = {
     }
   },
 
-//gestion de stock
-  getProduits: async (userId, nombrePatients) => {
-    try {
-      const response = await api.get(`/stock/produits?userId=${userId}&nombrePatients=${nombrePatients}`);
+// Gestion de stock
+getAllProduits: async () => {
+  try {
+    const response = await api.get('/stock/all');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer tous les produits', 'error');
+    throw error;
+  }
+},
+getProduitsByUser: async () => { // Retiré userId
+  try {
+    const response = await api.get('/stock/produits');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les produits', 'error');
+    throw error;
+  }
+},
+getProduitById: async (produitId) => {
+  const response = await api.get(`/stock/produit/${produitId}`);
+  return response.data;
+},
+updateProduit: async (produitId, produit) => {
+  try {
+      const response = await api.put(`/stock/produit/${produitId}`, produit);
       return response.data;
-    } catch (error) {
+  } catch (error) {
+      Swal.fire('Erreur', 'Erreur lors de la mise à jour du produit', 'error');
       throw error;
-    }
-  },
+  }
+},
+getProduitLogs: async (produitId) => {
+  const response = await api.get(`/stock/logs?produitId=${produitId}`);
+  return response.data;
+},
 
-  setSeuilAlerte: async (produitId, seuilAlerte) => {
-    try {
-      const response = await api.put(`/stock/seuil/${produitId}?seuilAlerte=${seuilAlerte}`);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+verifierAlertes: async () => { // Retiré userId
+  try {
+    const response = await api.get('/stock/alertes');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de vérifier les alertes', 'error');
+    throw error;
+  }
+},
 
-  checkStockAlerts: async (userId, nombrePatients) => {
-    try {
-      const response = await api.get(`/stock/alertes?userId=${userId}&nombrePatients=${nombrePatients}`);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+saveProduit: async (produit) => { // Retiré userId
+  try {
+    const response = await api.post('/stock/produit', produit);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de l’ajout du produit', 'error');
+    throw error;
+  }
+},
 
-  updateQuantite: async (produitId, nouvelleQuantite) => {
-    try {
-      const response = await api.put(`/stock/quantite/${produitId}?nouvelleQuantite=${nouvelleQuantite}`);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+deleteProduit: async (produitId) => { // Retiré userId
+  try {
+    const response = await api.delete(`/stock/produit/${produitId}`);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la suppression du produit', 'error');
+    throw error;
+  }
+},
 
+definirSeuilsCategorie: async (idCategorie, nombreMalades) => { // Retiré userId
+  try {
+    const response = await api.post('/stock/seuils/categorie', null, {
+      params: { idCategorie, nombreMalades }
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+},
   //gestion des agents 
   //ajouter un agent
   addAgent: async (agentData) => {
     try {
       const response = await api.post('/intendant/agents/add', agentData);
-      return response.data;
+      return response.data; // Retourne l'utilisateur avec le userId généré
     } catch (error) {
+      Swal.fire('Erreur', 'Erreur lors de l’ajout de l’agent', 'error');
       throw error;
     }
   },
@@ -184,6 +226,17 @@ const authService = {
       return response.data;
     } catch (error) {
       Swal.fire('Erreur', 'Impossible de récupérer les détails de l’agent', 'error');
+      throw error;
+    }
+  },
+  getAllRoles: async () => {
+    try {
+      const response = await api.get('/intendant/profils');
+      console.log('Réponse getAllRoles:', response.data); // Debug
+      return response.data; // Retourne un tableau de rôles
+    } catch (error) {
+      console.error('Erreur getAllRoles:', error);
+      Swal.fire('Erreur', 'Impossible de récupérer les rôles', 'error');
       throw error;
     }
   }

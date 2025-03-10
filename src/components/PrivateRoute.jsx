@@ -1,20 +1,18 @@
-//src/components/PrivateRoute.
-/*Protège les routes en vérifiant si l’utilisateur est authentifié et a le rôle requis, sinon redirige vers /login ou /.*/
+// src/components/PrivateRoute.jsx
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const PrivateRoute = ({ requiredRole }) => {
-  const { isAuthenticated, userRole } = useAuth();// Récupère l'état d'authentification et le rôle
+  const { isAuthenticated, userRoles } = useAuth(); // Changement de userRole à userRoles
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;// Redirige si non connecté
+    return <Navigate to="/login" />;
   }
-  if (requiredRole && userRole !== requiredRole) {
-    return <Navigate to="/" />;// Redirige si rôle incorrect
+  if (requiredRole && !userRoles.includes(requiredRole)) {
+    return <Navigate to="/" />;
   }
-  return <Outlet />;// Affiche la route protégée si OK
-  //Outlet : Rend les composants enfants de la route protégée.
+  return <Outlet />;
 };
 
 export default PrivateRoute;

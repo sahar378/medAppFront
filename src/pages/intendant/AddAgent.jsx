@@ -8,7 +8,6 @@ import Swal from 'sweetalert2';
 
 const AddAgent = () => {
   const [formData, setFormData] = useState({
-    userId: '',
     nom: '',
     prenom: '',
     email: '',
@@ -25,9 +24,9 @@ const AddAgent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await authService.addAgent(formData);
-      Swal.fire('Succès', 'Agent ajouté avec succès', 'success');
-      navigate('/intendant'); // Retour à l’espace intendant
+      const response = await authService.addAgent(formData);
+      Swal.fire('Succès', `Agent ajouté avec matricule ${response.userId}`, 'success');
+      navigate('/intendant/habilitation'); // Redirection vers la liste des produits
     } catch (error) {
       Swal.fire('Erreur', 'Erreur lors de l’ajout de l’agent', 'error');
     }
@@ -48,10 +47,6 @@ const AddAgent = () => {
             <div className="card">
               <div className="card-body">
                 <form onSubmit={handleSubmit}>
-                  <div className="form-group">
-                    <label>Matricule (userId) :</label>
-                    <input type="text" className="form-control" name="userId" value={formData.userId} onChange={handleInputChange} required />
-                  </div>
                   <div className="form-group">
                     <label>Nom :</label>
                     <input type="text" className="form-control" name="nom" value={formData.nom} onChange={handleInputChange} required />

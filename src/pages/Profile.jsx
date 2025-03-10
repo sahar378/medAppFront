@@ -1,9 +1,9 @@
 // src/pages/agent/Profile.jsx
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
-import authService from '../../services/authService';
+import { useAuth } from '../context/AuthContext';
+import Navbar from '../components/Navbar';
+import Sidebar from '../components/Sidebar';
+import authService from '../services/authService';
 import Swal from 'sweetalert2';
 
 const Profile = () => {

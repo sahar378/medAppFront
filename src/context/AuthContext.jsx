@@ -1,32 +1,47 @@
-//src/context/AuthContext
-//Fournit un contexte global pour gérer l’état d’authentification (connexion, déconnexion, rôle, userId) à travers l’application.
+// src/context/AuthContext.jsx
 import React, { createContext, useState, useContext } from 'react';
 import authService from '../services/authService';
 
 const AuthContext = createContext();
-//Composant enveloppant qui fournit les valeurs et fonctions à tous les composant
+
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));// Vrai si token existe
-  const [userRole, setUserRole] = useState(() => {
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [userRoles, setUserRoles] = useState(() => {
     const authorities = JSON.parse(localStorage.getItem('authorities') || '[]');
-    return authorities[0]?.authority || null;// Rôle initial ou null
+    return authorities.map(auth => auth.authority);
   });
   const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
+  const [redirectUrls, setRedirectUrls] = useState(JSON.parse(localStorage.getItem('redirectUrls') || '[]'));
+  const [activeRole, setActiveRole] = useState(localStorage.getItem('activeRole') || ''); // Nouvel état
 
   const login = async (userId, password) => {
     try {
       const response = await authService.login(userId, password);
       setIsAuthenticated(true);
       const authorities = response.authorities || [];
-      setUserRole(authorities[0]?.authority || null);
+      const roles = authorities.map(auth => auth.authority);
+      const urls = response.urls || [];
+      setUserRoles(roles);
       setUserId(userId);
+      setRedirectUrls(urls);
+      localStorage.setItem('token', response.token);
       localStorage.setItem('authorities', JSON.stringify(authorities));
       localStorage.setItem('userId', userId);
+      localStorage.setItem('redirectUrls', JSON.stringify(urls));
+      if (roles.length === 1) {
+        setActiveRole(roles[0]); // Définit le rôle actif si un seul rôle
+        localStorage.setItem('activeRole', roles[0]);
+      } else {
+        setActiveRole(''); // Pas de rôle actif par défaut pour plusieurs rôles
+        localStorage.removeItem('activeRole');
+      }
       return response;
     } catch (error) {
       setIsAuthenticated(false);
-      setUserRole(null);
+      setUserRoles([]);
       setUserId('');
+      setRedirectUrls([]);
+      setActiveRole('');
       throw error;
     }
   };
@@ -34,15 +49,29 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     await authService.logout();
     setIsAuthenticated(false);
-    setUserRole(null);
+    setUserRoles([]);
     setUserId('');
+    setRedirectUrls([]);
+    setActiveRole('');
+    localStorage.clear();
+  };
+
+  const setActiveSpace = (role) => {
+    setActiveRole(role);
+    localStorage.setItem('activeRole', role);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userRole, userId, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, userRoles, userId, redirectUrls, activeRole, login, logout, setActiveSpace }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => useContext(AuthContext);
+/*Ajout de activeRole pour suivre le rôle actif.
+Ajout de setActiveSpace pour mettre à jour le rôle actif.
+Lors de la connexion (login), si l’utilisateur a un seul rôle, activeRole est défini automatiquement. 
+Sinon, il reste vide jusqu’à ce que l’utilisateur choisisse un espace.*/

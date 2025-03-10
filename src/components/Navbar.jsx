@@ -1,45 +1,71 @@
-//src/components/Navbar.jsx
-/*Barre de navigation affichant des liens adaptés au rôle de l’utilisateur connecté (intendant, responsable de stock, personnel médical) 
-et un bouton de déconnexion.*/
+// src/components/Navbar.jsx
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';//Link : Crée des liens de navigation sans rechargement de page.
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { userRole, logout } = useAuth();//// Récupère le rôle et la fonction logout du contexte
+  const { userRoles, activeRole, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout();// Invalide la session
-    navigate('/login');// Redirige vers la page de connexion
+    await logout();
+    navigate('/login');
   };
 
   return (
     <nav className="main-header navbar navbar-expand navbar-white navbar-light">
       <ul className="navbar-nav">
-        <li className="nav-item"> 
-        <button className="nav-link btn" data-widget="pushmenu" type="button">
-            <i className="fas fa-bars"></i>
-          </button>
-        </li>
+        {/* Afficher l'icône de la Sidebar uniquement si l'utilisateur est authentifié */}
+        {isAuthenticated && (
+          <li className="nav-item">
+            <button className="nav-link btn" data-widget="pushmenu" type="button">
+              <i className="fas fa-bars"></i>
+            </button>
+          </li>
+        )}
         <li className="nav-item">
           <Link to="/" className="nav-link">Accueil</Link>
         </li>
-        {userRole === 'INTENDANT' && (
+        {activeRole === 'INTENDANT' && (
           <li className="nav-item">
             <Link to="/intendant" className="nav-link">Espace Intendant</Link>
           </li>
         )}
-        {(userRole === 'RESPONSABLE_STOCK' || userRole === 'PERSONNEL_MEDICAL') && (
+        {activeRole === 'RESPONSABLE_STOCK' && (
           <li className="nav-item">
-            <Link to="/agent" className="nav-link">Espace Agent</Link>
+            <Link to="/stock" className="nav-link">Espace Stock</Link>
+          </li>
+        )}
+        {activeRole === 'PERSONNEL_MEDICAL' && (
+          <li className="nav-item">
+            <Link to="/medical" className="nav-link">Espace Médical</Link>
           </li>
         )}
       </ul>
       <ul className="navbar-nav ml-auto">
-        {userRole && (
+        {isAuthenticated ? (
+          <>
+            {activeRole && (
+              <li className="nav-item">
+                <span className="nav-link text-muted">
+                  Rôle actif : {activeRole.replace('_', ' ')}
+                </span>
+              </li>
+            )}
+            {userRoles.length > 1 && (
+              <li className="nav-item">
+                <Link to="/role-selection" className="nav-link">Changer d’espace</Link>
+              </li>
+            )}
+            {activeRole && (
+              <li className="nav-item">
+                <button className="nav-link btn" onClick={handleLogout}>Déconnexion</button>
+              </li>
+            )}
+          </>
+        ) : (
           <li className="nav-item">
-            <button className="nav-link btn" onClick={handleLogout}>Déconnexion</button>
+            <Link to="/login" className="nav-link">Se connecter</Link>
           </li>
         )}
       </ul>

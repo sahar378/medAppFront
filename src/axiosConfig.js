@@ -17,6 +17,18 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 && error.response?.data === 'Token expired') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('authorities');
+      localStorage.removeItem('userId');
+      window.location.href = '/login'; // Redirection forcée
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;
 /*config.url !== '/auth/login' : Cela empêche l’intercepteur d’ajouter un token pour la requête de connexion,

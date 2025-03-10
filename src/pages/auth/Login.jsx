@@ -1,5 +1,4 @@
 // src/pages/auth/Login.jsx
-//Page de connexion pour tous les utilisateurs (intendant ou agents).
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -13,15 +12,18 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      //Redirige selon le rôle (INTENDANT → /intendant, autres → /agent) ou vers /change-password si le mot de passe est expiré.
       const response = await login(userId, password);
       console.log('Réponse complète:', response);
       if (response.message.includes('expiré')) {
         navigate('/change-password');
       } else {
-        const role = response.authorities[0]?.authority;
-        if (role === 'INTENDANT') navigate('/intendant');
-        else navigate('/agent');
+        const roles = response.authorities.map(auth => auth.authority);
+        const urls = response.urls;
+        if (roles.length === 1) {
+          navigate(urls[0]); // Redirection directe pour un seul rôle (activeRole déjà défini dans login)
+        } else {
+          navigate('/role-selection'); // Redirection vers la sélection pour plusieurs rôles
+        }
       }
     } catch (error) {
       console.error('Erreur lors de la connexion:', error.message);
