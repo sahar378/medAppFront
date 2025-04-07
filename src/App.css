@@ -17,7 +17,7 @@ ul {
   padding: 0;
 }
 li {
-  padding: 10px;
+  padding: 0px;
 }
 /* src/App.css */
 body {
@@ -76,3 +76,4 @@ body {
 .list-group-item {
   border: 1px solid #dee2e6; /* Bordure cohérente avec le tableau */
 }
+

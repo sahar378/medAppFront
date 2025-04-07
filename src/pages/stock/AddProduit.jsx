@@ -18,7 +18,14 @@ const AddProduit = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'qteDisponible' || name === 'seuilAlerte') {
+      // N'accepter que les chiffres pour qteDisponible et seuilAlerte
+      if (/^\d*$/.test(value)) {
+        setFormData(prev => ({ ...prev, [name]: value }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCategorieChange = (e) => {
@@ -36,6 +43,11 @@ const AddProduit = () => {
       Swal.fire('Erreur', 'Tous les champs obligatoires doivent être remplis', 'error');
       return;
     }
+    const qteDisponibleNum = parseInt(formData.qteDisponible, 10);
+    if (isNaN(qteDisponibleNum) || qteDisponibleNum < 0) {
+      Swal.fire('Erreur', 'La quantité disponible doit être un nombre positif', 'error');
+      return;
+    }
     if (formData.categorie.idCategorie === 2 && !formData.dateExpiration) {
       Swal.fire('Erreur', 'La date d’expiration est obligatoire pour un médicament', 'error');
       return;
@@ -43,8 +55,8 @@ const AddProduit = () => {
     try {
       const newProduit = {
         ...formData,
-        qteDisponible: parseInt(formData.qteDisponible) || 0, // Convertir en entier
-        seuilAlerte: parseInt(formData.seuilAlerte) || 0,     // Convertir en entier, 0 par défaut
+        qteDisponible: qteDisponibleNum, // Convertir en entier
+        seuilAlerte: parseInt(formData.seuilAlerte, 10) || 0, // Convertir en entier, 0 par défaut
         categorie: { idCategorie: parseInt(formData.categorie.idCategorie) }
       };
       await authService.saveProduit(newProduit);
@@ -112,22 +124,24 @@ const AddProduit = () => {
                   <div className="form-group">
                     <label>Quantité disponible :</label>
                     <input
-                      type="number"
+                      type="text" // Changé en text
                       className="form-control"
                       name="qteDisponible"
                       value={formData.qteDisponible}
                       onChange={handleInputChange}
+                      placeholder="Entrez un nombre"
                       required
                     />
                   </div>
                   <div className="form-group">
                     <label>Seuil d’alerte :</label>
                     <input
-                      type="number"
+                      type="text" // Changé en text (optionnel, selon tes besoins)
                       className="form-control"
                       name="seuilAlerte"
                       value={formData.seuilAlerte}
                       onChange={handleInputChange}
+                      placeholder="Entrez un nombre (facultatif)"
                     />
                   </div>
                   <div className="form-group">

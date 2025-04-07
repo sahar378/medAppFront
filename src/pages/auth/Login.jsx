@@ -1,6 +1,5 @@
-// src/pages/auth/Login.jsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
@@ -8,21 +7,28 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('reason') === 'session-expired') {
+      alert('Votre session a expiré. Veuillez vous reconnecter.'); // Ou un composant UI
+    }
+  }, [location]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await login(userId, password);
-      console.log('Réponse complète:', response);
       if (response.message.includes('expiré')) {
         navigate('/change-password');
       } else {
         const roles = response.authorities.map(auth => auth.authority);
         const urls = response.urls;
         if (roles.length === 1) {
-          navigate(urls[0]); // Redirection directe pour un seul rôle (activeRole déjà défini dans login)
+          navigate(urls[0]);
         } else {
-          navigate('/role-selection'); // Redirection vers la sélection pour plusieurs rôles
+          navigate('/role-selection');
         }
       }
     } catch (error) {
@@ -38,36 +44,38 @@ const Login = () => {
           <div className="card-body login-card-body">
             <h2 className="login-box-msg">Connexion</h2>
             <form onSubmit={handleLogin}>
-              <div className="input-group mb-3">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Matricule (userId)"
-                  value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
-                  required
-                />
-                <div className="input-group-append">
-                  <div className="input-group-text">
-                    <span className="fas fa-user"></span>
-                  </div>
+            <div className="input-group mb-3">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Matricule (userId)"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                required
+                autoComplete="username"
+              />
+              <div className="input-group-append">
+                <div className="input-group-text">
+                  <span className="fas fa-user"></span>
                 </div>
               </div>
-              <div className="input-group mb-3">
-                <input
-                  type="password"
-                  className="form-control"
-                  placeholder="Mot de passe"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <div className="input-group-append">
-                  <div className="input-group-text">
-                    <span className="fas fa-lock"></span>
-                  </div>
+            </div>
+            <div className="input-group mb-3">
+              <input
+                type="password"
+                className="form-control"
+                placeholder="Mot de passe"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+              <div className="input-group-append">
+                <div className="input-group-text">
+                  <span className="fas fa-lock"></span>
                 </div>
               </div>
+            </div>
               <button type="submit" className="btn btn-primary btn-block">Se connecter</button>
             </form>
           </div>
@@ -78,3 +86,4 @@ const Login = () => {
 };
 
 export default Login;
+/*Après une expiration, l’utilisateur est redirigé vers /login?reason=session-expired, et un message s’affiche (ici via alert, mais tu peux utiliser un composant UI stylé).*/

@@ -1,4 +1,3 @@
-// src/pages/intendant/IntendantStockLog.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
@@ -9,30 +8,33 @@ const IntendantStockLog = () => {
   const { produitId } = useParams();
   const navigate = useNavigate();
   const [logs, setLogs] = useState([]);
-  const [produitNom, setProduitNom] = useState(''); // État pour stocker le nom du produit
+  const [produitNom, setProduitNom] = useState('');
+  const [isArchived, setIsArchived] = useState(false);
+  const [categorieId, setCategorieId] = useState(null);
 
   useEffect(() => {
     const fetchLogs = async () => {
       try {
         const logsData = await authService.getProduitLogs(produitId);
         setLogs(logsData);
-        // Si les logs contiennent déjà le nom du produit, on le prend du premier log
-        if (logsData.length > 0 && logsData[0].produit && logsData[0].produit.nom) {
-          setProduitNom(logsData[0].produit.nom);
-        } else {
-          // Sinon, ajouter une requête pour récupérer le produit (optionnel)
-          const produitData = await authService.getProduitById(produitId);
-          setProduitNom(produitData.nom);
-        }
+
+        const produitData = await authService.getProduitById(produitId);
+        setProduitNom(produitData.nom);
+        setIsArchived(produitData.archive);
+        setCategorieId(produitData.categorie?.idCategorie ?? null);
       } catch (error) {
-        console.error('Erreur lors du chargement des logs', error);
+        console.error('Erreur lors du chargement des logs ou des détails du produit', error);
       }
     };
     fetchLogs();
   }, [produitId]);
 
   const handleBack = () => {
-    navigate('/intendant/stock'); // Retour à la vue générale de l'intendant
+    if (isArchived) {
+      navigate(categorieId === 2 ? '/intendant/stock/archived/medicaments' : '/intendant/stock/archived/materiels');
+    } else {
+      navigate(categorieId === 2 ? '/intendant/stock/active/medicaments' : '/intendant/stock/active/materiels');
+    }
   };
 
   return (

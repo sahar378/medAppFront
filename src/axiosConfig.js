@@ -24,7 +24,9 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('authorities');
       localStorage.removeItem('userId');
-      window.location.href = '/login'; // Redirection forcée
+      localStorage.removeItem('activeRole');
+      localStorage.removeItem('redirectUrls');
+      window.location.href = '/login?reason=session-expired'; // Ajout d’un paramètre
     }
     return Promise.reject(error);
   }

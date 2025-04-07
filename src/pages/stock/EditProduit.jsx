@@ -47,24 +47,39 @@ const EditProduit = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    try {
-      const updatedProduit = {
-        ...formData,
-        qteDisponible: parseInt(formData.qteDisponible) || 0,
-        seuilAlerte: parseInt(formData.seuilAlerte) || 0,
-        categorie: { idCategorie: parseInt(formData.categorie.idCategorie) }
-      };
-      await authService.updateProduit(produitId, updatedProduit);
-      Swal.fire('Succès', 'Produit mis à jour', 'success');
-      navigate(formData.categorie.idCategorie === 2 ? '/stock/medicaments' : '/stock/materiels');
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour', error);
-      if (error.response && error.response.status === 400) {
-        Swal.fire('Erreur', 'Données invalides', 'error');
-      } else {
-        Swal.fire('Erreur', 'Erreur lors de la mise à jour', 'error');
+
+    // Afficher une alerte de confirmation avant la modification
+    Swal.fire({
+      title: 'Confirmer la modification',
+      text: 'Êtes-vous sûr de vouloir modifier ce produit ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, modifier',
+      cancelButtonText: 'Annuler'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const updatedProduit = {
+            ...formData,
+            qteDisponible: parseInt(formData.qteDisponible) || 0,
+            seuilAlerte: parseInt(formData.seuilAlerte) || 0,
+            categorie: { idCategorie: parseInt(formData.categorie.idCategorie) }
+          };
+          await authService.updateProduit(produitId, updatedProduit);
+          Swal.fire('Succès', 'Produit mis à jour avec succès', 'success');
+          navigate(formData.categorie.idCategorie === 2 ? '/stock/medicaments' : '/stock/materiels');
+        } catch (error) {
+          console.error('Erreur lors de la mise à jour', error);
+          if (error.response && error.response.status === 400) {
+            Swal.fire('Erreur', 'Données invalides', 'error');
+          } else {
+            Swal.fire('Erreur', 'Erreur lors de la mise à jour', 'error');
+          }
+        }
       }
-    }
+    });
   };
 
   return (

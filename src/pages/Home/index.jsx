@@ -91,7 +91,7 @@ const Home = () => {
             }}
           >
             <h1 style={{ fontSize: '4.5rem', marginBottom: '1rem', fontWeight: '400' }}>
-              Bienvenue au Clinique d'Hémodialyse AlRimmel à Kebili
+              Bienvenue à la Clinique d'Hémodialyse AlRimel à Kebili
             </h1>
             <p
               style={{
@@ -122,7 +122,7 @@ const Home = () => {
                 <br /> 
                 <p>
                   Le Centre AlRimel Hémodialyse est dédié à offrir des soins de haute qualité aux patients souffrant d'insuffisance rénale chronique. <br />
-                  Que vous soyez un patient local ou en vacances, notre équipe de professionnels expérimentés est là pour vous accompagner avec un service personnalisé, dans un environnement moderne et confortable.
+                  Que vous soyez un patient local ou en vacance, notre équipe de professionnels expérimentés est là pour vous accompagner avec un service personnalisé, dans un environnement moderne et confortable.
                 </p>
                 <p>
                   Nous mettons un point d’honneur à garantir votre bien-être grâce à des équipements de pointe <br />
@@ -151,7 +151,7 @@ const Home = () => {
                     </a>
                   </li>
                   <li>
-                    <strong>Adresse :</strong> Kebili
+                    <strong>Adresse :</strong> Cité l'hôpital rue habes ,Kebili
                   </li>
                 </ul>
                 <p>

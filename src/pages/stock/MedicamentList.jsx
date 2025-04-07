@@ -16,12 +16,12 @@ const MedicamentList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const produits = await authService.getProduitsByUser();
-        const medicamentsData = produits.filter(p => p.categorie.idCategorie === 2);
-        const alertesData = await authService.verifierAlertes();
+        const medicamentsData = await authService.getActiveMedicaments();
+        const alertesData = await authService.verifierAlertesMedicaments();
+        console.log('Alertes récupérées:', alertesData);
         setMedicaments(medicamentsData);
         setFilteredMedicaments(medicamentsData);
-        setAlertes(alertesData.filter(a => a.categorie.idCategorie === 2));
+        setAlertes(alertesData);
       } catch (error) {
         console.error('Erreur lors du chargement des données', error);
       }
@@ -45,17 +45,32 @@ const MedicamentList = () => {
       Swal.fire('Erreur', 'Veuillez entrer le nombre de malades', 'error');
       return;
     }
-    try {
-      await authService.definirSeuilsCategorie(2, parseInt(nombreMalades));
-      const updatedProduits = await authService.getProduitsByUser();
-      const medicamentsData = updatedProduits.filter(p => p.categorie.idCategorie === 2);
-      setMedicaments(medicamentsData);
-      setFilteredMedicaments(medicamentsData.filter(p => p.nom.toLowerCase().includes(searchTerm.toLowerCase())));
-      Swal.fire('Succès', 'Seuils des médicaments mis à jour', 'success');
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour des seuils', error);
-      Swal.fire('Erreur', 'Erreur lors de la mise à jour des seuils', 'error');
-    }
+  
+    Swal.fire({
+      title: 'Confirmer la mise à jour des seuils',
+      text: 'Êtes-vous sûr de vouloir mettre à jour les seuils des médicaments ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, mettre à jour',
+      cancelButtonText: 'Annuler'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await authService.definirSeuilsCategorie(2, parseInt(nombreMalades));
+          const updatedMedicaments = await authService.getActiveMedicaments();
+          const updatedAlertes = await authService.verifierAlertesMedicaments();
+          setMedicaments(updatedMedicaments);
+          setFilteredMedicaments(updatedMedicaments.filter(p => p.nom.toLowerCase().includes(searchTerm.toLowerCase())));
+          setAlertes(updatedAlertes);
+          Swal.fire('Succès', 'Seuils des médicaments mis à jour avec succès', 'success');
+        } catch (error) {
+          console.error('Erreur lors de la mise à jour des seuils', error);
+          Swal.fire('Erreur', 'Erreur lors de la mise à jour des seuils', 'error');
+        }
+      }
+    });
   };
 
   const handleDelete = async (produitId) => {
@@ -72,12 +87,11 @@ const MedicamentList = () => {
       if (result.isConfirmed) {
         try {
           await authService.deleteProduit(produitId);
-          const updatedProduits = await authService.getProduitsByUser();
-          const medicamentsData = updatedProduits.filter(p => p.categorie.idCategorie === 2);
-          const alertesData = await authService.verifierAlertes();
-          setMedicaments(medicamentsData);
-          setFilteredMedicaments(medicamentsData.filter(p => p.nom.toLowerCase().includes(searchTerm.toLowerCase())));
-          setAlertes(alertesData.filter(a => a.categorie.idCategorie === 2));
+          const updatedMedicaments = await authService.getActiveMedicaments();
+          const updatedAlertes = await authService.verifierAlertesMedicaments();
+          setMedicaments(updatedMedicaments);
+          setFilteredMedicaments(updatedMedicaments.filter(p => p.nom.toLowerCase().includes(searchTerm.toLowerCase())));
+          setAlertes(updatedAlertes);
           Swal.fire('Succès', 'Médicament archivé', 'success');
         } catch (error) {
           console.error('Erreur lors de l’archivage', error);
@@ -87,22 +101,8 @@ const MedicamentList = () => {
     });
   };
 
-  // Fonction pour générer le message d’alerte
-  const getAlerteMessage = (produit) => {
-    const today = new Date();
-    const expirationDate = produit.dateExpiration ? new Date(produit.dateExpiration) : null;
-    const isExpired = expirationDate && expirationDate < today;
-    const isOneLeft = produit.qteDisponible === 1;
-    const isLowStock = produit.qteDisponible <= produit.seuilAlerte && !isOneLeft;
-
-    if (isExpired) {
-      return `${produit.nom} - Expiré le: ${expirationDate.toLocaleDateString()}`;
-    } else if (isOneLeft) {
-      return `${produit.nom} - Quantité restante: 1 (Expire le: ${expirationDate ? expirationDate.toLocaleDateString() : '-'})`;
-    } else if (isLowStock) {
-      return `${produit.nom} - Quantité: ${produit.qteDisponible} (Seuil: ${produit.seuilAlerte})`;
-    }
-    return '';
+  const handleCommander = () => {
+    navigate('/stock/commande/medicament');
   };
 
   return (
@@ -124,9 +124,14 @@ const MedicamentList = () => {
                     <i className="fas fa-exclamation-triangle mr-2" /> Alertes
                   </h5>
                   <ul style={{ paddingLeft: '20px', listStyleType: 'none' }}>
-                    {alertes.map(p => (
-                      <li key={p.idProduit} style={{ marginBottom: '5px' }}>
-                        <span style={{ fontWeight: 'bold' }}>{getAlerteMessage(p)}</span>
+                    {alertes.map(dto => (
+                      <li key={dto.produit.idProduit} style={{ marginBottom: '5px' }}>
+                        <span
+                          style={{ fontWeight: 'bold' }}
+                          dangerouslySetInnerHTML={{
+                            __html: dto.messages.join('<br />'),
+                          }}
+                        />
                       </li>
                     ))}
                   </ul>
@@ -135,30 +140,35 @@ const MedicamentList = () => {
             )}
             <div className="card">
               <div className="card-body">
-                <div className="form-group mb-3">
-                  <label>Rechercher par nom :</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Entrez le nom du médicament"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    style={{ maxWidth: '300px' }}
-                  />
+                <div className="d-flex align-items-center justify-content-between mb-3">
+                  <div className="form-group mb-0" style={{ maxWidth: '300px' }}>
+                    <label>Rechercher par nom :</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Entrez le nom du médicament"
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                    />
+                  </div>
+                  <div>
+                    <button className="btn btn-info mr-2" onClick={handleDefinirSeuils}>
+                      Définir seuil
+                    </button>
+                    <button className="btn btn-success" onClick={handleCommander}>
+                      Commander
+                    </button>
+                  </div>
                 </div>
                 <div className="form-group">
                   <label>Nombre de malades :</label>
-                  <div className="input-group" style={{ maxWidth: '300px' }}>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={nombreMalades}
-                      onChange={e => setNombreMalades(e.target.value)}
-                    />
-                    <button className="btn btn-info ml-2" onClick={handleDefinirSeuils}>
-                      Définir seuil
-                    </button>
-                  </div>
+                  <input
+                    type="number"
+                    className="form-control"
+                    value={nombreMalades}
+                    onChange={e => setNombreMalades(e.target.value)}
+                    style={{ maxWidth: '300px' }}
+                  />
                 </div>
                 <table className="table table-bordered">
                   <thead>
