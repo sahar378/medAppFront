@@ -34,10 +34,7 @@ const IntendantSpace = () => {
         />
         <div className="content-header" style={{ position: 'relative', zIndex: 2 }}>
           <div className="container-fluid">
-            <h1
-              className="m-0 text-white"
-              style={{ fontSize: '2.5rem', fontWeight: 'bold' }}
-            >
+            <h1 className="m-0 text-white" style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>
               Espace Intendant
             </h1>
           </div>
@@ -145,8 +142,52 @@ const IntendantSpace = () => {
                 </Link>
               </div>
               <div className="col-md-3 mt-4">
-                <Link to="/profile" style={{ textDecoration: 'none' }}>
+                <Link to="/intendant/reclamations" style={{ textDecoration: 'none' }}>
+                  <div className="card bg-warning text-white">
+                    <div className="card-body text-center">
+                      <i className="fas fa-tools fa-3x mb-3" />
+                      <h5>Liste des Réclamations</h5>
+                      <p>Consultez les interventions en cours.</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+              <div className="col-md-3 mt-4">
+                <Link to="/intendant/machines" style={{ textDecoration: 'none' }}>
+                  <div className="card bg-success text-white">
+                    <div className="card-body text-center">
+                      <i className="fas fa-cogs fa-3x mb-3" />
+                      <h5>Liste des Machines</h5>
+                      <p>Consultez les machines disponibles.</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+              <div className="col-md-3 mt-4">
+                <Link to="/intendant/techniciens" style={{ textDecoration: 'none' }}>
+                  <div className="card bg-primary text-white">
+                    <div className="card-body text-center">
+                      <i className="fas fa-user-cog fa-3x mb-3" />
+                      <h5>Liste des Techniciens</h5>
+                      <p>Consultez les techniciens enregistrés.</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+              <div className="col-md-3 mt-4">
+                <Link to="/intendant/notifications/creer" style={{ textDecoration: 'none' }}>
                   <div className="card bg-secondary text-white">
+                    <div className="card-body text-center">
+                      <i className="fas fa-bell fa-3x mb-3" />
+                      <h5>Créer une Notification</h5>
+                      <p>Envoyer un message aux responsables.</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+              <div className="col-md-3 mt-4">
+                <Link to="/profile" style={{ textDecoration: 'none' }}>
+                  <div className="card bg-dark text-white">
                     <div className="card-body text-center">
                       <i className="fas fa-user fa-3x mb-3" />
                       <h5>Voir mon profil</h5>
@@ -155,17 +196,6 @@ const IntendantSpace = () => {
                   </div>
                 </Link>
               </div>
-              <div className="col-md-4 mt-4">
-                <Link to="/intendant/notifications/creer" style={{ textDecoration: 'none' }}>
-                    <div className="card bg-primary text-white">
-                        <div className="card-body text-center">
-                            <i className="fas fa-bell fa-3x mb-3" />
-                            <h5>Créer une Notification</h5>
-                            <p>Envoyer un message aux responsables de stock</p>
-                        </div>
-                    </div>
-                </Link>
-            </div>
             </div>
           </div>
         </section>

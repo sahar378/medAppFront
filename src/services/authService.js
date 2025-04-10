@@ -548,6 +548,15 @@ async getBonsDeCommandeByEtats(etats) {
     throw error;
   }
 },
+async getBonCommandeDetails(idBonCommande) {
+  try {
+    const response = await api.get(`/commande/bon/${idBonCommande}`);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les détails du bon de commande', 'error');
+    throw error;
+  }
+},
 
 getBonsEnvoyes: async () => {
   try {
@@ -708,6 +717,51 @@ getLastLivraisonId: async () => {
   }
 },
 
+//  méthode pour les 7 dernières livraisons
+async getLastSevenLivraisons() {
+  try {
+    const response = await api.get('/livraisons/last-seven');
+    console.log('Réponse de getLastSevenLivraisons:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des 7 dernières livraisons:', error.response);
+    Swal.fire('Erreur', error.response?.data?.message || 'Impossible de charger les dernières livraisons', 'error');
+    throw error;
+  }
+},
+
+async getLivraisonsByFournisseur(idFournisseur) {
+  try {
+    const response = await api.get(`/livraisons/by-fournisseur/${idFournisseur}`);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', error.response?.data?.message || 'Impossible de charger les livraisons', 'error');
+    throw error;
+  }
+},
+
+async getLivraisonsByDate(date) {
+  try {
+    const response = await api.get('/livraisons/by-date', { params: { date } });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', error.response?.data?.message || 'Impossible de charger les livraisons', 'error');
+    throw error;
+  }
+},
+
+async getLivraisonsByFournisseurAndDate(idFournisseur, date) {
+  try {
+    const response = await api.get('/livraisons/by-fournisseur-and-date', {
+      params: { idFournisseur, date }
+    });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', error.response?.data?.message || 'Impossible de charger les livraisons', 'error');
+    throw error;
+  }
+},
+
 // Gestion des inventaires pour le personnel médical
 faireInventaire: async (lignes) => {
   try {
@@ -725,6 +779,16 @@ getHistoriqueInventaires: async () => {
     return response.data;
   } catch (error) {
     Swal.fire('Erreur', 'Impossible de récupérer l’historique des inventaires', 'error');
+    throw error;
+  }
+},
+
+getLastFourInventaires: async () => {
+  try {
+    const response = await api.get('/medical/inventaire/historique/last-four');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les 4 derniers inventaires', 'error');
     throw error;
   }
 },
@@ -770,6 +834,229 @@ getNotifications: async () => {
       throw error;
   }
 },
+
+
+// gestion des intendants
+getIntendants: async () => {
+  try {
+    const response = await api.get('/super-admin/intendants');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les intendants', 'error');
+    throw error;
+  }
+},
+
+createIntendant: async (intendantData) => {
+  try {
+    const response = await api.post('/super-admin/intendants/create', intendantData);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la création de l’intendant', 'error');
+    throw error;
+  }
+},
+
+resetIntendantPassword: async (userId, tempPassword) => {
+  try {
+    const response = await api.post('/super-admin/intendants/reset-password', { userId, tempPassword });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la réinitialisation', 'error');
+    throw error;
+  }
+},
+
+toggleIntendantStatus: async (userId) => {
+  try {
+    const response = await api.post(`/super-admin/intendants/toggle-status/${userId}`);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors du changement de statut', 'error');
+    throw error;
+  }
+},
+
+//gestion de machines en panne 
+// Machines
+getAllMachines: async () => {
+  try {
+    const response = await api.get('/machines');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les machines', 'error');
+    throw error;
+  }
+},
+
+addMachine: async (machineData) => {
+  try {
+    const response = await api.post('/machines', machineData);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de l’ajout de la machine', 'error');
+    throw error;
+  }
+},
+
+updateMachine: async (id, machineData) => {
+  try {
+    const response = await api.put(`/machines/${id}`, machineData);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la mise à jour de la machine', 'error');
+    throw error;
+  }
+},
+
+deleteMachine: async (id) => {
+  try {
+    await api.delete(`/machines/${id}`);
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la suppression de la machine', 'error');
+    throw error;
+  }
+},
+
+updateMachineDisponibilite: async (idMachine, disponibilite) => {
+  try {
+    const response = await api.put(`/machines/${idMachine}/disponibilite`, null, {
+      params: { disponibilite }
+    });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la mise à jour de la disponibilité', 'error');
+    throw error;
+  }
+},
+archiveMachine: async (id) => {
+  await api.put(`/machines/${id}/archive`);
+},
+getMachineById: async (id) => {
+  const response = await api.get(`/machines/${id}`);
+  return response.data;
+},
+getMachinesByArchiveStatus: async (endpoint) => {
+  try {
+    const response = await api.get(endpoint);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les machines', 'error');
+    throw error;
+  }
+},
+// Techniciens
+getAllTechniciens: async () => {
+  try {
+    const response = await api.get('/techniciens');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les techniciens', 'error');
+    throw error;
+  }
+},
+
+addTechnicien: async (technicienData) => {
+  try {
+    const response = await api.post('/techniciens', technicienData);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de l’ajout du technicien', 'error');
+    throw error;
+  }
+},
+
+updateTechnicien: async (id, technicienData) => {
+  try {
+    const response = await api.put(`/techniciens/${id}`, technicienData);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la mise à jour du technicien', 'error');
+    throw error;
+  }
+},
+
+deleteTechnicien: async (id) => {
+  try {
+    await api.delete(`/techniciens/${id}`);
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la suppression du technicien', 'error');
+    throw error;
+  }
+},
+archiveTechnicien: async (id) => {
+  await api.put(`/techniciens/${id}/archive`);
+},
+getTechnicienById: async (id) => {
+  const response = await api.get(`/techniciens/${id}`);
+  return response.data;
+},
+
+getTechniciensByArchiveStatus: async (endpoint) => {
+  try {
+    const response = await api.get(endpoint);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les techniciens', 'error');
+    throw error;
+  }
+},
+
+// Interventions (déjà présentes, pas de changement nécessaire)
+createIntervention: async (interventionData) => {
+  try {
+    const response = await api.post('/interventions', interventionData);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la création de l’intervention', 'error');
+    throw error;
+  }
+},
+
+getOpenInterventions: async () => {
+  try {
+    const response = await api.get('/interventions/open');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les interventions ouvertes', 'error');
+    throw error;
+  }
+},
+
+closeIntervention: async (id, reparation, dateReparation, lieuReparation) => {
+  try {
+    const response = await api.put(`/interventions/${id}/close`, null, {
+      params: { reparation, dateReparation, lieuReparation: lieuReparation || null }
+    });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la fermeture de l’intervention', 'error');
+    throw error;
+  }
+},
+
+updateIntervention: async (id, data) => {
+  await api.put(`/interventions/${id}`, data);
+},
+
+getAllInterventions: async () => {
+  try {
+    const response = await api.get('/interventions');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les interventions', 'error');
+    throw error;
+  }
+},
+archiveIntervention: async (id) => {
+  await api.put(`/interventions/${id}/archive`);
+},
+
+getInterventionById: async (id) => {
+  const response = await api.get(`/interventions/${id}`);
+  return response.data;
+},
+
 
 };
 

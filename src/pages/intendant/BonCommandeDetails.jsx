@@ -109,7 +109,7 @@ const BonCommandeDetails = ({ readOnly = false }) => {
 
   const isEnvoye = bonCommande.etat === 'envoyé';
   const isAnnule = bonCommande.etat === 'annulé';
-  const fromTab = location.state?.fromTab || 'brouillon'; // Récupère l'onglet d'origine, défaut à 'brouillon'
+  const fromTab = location.state?.fromTab || (readOnly ? 'envoye' : 'brouillon'); // Différents défauts selon le contexte
 
   return (
     <div className="wrapper">
@@ -136,12 +136,12 @@ const BonCommandeDetails = ({ readOnly = false }) => {
                 )}
                 <p><strong>Statut :</strong> {getStatutBadge(bonCommande)}</p>
                 {bonCommande.commentaireRejet && (
-                  <p><strong>Commentaire de rejet :</strong> {bonCommande.commentaireRejet}</p>
+                  <p><strong>Cause de rejet :</strong> {bonCommande.commentaireRejet}</p>
                 )}
                 {bonCommande.motifAnnulation && (
-                  <p><strong>Motif d’annulation :</strong> {bonCommande.motifAnnulation}</p>
+                  <p><strong>Cause d’annulation :</strong> {bonCommande.motifAnnulation}</p>
                 )}
-                <h6>Lignes de commande :</h6>
+                <p><strong>Lignes de commande :</strong></p>
                 <table className="table table-bordered">
                   <thead>
                     <tr><th>Produit</th><th>Quantité</th></tr>
@@ -162,13 +162,13 @@ const BonCommandeDetails = ({ readOnly = false }) => {
                       Approuver
                     </button>
                     <div className="form-group mt-2">
-                      <label>Commentaire de rejet (obligatoire) :</label>
+                      <label>Cause de rejet (obligatoire) :</label>
                       <textarea
                         className="form-control"
                         value={commentaireRejet}
                         onChange={(e) => setCommentaireRejet(e.target.value)}
                         rows="3"
-                        placeholder="Entrez un commentaire pour rejeter le bon..."
+                        placeholder="Entrez une cause pour rejeter le bon..."
                       />
                     </div>
                     <button className="btn btn-danger mr-2" onClick={() => handleApprouver(false)}>
@@ -182,13 +182,13 @@ const BonCommandeDetails = ({ readOnly = false }) => {
                       Envoyer au fournisseur
                     </button>
                     <div className="form-group mt-2">
-                      <label>Motif d’annulation :</label>
+                      <label>Cause d’annulation :</label>
                       <textarea
                         className="form-control"
                         value={commentaireRejet}
                         onChange={(e) => setCommentaireRejet(e.target.value)}
                         rows="3"
-                        placeholder="Entrez un motif pour annuler..."
+                        placeholder="Entrez une cause pour annuler..."
                       />
                     </div>
                     <button className="btn btn-warning mr-2" onClick={handleAnnuler}>
@@ -200,7 +200,7 @@ const BonCommandeDetails = ({ readOnly = false }) => {
                   className="btn btn-secondary mt-2"
                   onClick={() => {
                     if (readOnly) {
-                      navigate('/stock/bons-historique');
+                      navigate('/stock/bons-historique', { state: { activeTab: fromTab } });
                     } else if (isAnnule) {
                       navigate('/intendant/bons-annules');
                     } else {

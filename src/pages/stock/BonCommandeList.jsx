@@ -15,14 +15,11 @@ const BonCommandeList = () => {
       try {
         const data = await authService.getBonsDeCommande();
         const brouillonBons = data.filter(bon => bon.etat === 'brouillon');
-        // Log temporaire pour inspecter les données brutes
         console.log('Données brutes des bons de commande :', brouillonBons.map(bon => ({ id: bon.idBonCommande, date: bon.date })));
         setBonsCommande(brouillonBons);
 
         const rejectedNotModifiedBons = brouillonBons.filter(bon =>
-          bon.commentaireRejet &&
-          bon.dateRejet &&
-          (!bon.dateModification || new Date(bon.dateModification) <= new Date(bon.dateRejet))
+          bon.commentaireRejet && bon.dateRejet && (!bon.dateModification || new Date(bon.dateModification) <= new Date(bon.dateRejet))
         );
         if (rejectedNotModifiedBons.length > 0) {
           Swal.fire({
@@ -40,20 +37,19 @@ const BonCommandeList = () => {
   }, []);
 
   const handleEdit = (bon) => {
-    const type = bon.lignesCommande[0].produit.categorie.idCategorie === 1 ? 'materiel' : 'medicament';
-    navigate(`/stock/commande/${type}`, { state: { bonCommande: bon } });
+    navigate('/stock/creer-bon-commande', { state: { bonCommande: bon } });
   };
 
   const getStatutBadge = (bon) => {
     if (bon.commentaireRejet && bon.dateRejet) {
-      const isNotModified = !bon.dateModification || new Date(bon.dateModification) <= new Date(bon.dateRejet);
+      const isCorrected = bon.dateModification && new Date(bon.dateModification) > new Date(bon.dateRejet);
       return (
-        <span className={`badge ${isNotModified ? 'bg-danger' : 'bg-success'}`}>
-          {isNotModified ? 'Rejeté' : 'Corrigé'}
+        <span className={`badge ${isCorrected ? 'bg-success' : 'bg-danger'}`}>
+          {isCorrected ? 'Corrigé' : 'Rejeté'}
         </span>
       );
     }
-    return <span className="badge bg-info">Nouveau</span>;
+    return <span className="badge bg-primary">Nouveau</span>; // "Nouveau" même si modifié, tant que pas rejeté
   };
 
   return (
@@ -76,7 +72,7 @@ const BonCommandeList = () => {
                       <th>Fournisseur</th>
                       <th>Créé par</th>
                       <th>Modifié par</th>
-                      <th>Commentaire/Motif</th>
+                      <th>Cause de rejet</th>
                       <th>Date de modification</th>
                       <th>Statut</th>
                     </tr>

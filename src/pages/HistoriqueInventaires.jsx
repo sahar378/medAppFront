@@ -7,16 +7,16 @@ import authService from '../services/authService';
 
 const HistoriqueInventaires = () => {
     const [inventaires, setInventaires] = useState([]);
-    const [filteredInventaires, setFilteredInventaires] = useState([]);
     const [showLastFour, setShowLastFour] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchHistorique = async () => {
             try {
-                const response = await authService.getHistoriqueInventaires();
+                const response = showLastFour 
+                    ? await authService.getLastFourInventaires() 
+                    : await authService.getHistoriqueInventaires();
                 setInventaires(response);
-                setFilteredInventaires(showLastFour ? response.slice(0, 4) : response);
             } catch (error) {
                 console.error('Erreur lors de la récupération de l’historique', error);
             }
@@ -30,7 +30,6 @@ const HistoriqueInventaires = () => {
 
     const toggleFilter = () => {
         setShowLastFour(!showLastFour);
-        setFilteredInventaires(showLastFour ? inventaires : inventaires.slice(0, 4));
     };
 
     return (
@@ -60,7 +59,7 @@ const HistoriqueInventaires = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredInventaires.map((inv) => (
+                                {inventaires.map((inv) => (
                                     <tr 
                                         key={inv.idInv} 
                                         onClick={() => handleRowClick(inv.idInv)} 

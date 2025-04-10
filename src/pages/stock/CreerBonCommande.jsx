@@ -16,6 +16,7 @@ const CreerBonCommande = () => {
   const [selectedProduit, setSelectedProduit] = useState(null);
   const [selectedFournisseurId, setSelectedFournisseurId] = useState('');
   const [bonCommandeId, setBonCommandeId] = useState(null);
+  const [initialFournisseurId, setInitialFournisseurId] = useState(null); // Nouveau state pour le fournisseur initial
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +27,7 @@ const CreerBonCommande = () => {
         if (state?.bonCommande) {
           const bon = state.bonCommande;
           setBonCommandeId(bon.idBonCommande);
+          setInitialFournisseurId(bon.fournisseur.idFournisseur); // Stocke le fournisseur initial
           const bonAvecCalculs = await authService.getBonCommandeAvecCalculs(bon.idBonCommande);
           setCommandeItems(bonAvecCalculs.lignesAvecCalculs.map(item => ({
             idProduit: item.idProduit,
@@ -48,10 +50,7 @@ const CreerBonCommande = () => {
   }, [state]);
 
   const interpreterPrixUnitaire = (prixUnitaire) => {
-    if (prixUnitaire >= 1 && prixUnitaire === Math.floor(prixUnitaire)) {
-      return prixUnitaire;
-    }
-    return prixUnitaire;
+    return prixUnitaire >= 1 && prixUnitaire === Math.floor(prixUnitaire) ? prixUnitaire : prixUnitaire;
   };
 
   const calculerMontants = (prixUnitaire, quantite, tauxTva) => {
@@ -77,7 +76,10 @@ const CreerBonCommande = () => {
     const produitId = selectedOption.value;
     try {
       const fournisseursData = await authService.getFournisseursWithPrixByProduit(produitId);
-      setFournisseurs(fournisseursData);
+      const filteredFournisseurs = initialFournisseurId
+        ? fournisseursData.filter(f => f.idFournisseur === initialFournisseurId)
+        : fournisseursData;
+      setFournisseurs(filteredFournisseurs);
       setSelectedFournisseurId('');
     } catch (error) {
       setFournisseurs([]);
@@ -93,30 +95,32 @@ const CreerBonCommande = () => {
     const fournisseur = fournisseurs.find(f => f.idFournisseur === parseInt(fournisseurId));
 
     if (fournisseur.statut !== 0) {
-      Swal.fire(
-        'Erreur',
-        `Le fournisseur "${fournisseur.nom}" est inactif et ne peut pas être ajouté au bon de commande.`,
-        'error'
-      );
+      Swal.fire('Erreur', `Le fournisseur "${fournisseur.nom}" est inactif...`, 'error');
+      setSelectedFournisseurId('');
+      return;
+    }
+
+    if (initialFournisseurId && fournisseur.idFournisseur !== initialFournisseurId) {
+      Swal.fire('Erreur', 'Vous ne pouvez ajouter que des produits du même fournisseur que le bon initial.', 'error');
       setSelectedFournisseurId('');
       return;
     }
 
     try {
-      const prixData = await authService.getPrixActif(produit.idProduit, fournisseur.idFournisseur); // Si le backend ne renvoie pas les prix
+      const prixData = await authService.getPrixActif(produit.idProduit, fournisseur.idFournisseur);
       if (produit && fournisseur && prixData) {
         const exists = commandeItems.some(
           item => item.idProduit === produit.idProduit && item.idFournisseur === fournisseur.idFournisseur
         );
         if (exists) {
-          Swal.fire('Erreur', `${produit.nom} est déjà associé à ${fournisseur.nom}.`, 'error');
+          Swal.fire('Erreur', `${produit.nom} est déjà dans le bon de commande.`, 'error');
           return;
         }
 
         const { sousTotal, montantTva, total } = calculerMontants(prixData.prixUnitaire, 0, prixData.tauxTva);
 
-        setCommandeItems([
-          ...commandeItems,
+        setCommandeItems(prevItems => [
+          ...prevItems,
           {
             idProduit: produit.idProduit,
             nomProduit: produit.nom,
@@ -141,11 +145,9 @@ const CreerBonCommande = () => {
 
   const handleQuantiteChange = (index, quantite) => {
     if (!/^\d*$/.test(quantite)) return;
-
     const parsedQuantite = quantite === '' ? 0 : parseInt(quantite, 10) || 0;
     const updatedItems = [...commandeItems];
     updatedItems[index].quantite = quantite;
-
     const { sousTotal, montantTva, total } = calculerMontants(
       updatedItems[index].prixUnitaire,
       parsedQuantite,
@@ -154,7 +156,6 @@ const CreerBonCommande = () => {
     updatedItems[index].sousTotal = sousTotal;
     updatedItems[index].montantTva = montantTva;
     updatedItems[index].total = total;
-
     setCommandeItems(updatedItems);
   };
 
@@ -224,7 +225,6 @@ const CreerBonCommande = () => {
         response = await authService.creerBonsCommandeParFournisseur(bonsCommandeData);
         Swal.fire('Succès', `Bons de commande créés avec succès (${response.length} bons)`, 'success');
       }
-
       navigate('/stock/bons-commande');
     } catch (error) {
       console.error('Erreur lors de la création/modification des bons de commande', error);
@@ -246,7 +246,7 @@ const CreerBonCommande = () => {
         <div className="content-header">
           <div className="container-fluid">
             <h1 className="m-0">
-              {bonCommandeId ? 'Modifier' : 'Créer'} un bon de commande
+              {bonCommandeId ? 'Modifier le bon de commande' : 'Passer une commande'}
             </h1>
           </div>
         </div>
@@ -289,7 +289,7 @@ const CreerBonCommande = () => {
                 )}
                 {commandeItems.length > 0 && (
                   <div className="mt-3">
-                    <h5>Produits dans le bon de commande :</h5>
+                    <h5>Produits dans le bon de commande:</h5>
                     <table className="table table-bordered">
                       <thead>
                         <tr>
@@ -338,7 +338,7 @@ const CreerBonCommande = () => {
                     </table>
                     <div className="mt-3 text-right">
                       <h5>
-                        Total à payer :{' '}
+                        Total à payer:{' '}
                         <span className="font-weight-bold">
                           {calculerTotalAPayer().toLocaleString('fr-TN', { minimumFractionDigits: 3, maximumFractionDigits: 3 })} TND
                         </span>

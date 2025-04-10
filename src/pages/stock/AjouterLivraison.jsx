@@ -1,3 +1,4 @@
+// src/pages/stock/AjouterLivraison.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
@@ -12,7 +13,7 @@ const AjouterLivraison = () => {
   const [fournisseurs, setFournisseurs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [nextIdLivraison, setNextIdLivraison] = useState(null); // État pour le prochain ID
+  const [nextIdLivraison, setNextIdLivraison] = useState(null);
   const [formData, setFormData] = useState({
     idProduit: '',
     idFournisseur: '',
@@ -26,16 +27,13 @@ const AjouterLivraison = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Récupérer les produits
         const produitsData = await authService.getProduitsByUser();
         setProduits(produitsData);
-
-        // Récupérer le dernier ID de livraison et incrémenter
         const lastId = await authService.getLastLivraisonId();
-        setNextIdLivraison(lastId + 1); // Incrémenter pour le prochain ID
+        setNextIdLivraison(lastId + 1);
       } catch (error) {
         Swal.fire('Erreur', 'Impossible de charger les données', 'error');
-        setNextIdLivraison(1); // Valeur par défaut en cas d'erreur
+        setNextIdLivraison(1);
       }
     };
     fetchData();
@@ -64,7 +62,6 @@ const AjouterLivraison = () => {
     setShowSuggestions(false);
     try {
       const fournisseursData = await authService.getFournisseursByProduit(produit.idProduit);
-      console.log('Fournisseurs disponibles pour produit', produit.idProduit, ':', fournisseursData);
       if (fournisseursData && fournisseursData.length > 0) {
         setFournisseurs(fournisseursData);
       } else {
@@ -121,7 +118,7 @@ const AjouterLivraison = () => {
       idProduit: parseInt(formData.idProduit, 10),
       idFournisseur: parseInt(formData.idFournisseur, 10),
       quantiteLivree: quantiteLivreeNum,
-      date: formData.date,
+      date: formData.date, // Format YYYY-MM-DD, pas besoin d'heure
       observation: formData.observation || '',
       livreur: formData.livreur
     };

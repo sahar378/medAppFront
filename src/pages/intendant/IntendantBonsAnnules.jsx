@@ -41,11 +41,11 @@ const IntendantBonsAnnules = () => {
                   <thead>
                     <tr>
                       <th>ID</th>
-                      <th>Date</th>
+                      <th>Date de création</th>
                       <th>Fournisseur</th>
                       <th>Créé par</th>
                       <th>Date de modification</th>
-                      <th>Motif</th>
+                      <th>Cause d'annulation</th>
                       <th>Statut</th>
                     </tr>
                   </thead>

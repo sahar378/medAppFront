@@ -63,12 +63,14 @@ const Sidebar = () => {
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation Fournisseurs</li>
                 <li className="nav-item"><Link to="/intendant/fournisseurs" className="nav-link" title="Consulter la liste des fournisseurs"><i className="nav-icon fas fa-truck"></i><p>Fournisseurs</p></Link></li>
                 <li className="nav-item"><Link to="/intendant/prix" className="nav-link" title="Contrôler les prix des produits"><i className="nav-icon fas fa-money-check-alt" /><p>Contrôle des Prix</p></Link></li>
-                <li className="nav-item">
-            <Link to="/intendant/notifications/creer" className="nav-link" title="Créer une notification">
-                <i className="nav-icon fas fa-bell"></i>
-                <p>Créer Notification</p>
-            </Link>
-        </li>
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Interventions</li>
+                <li className="nav-item"><Link to="/intendant/reclamations" className="nav-link" title="Consulter les réclamations"><i className="nav-icon fas fa-tools"></i><p>Liste des Réclamations</p></Link></li>
+                <li className="nav-item"><Link to="/intendant/machines" className="nav-link" title="Consulter les machines"><i className="nav-icon fas fa-cogs"></i><p>Liste des Machines</p></Link></li>
+                <li className="nav-item"><Link to="/intendant/techniciens" className="nav-link" title="Consulter les techniciens"><i className="nav-icon fas fa-user-cog"></i><p>Liste des Techniciens</p></Link></li>
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Notifications</li>
+                <li className="nav-item"><Link to="/intendant/notifications/creer" className="nav-link" title="Créer une notification"><i className="nav-icon fas fa-bell"></i><p>Créer Notification</p></Link></li>
               </>
             )}
             {activeRole === 'RESPONSABLE_STOCK' && (
@@ -89,38 +91,31 @@ const Sidebar = () => {
                 <li className="nav-item"><Link to="/stock/fournisseurs/associer" className="nav-link" title="Associer des produits à un fournisseur"><i className="nav-icon fas fa-link"></i><p>Associer Produits</p></Link></li>
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Bons de Commande</li>
-                <li className="nav-item">
-                  <Link to="/stock/creer-bon-commande" className="nav-link">
-                    <i className="nav-icon fas fa-cart-plus" />
-                    <p>Créer un bon de commande</p>
-                  </Link>
-                </li>
+                <li className="nav-item"><Link to="/stock/creer-bon-commande" className="nav-link"><i className="nav-icon fas fa-cart-plus" /><p>Créer un bon de commande</p></Link></li>
                 <li className="nav-item"><Link to="/stock/bons-commande" className="nav-link" title="Créer et gérer les bons de commande"><i className="nav-icon fas fa-file-alt"></i><p>Gestion Bons de Commande</p></Link></li>
-                <li className="nav-item">
-                  <Link to="/stock/bons-historique" className="nav-link" title="Consulter l'historique des bons de commande">
-                    <i className="nav-icon fas fa-history"></i>
-                    <p>Historique Bons</p>
-                  </Link>
-                </li>
+                <li className="nav-item"><Link to="/stock/bons-historique" className="nav-link" title="Consulter l'historique des bons de commande"><i className="nav-icon fas fa-history"></i><p>Historique Bons</p></Link></li>
                 <li className="nav-item"><Link to="/stock/produits-prix" className="nav-link"><i className="nav-icon fas fa-list-alt" /><p>Liste Produits & Prix</p></Link></li>
-                <li className="nav-item">
-      <Link to="/stock/notifications" className="nav-link" title="Voir les notifications">
-        <i className="nav-icon fas fa-bell"></i>
-        <p>Notifications</p>
-      </Link>
-    </li>
+                <li className="nav-item"><Link to="/stock/notifications" className="nav-link" title="Voir les notifications"><i className="nav-icon fas fa-bell"></i><p>Notifications</p></Link></li>
               </>
             )}
             {activeRole === 'PERSONNEL_MEDICAL' && (
               <>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Inventaires</li>
-                <li className="nav-item">
-                  <Link to="/medical/faire-inventaire" className="nav-link" title="Effectuer un nouvel inventaire">
-                    <i className="nav-icon fas fa-clipboard-check"></i>
-                    <p>Faire un Inventaire</p>
-                  </Link>
-                </li>
-                {/* Suppression du lien vers HistoriqueInventaires */}
+                <li className="nav-item"><Link to="/medical/faire-inventaire" className="nav-link" title="Effectuer un nouvel inventaire"><i className="nav-icon fas fa-clipboard-check"></i><p>Faire un Inventaire</p></Link></li>
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Interventions</li>
+                <li className="nav-item"><Link to="/medical/machines" className="nav-link" title="Ajouter une machine"><i className="nav-icon fas fa-cogs"></i><p>Ajouter une Machine</p></Link></li>
+                <li className="nav-item"><Link to="/medical/machines/list" className="nav-link" title="Consulter et gérer les machines"><i className="nav-icon fas fa-list"></i><p>Liste des Machines</p></Link></li>
+                <li className="nav-item"><Link to="/medical/techniciens" className="nav-link" title="Ajouter un technicien"><i className="nav-icon fas fa-user-cog"></i><p>Ajouter un Technicien</p></Link></li>
+                <li className="nav-item"><Link to="/medical/techniciens/list" className="nav-link" title="Consulter et gérer les techniciens"><i className="nav-icon fas fa-list"></i><p>Liste des Techniciens</p></Link></li>
+                <li className="nav-item"><Link to="/medical/interventions" className="nav-link" title="Créer une réclamation"><i className="nav-icon fas fa-tools"></i><p>Créer une Réclamation</p></Link></li>
+                <li className="nav-item"><Link to="/medical/reclamations" className="nav-link" title="Consulter et gérer les réclamations"><i className="nav-icon fas fa-list"></i><p>Liste des Réclamations</p></Link></li>
+              </>
+            )}
+            {activeRole === 'SUPER_ADMIN' && (
+              <>
+                <li className="nav-header">Gestion Super Admin</li>
+                <li className="nav-item"><Link to="/super-admin/intendants" className="nav-link"><i className="nav-icon fas fa-users-cog"></i><p>Gérer les intendants</p></Link></li>
               </>
             )}
           </ul>
