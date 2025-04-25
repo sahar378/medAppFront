@@ -11,14 +11,14 @@ import dialysisRoom2 from '../../assets/images/dialysis-room-2.jpg'; // Deuxièm
 import dialysisRoom3 from '../../assets/images/dialysis-room-3.jpg'; // Troisième image
 
 const Home = () => {
-  const { isAuthenticated, userRoles, activeRole } = useAuth();
+  const { isAuthenticated, profiles, activeRole } = useAuth();
   const navigate = useNavigate();
 
   // État pour gérer l'image actuelle du diaporama
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const images = [dialysisRoom1, dialysisRoom2, dialysisRoom3];
 
-  // Changer l'image toutes les 5 secondes
+  // Changer l'image toutes les 3 secondes
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -27,11 +27,12 @@ const Home = () => {
   }, [images.length]);
 
   // Si plusieurs rôles et aucun activeRole défini, rediriger vers RoleSelection
+  //même si l’utilisateur accède directement à une page sans avoir choisi un rôle actif, il est redirigé vers /role-selection.
   useEffect(() => {
-    if (isAuthenticated && userRoles.length > 1 && !activeRole) {
+    if (isAuthenticated && profiles.length > 1 && !activeRole) {
       navigate('/role-selection');
     }
-  }, [isAuthenticated, userRoles, activeRole, navigate]);
+  }, [isAuthenticated, profiles, activeRole, navigate]);
 
   return (
     <div className={`wrapper ${!isAuthenticated ? 'no-sidebar' : ''}`}>
@@ -119,7 +120,7 @@ const Home = () => {
                 </h5>
                 <br /> {/* Ajout d'un retour à la ligne après le titre */}
                 <br /> {/* Ajout d'un retour à la ligne après le titre */}
-                <br /> 
+                <br />
                 <p>
                   Le Centre AlRimel Hémodialyse est dédié à offrir des soins de haute qualité aux patients souffrant d'insuffisance rénale chronique. <br />
                   Que vous soyez un patient local ou en vacance, notre équipe de professionnels expérimentés est là pour vous accompagner avec un service personnalisé, dans un environnement moderne et confortable.
@@ -139,7 +140,6 @@ const Home = () => {
                 </h5>
                 <br /> {/* Ajout d'un retour à la ligne après le titre */}
                 <br /> {/* Ajout d'un retour à la ligne après le titre */}
-
                 <ul className="list-unstyled">
                   <li>
                     <strong>Horaires :</strong> Lundi au Samedi, 24h
@@ -151,7 +151,7 @@ const Home = () => {
                     </a>
                   </li>
                   <li>
-                    <strong>Adresse :</strong> Cité l'hôpital rue habes ,Kebili
+                    <strong>Adresse :</strong> Cité l'hôpital rue habes, Kebili
                   </li>
                 </ul>
                 <p>

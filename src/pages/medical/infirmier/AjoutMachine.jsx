@@ -1,8 +1,8 @@
-// src/pages/medical/AjoutMachine.jsx
+// src/pages/medical/infirmier/AjoutMachine.jsx
 import React, { useState } from 'react';
-import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
-import authService from '../../services/authService';
+import Navbar from '../../../components/Navbar';
+import Sidebar from '../../../components/Sidebar';
+import authService from '../../../services/authService';
 import Swal from 'sweetalert2';
 
 const AjoutMachine = () => {

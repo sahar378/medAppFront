@@ -1,9 +1,9 @@
-// src/pages/medical/CloseIntervention.jsx
+// src/pages/medical/infirmier/CloseIntervention.jsx
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
-import authService from '../../services/authService';
+import Navbar from '../../../components/Navbar';
+import Sidebar from '../../../components/Sidebar';
+import authService from '../../../services/authService';
 import Swal from 'sweetalert2';
 
 const CloseIntervention = () => {
@@ -34,8 +34,8 @@ const CloseIntervention = () => {
         formData.lieuReparation
       );
       Swal.fire('Succès', 'Intervention fermée avec succès', 'success');
-      navigate('/medical/reclamations');
-    } catch (error) {
+      navigate('/medical/infirmier/interventions/list');
+      } catch (error) {
       console.error(error);
       Swal.fire('Erreur', 'Erreur lors de la fermeture', 'error');
     }
@@ -87,7 +87,7 @@ const CloseIntervention = () => {
                     />
                   </div>
                   <button type="submit" className="btn btn-primary">Fermer l’intervention</button>
-                  <button type="button" className="btn btn-secondary ml-2" onClick={() => navigate('/medical/reclamations')}>
+                  <button type="button" className="btn btn-secondary ml-2" onClick={() => navigate('/medical/infirmier/interventions/list')}>
                     Annuler
                   </button>
                 </form>

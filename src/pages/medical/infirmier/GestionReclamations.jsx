@@ -1,8 +1,8 @@
-// src/pages/medical/GestionReclamations.jsx
+// src/pages/medical/infirmier/GestionReclamations.jsx
 import React, { useState, useEffect } from 'react';
-import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
-import authService from '../../services/authService';
+import Navbar from '../../../components/Navbar';
+import Sidebar from '../../../components/Sidebar';
+import authService from '../../../services/authService';
 import Swal from 'sweetalert2';
 
 const GestionReclamations = () => {

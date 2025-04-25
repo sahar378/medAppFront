@@ -1,6 +1,6 @@
 // src/pages/intendant/AgentDetails.jsx
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import authService from '../../services/authService';
 import Navbar from '../../components/Navbar';
 import Sidebar from '../../components/Sidebar';
@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 const AgentDetails = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [agent, setAgent] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
@@ -16,6 +17,10 @@ const AgentDetails = () => {
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [tempPassword, setTempPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Récupérer l'onglet actif depuis l'URL
+  const queryParams = new URLSearchParams(location.search);
+  const activeTab = queryParams.get('tab') || 'withAccess';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,9 +35,7 @@ const AgentDetails = () => {
           numeroTelephone: agentData.numeroTelephone || ''
         });
         const rolesData = await authService.getAllRoles();
-        // Filtrer pour exclure le rôle "INTENDANT"
-        const filteredRoles = rolesData.filter(role => role.libelleProfil !== 'INTENDANT');
-        setRoles(filteredRoles);
+        setRoles(rolesData);
         setSelectedRoles(agentData.profils ? agentData.profils.map(p => p.idProfil) : []);
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error);
@@ -41,6 +44,11 @@ const AgentDetails = () => {
     };
     fetchData();
   }, [userId]);
+
+  // Vérifier si l'agent est un INTENDANT
+  const isAgentIntendant = () => {
+    return agent?.profils?.some(profil => profil.libelleProfil === 'INTENDANT');
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -58,20 +66,68 @@ const AgentDetails = () => {
     }
   };
 
-  const handleRoleChange = (idProfil) => {
-    setSelectedRoles(prev =>
-      prev.includes(idProfil) ? prev.filter(id => id !== idProfil) : [...prev, idProfil]
-    );
+  const handleRoleChange = async (idProfil) => {
+    const role = roles.find(r => r.idProfil === idProfil);
+    if (!role) return;
+
+    let newSelectedRoles = [...selectedRoles];
+    const isAdding = !newSelectedRoles.includes(idProfil);
+
+    if (isAdding) {
+      newSelectedRoles.push(idProfil);
+      if (role.libelleProfil === 'PERSONNEL_MEDICAL') {
+        const allRoles = await authService.getAllProfils();
+        const medicalRoles = allRoles.filter(r => ['MEDECIN', 'INFIRMIER'].includes(r.libelleProfil));
+        if (medicalRoles.length > 0) {
+          const { value: selectedMedicalRole } = await Swal.fire({
+            title: 'Choisir un rôle supplémentaire',
+            text: 'Vous avez sélectionné le rôle PERSONNEL_MEDICAL. Veuillez choisir un rôle supplémentaire (Médecin ou Infirmier) :',
+            input: 'select',
+            inputOptions: medicalRoles.reduce((options, r) => {
+              options[r.idProfil] = r.libelleProfil;
+              return options;
+            }, {}),
+            inputPlaceholder: 'Sélectionner un rôle',
+            showCancelButton: true,
+            confirmButtonText: 'Confirmer',
+            cancelButtonText: 'Annuler',
+            inputValidator: (value) => {
+              if (!value) {
+                return 'Vous devez choisir un rôle !';
+              }
+            }
+          });
+
+          if (selectedMedicalRole) {
+            newSelectedRoles.push(Number(selectedMedicalRole));
+          } else {
+            newSelectedRoles = newSelectedRoles.filter(id => id !== idProfil);
+          }
+        }
+      }
+    } else {
+      if (role.libelleProfil === 'PERSONNEL_MEDICAL') {
+        const allRoles = await authService.getAllProfils();
+        const medicalRoleIds = allRoles
+          .filter(r => ['MEDECIN', 'INFIRMIER'].includes(r.libelleProfil))
+          .map(r => r.idProfil);
+        newSelectedRoles = newSelectedRoles.filter(id => !medicalRoleIds.includes(id));
+      }
+      newSelectedRoles = newSelectedRoles.filter(id => id !== idProfil);
+    }
+
+    setSelectedRoles(newSelectedRoles);
   };
 
   const handleSaveRoles = async () => {
     try {
       await authService.assignRoles(userId, selectedRoles);
-      const updatedRoles = roles.filter(r => selectedRoles.includes(r.idProfil));
-      setAgent({ ...agent, profils: updatedRoles });
-      Swal.fire('Succès', 'Rôles mis à jour', 'success');
+      const updatedAgent = await authService.getAgentById(userId);
+      setAgent(updatedAgent);
+      setSelectedRoles(updatedAgent.profils ? updatedAgent.profils.map(p => p.idProfil) : []);
+      Swal.fire('Succès', 'Rôles mis à jour avec succés', 'success');
     } catch (error) {
-      Swal.fire('Erreur', 'Erreur lors de l’assignation des rôles', 'error');
+      Swal.fire('Erreur', error.response?.data || 'Erreur lors de l’assignation des rôles', 'error');
     }
   };
 
@@ -94,6 +150,27 @@ const AgentDetails = () => {
     }
   };
 
+  const handleArchive = async () => {
+    const result = await Swal.fire({
+      title: 'Confirmer l’archivage',
+      text: `Êtes-vous sûr de vouloir archiver l’agent ${agent.prenom} ${agent.nom} ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Oui, archiver',
+      cancelButtonText: 'Annuler'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await authService.archiveAgent(userId);
+        Swal.fire('Succès', 'Agent archivé avec succès', 'success');
+        navigate(`/intendant/habilitation?tab=${activeTab}`);
+      } catch (error) {
+        Swal.fire('Erreur', error.response?.data || 'Erreur lors de l’archivage', 'error');
+      }
+    }
+  };
+
   if (!agent) return <div>Chargement...</div>;
 
   return (
@@ -108,14 +185,27 @@ const AgentDetails = () => {
           <div className="container-fluid">
             <div className="card">
               <div className="card-header">
-                <h3 className="card-title">Informations de l’agent</h3>
+                <h3 className="card-title">Informations du personnel</h3>
                 <div className="card-tools">
                   <button className="btn btn-primary" onClick={() => setEditMode(!editMode)}>
                     {editMode ? 'Annuler' : 'Modifier'}
                   </button>
-                  <button className="btn btn-secondary ml-2" onClick={() => navigate('/intendant/habilitation')}>
+                  <button
+                    className="btn btn-secondary ml-2"
+                    onClick={() => navigate(`/intendant/habilitation?tab=${activeTab}`)}
+                  >
                     Retour
                   </button>
+                  {/* Bouton Archiver (non visible pour les intendants) */}
+                  {!isAgentIntendant() && (
+                    <button
+                      className="btn btn-danger ml-2"
+                      onClick={handleArchive}
+                      disabled={agent.archived === 1} // Désactiver si déjà archivé
+                    >
+                      Archiver
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="card-body">
@@ -152,6 +242,7 @@ const AgentDetails = () => {
                     <p><strong>Date de naissance :</strong> {agent.dateNaissance ? new Date(agent.dateNaissance).toLocaleDateString() : 'Non défini'}</p>
                     <p><strong>Numéro de téléphone :</strong> {agent.numeroTelephone || 'Non défini'}</p>
                     <p><strong>Rôles :</strong> {agent.profils?.map(p => p.libelleProfil).join(', ') || 'Aucun'}</p>
+                    <p><strong>Statut d’archivage :</strong> {agent.archived === 1 ? 'Archivé' : 'Non archivé'}</p>
                   </div>
                 )}
               </div>
@@ -162,30 +253,34 @@ const AgentDetails = () => {
                 <h3 className="card-title">Habilitation</h3>
               </div>
               <div className="card-body">
-                <h5>Assigner un mot de passe temporaire</h5>
-                <div className="form-group">
-                  <label>Nouveau mot de passe :</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    placeholder="Nouveau mot de passe"
-                    value={tempPassword}
-                    onChange={(e) => setTempPassword(e.target.value)}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Confirmer mot de passe :</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    placeholder="Confirmer mot de passe"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                </div>
-                <button className="btn btn-primary mt-2" onClick={handleResetPassword}>
-                  Assigner et envoyer par email
-                </button>
+                {!isAgentIntendant() && (
+                  <>
+                    <h5>Assigner un mot de passe temporaire</h5>
+                    <div className="form-group">
+                      <label>Nouveau mot de passe :</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="Nouveau mot de passe"
+                        value={tempPassword}
+                        onChange={(e) => setTempPassword(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Confirmer mot de passe :</label>
+                      <input
+                        type="password"
+                        className="form-control"
+                        placeholder="Confirmer mot de passe"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                    </div>
+                    <button className="btn btn-primary mt-2" onClick={handleResetPassword}>
+                      Assigner et envoyer par email
+                    </button>
+                  </>
+                )}
 
                 <h5 className="mt-4">Assigner des rôles</h5>
                 {roles.length > 0 ? (
@@ -201,7 +296,7 @@ const AgentDetails = () => {
                       <label
                         className="form-check-label"
                         htmlFor={`role-${role.idProfil}`}
-                        style={{ marginLeft: '100px' }} // Espacement entre checkbox et libellé
+                        style={{ marginLeft: '100px' }}
                       >
                         {role.libelleProfil.replace('_', ' ')}
                       </label>

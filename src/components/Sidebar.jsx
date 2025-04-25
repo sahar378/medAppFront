@@ -1,11 +1,10 @@
-// src/components/Sidebar.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import authService from '../services/authService';
 
 const Sidebar = () => {
-  const { userId, activeRole, isAuthenticated } = useAuth();
+  const { userId, activeRole, profiles, isAuthenticated } = useAuth();
   const [userProfile, setUserProfile] = React.useState({ nom: '', prenom: '' });
 
   React.useEffect(() => {
@@ -20,6 +19,10 @@ const Sidebar = () => {
     };
     fetchUserProfile();
   }, [userId]);
+
+  // Trouver le profil actif pour récupérer le descriptif
+  const activeProfile = profiles.find(profile => profile.role === activeRole);
+  const spaceName = activeProfile ? activeProfile.descriptif : 'Espace Utilisateur';
 
   return (
     <aside className="main-sidebar sidebar-dark-primary elevation-4" style={{ position: 'fixed', top: 0, left: 0, height: '100vh', width: '250px', overflow: 'hidden' }}>
@@ -44,6 +47,7 @@ const Sidebar = () => {
           <ul className="nav nav-pills nav-sidebar flex-column" role="menu">
             {activeRole === 'INTENDANT' && (
               <>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>{spaceName}</li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des personnels</li>
                 <li className="nav-item"><Link to="/intendant/habilitation" className="nav-link" title="Gérer les habilitations des personnels"><i className="nav-icon fas fa-users-cog"></i><p>Habilitation</p></Link></li>
                 <li className="nav-item"><Link to="/intendant/agents/add" className="nav-link" title="Ajouter un nouveau personnel"><i className="nav-icon fas fa-user-plus"></i><p>Ajouter un personnel</p></Link></li>
@@ -75,6 +79,7 @@ const Sidebar = () => {
             )}
             {activeRole === 'RESPONSABLE_STOCK' && (
               <>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>{spaceName}</li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion de Stock</li>
                 <li className="nav-item"><Link to="/stock/add" className="nav-link" title="Ajouter un nouveau produit au stock"><i className="nav-icon fas fa-plus-circle"></i><p>Ajouter un produit</p></Link></li>
                 <li className="nav-item"><Link to="/stock/medicaments" className="nav-link" title="Voir la liste des médicaments"><i className="nav-icon fas fa-pills"></i><p>Liste des médicaments</p></Link></li>
@@ -100,21 +105,38 @@ const Sidebar = () => {
             )}
             {activeRole === 'PERSONNEL_MEDICAL' && (
               <>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>{spaceName}</li>
+              </>
+            )}
+            {activeRole === 'INFIRMIER' && (
+              <>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>{spaceName}</li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Inventaires</li>
-                <li className="nav-item"><Link to="/medical/faire-inventaire" className="nav-link" title="Effectuer un nouvel inventaire"><i className="nav-icon fas fa-clipboard-check"></i><p>Faire un Inventaire</p></Link></li>
+                <li className="nav-item"><Link to="/medical/infirmier/faire-inventaire" className="nav-link" title="Effectuer un nouvel inventaire"><i className="nav-icon fas fa-clipboard-check"></i><p>Faire un Inventaire</p></Link></li>
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Séances</li>
+                <li className="nav-item"><Link to="/medical/infirmier/seances" className="nav-link" title="Gérer les séances"><i className="nav-icon fas fa-calendar-plus"></i><p>Gérer les Séances</p></Link></li>
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Interventions</li>
-                <li className="nav-item"><Link to="/medical/machines" className="nav-link" title="Ajouter une machine"><i className="nav-icon fas fa-cogs"></i><p>Ajouter une Machine</p></Link></li>
-                <li className="nav-item"><Link to="/medical/machines/list" className="nav-link" title="Consulter et gérer les machines"><i className="nav-icon fas fa-list"></i><p>Liste des Machines</p></Link></li>
-                <li className="nav-item"><Link to="/medical/techniciens" className="nav-link" title="Ajouter un technicien"><i className="nav-icon fas fa-user-cog"></i><p>Ajouter un Technicien</p></Link></li>
-                <li className="nav-item"><Link to="/medical/techniciens/list" className="nav-link" title="Consulter et gérer les techniciens"><i className="nav-icon fas fa-list"></i><p>Liste des Techniciens</p></Link></li>
-                <li className="nav-item"><Link to="/medical/interventions" className="nav-link" title="Créer une réclamation"><i className="nav-icon fas fa-tools"></i><p>Créer une Réclamation</p></Link></li>
-                <li className="nav-item"><Link to="/medical/reclamations" className="nav-link" title="Consulter et gérer les réclamations"><i className="nav-icon fas fa-list"></i><p>Liste des Réclamations</p></Link></li>
+                <li className="nav-item"><Link to="/medical/infirmier/machines" className="nav-link" title="Ajouter une machine"><i className="nav-icon fas fa-cogs"></i><p>Ajouter une Machine</p></Link></li>
+                <li className="nav-item"><Link to="/medical/infirmier/techniciens" className="nav-link" title="Ajouter un technicien"><i className="nav-icon fas fa-user-cog"></i><p>Ajouter un Technicien</p></Link></li>
+                <li className="nav-item"><Link to="/medical/infirmier/interventions" className="nav-link" title="Créer une réclamation"><i className="nav-icon fas fa-tools"></i><p>Créer une Réclamation</p></Link></li>
+                <li className="nav-item"><Link to="/medical/infirmier/interventions/list" className="nav-link" title="Consulter les réclamations"><i className="nav-icon fas fa-list"></i><p>Liste des Réclamations</p></Link></li>
+                <li className="nav-item"><Link to="/medical/infirmier/machines/list" className="nav-link" title="Consulter les machines"><i className="nav-icon fas fa-list"></i><p>Liste des Machines</p></Link></li>
+                <li className="nav-item"><Link to="/medical/infirmier/techniciens/list" className="nav-link" title="Consulter les techniciens"><i className="nav-icon fas fa-list"></i><p>Liste des Techniciens</p></Link></li>
+              </>
+            )}
+            {activeRole === 'MEDECIN' && (
+              <>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>{spaceName}</li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Patients</li>
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Séances</li>
               </>
             )}
             {activeRole === 'SUPER_ADMIN' && (
               <>
-                <li className="nav-header">Gestion Super Admin</li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>{spaceName}</li>
                 <li className="nav-item"><Link to="/super-admin/intendants" className="nav-link"><i className="nav-icon fas fa-users-cog"></i><p>Gérer les intendants</p></Link></li>
               </>
             )}

@@ -39,7 +39,7 @@ const AddAgent = () => {
       <div className="content-wrapper">
         <div className="content-header">
           <div className="container-fluid">
-            <h1 className="m-0">Ajouter un agent</h1>
+            <h1 className="m-0">Ajouter un nouveau membre au personnel</h1>
           </div>
         </div>
         <section className="content">

@@ -1,9 +1,9 @@
-// src/pages/medical/EditMachine.jsx
+// src/pages/medical/infirmier/EditMachine.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
-import authService from '../../services/authService';
+import Navbar from '../../../components/Navbar';
+import Sidebar from '../../../components/Sidebar';
+import authService from '../../../services/authService';
 import Swal from 'sweetalert2';
 
 const EditMachine = () => {
@@ -54,7 +54,7 @@ const EditMachine = () => {
     try {
       await authService.updateMachine(id, formData);
       Swal.fire('Succès', 'Machine mise à jour', 'success');
-      navigate('/medical/machines/list');
+      navigate('/medical/infirmier/machines/list');
     } catch (error) {
       console.error(error);
       Swal.fire('Erreur', 'Erreur lors de la mise à jour', 'error');
@@ -137,7 +137,7 @@ const EditMachine = () => {
                     />
                   </div>
                   <button type="submit" className="btn btn-primary">Mettre à jour</button>
-                  <button type="button" className="btn btn-secondary ml-2" onClick={() => navigate('/medical/machines/list')}>
+                  <button type="button" className="btn btn-secondary ml-2" onClick={() => navigate('/medical/infirmier/machines/list')}>
                     Annuler
                   </button>
                 </form>

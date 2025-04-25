@@ -1,8 +1,8 @@
-// src/pages/medical/ListeTechniciensMedical.jsx
+// src/pages/medical/infirmier/ListeTechniciensMedical.jsx
 import React, { useState, useEffect } from 'react';
-import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
-import authService from '../../services/authService';
+import Navbar from '../../../components/Navbar';
+import Sidebar from '../../../components/Sidebar';
+import authService from '../../../services/authService';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,7 +25,7 @@ const ListeTechniciensMedical = () => {
   }, []);
 
   const handleEdit = (id) => {
-    navigate(`/medical/techniciens/edit/${id}`);
+    navigate(`/medical/infirmier/techniciens/edit/${id}`);
   };
 
   const handleArchive = async (id) => {

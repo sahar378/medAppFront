@@ -1,9 +1,9 @@
-// src/pages/medical/FaireInventaire.jsx
+// src/pages/medical/infirmier/FaireInventaire.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
-import authService from '../../services/authService';
+import Navbar from '../../../components/Navbar';
+import Sidebar from '../../../components/Sidebar';
+import authService from '../../../services/authService';
 import Swal from 'sweetalert2';
 
 const FaireInventaire = () => {
@@ -82,7 +82,7 @@ const FaireInventaire = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 Swal.fire('Succès', 'Inventaire sauvegardé avec succès', 'success');
-                navigate('/medical');
+                navigate('/medical/infirmier');
             }
         });
     };

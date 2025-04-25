@@ -1,9 +1,9 @@
-// src/pages/medical/EditIntervention.jsx
+// src/pages/medical/infirmier/EditIntervention.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
-import authService from '../../services/authService';
+import Navbar from '../../../components/Navbar';
+import Sidebar from '../../../components/Sidebar';
+import authService from '../../../services/authService';
 import Swal from 'sweetalert2';
 
 const EditIntervention = () => {
@@ -58,7 +58,7 @@ const EditIntervention = () => {
     try {
       await authService.updateIntervention(id, formData);
       Swal.fire('Succès', 'Intervention mise à jour', 'success');
-      navigate('/medical/reclamations');
+      navigate('/medical/infirmier/interventions/list');
     } catch (error) {
       console.error(error);
       Swal.fire('Erreur', 'Erreur lors de la mise à jour', 'error');
@@ -124,7 +124,7 @@ const EditIntervention = () => {
                     <input type="checkbox" name="estFermee" checked={formData.estFermee} onChange={handleInputChange} /> Fermée
                   </div>
                   <button type="submit" className="btn btn-primary">Mettre à jour</button>
-                  <button type="button" className="btn btn-secondary ml-2" onClick={() => navigate('/medical/reclamations')}>
+                  <button type="button" className="btn btn-secondary ml-2" onClick={() => navigate('/medical/infirmier/interventions/list')}>
                     Annuler
                   </button>
                 </form>

@@ -1,9 +1,9 @@
-// src/pages/medical/ListeMachinesMedical.jsx
+// src/pages/medical/infirmier/ListeMachinesMedical.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
-import authService from '../../services/authService';
+import Navbar from '../../../components/Navbar';
+import Sidebar from '../../../components/Sidebar';
+import authService from '../../../services/authService';
 import Swal from 'sweetalert2';
 
 const ListeMachinesMedical = () => {
@@ -25,7 +25,7 @@ const ListeMachinesMedical = () => {
   }, []);
 
   const handleEdit = (id) => {
-    navigate(`/medical/machines/edit/${id}`);
+    navigate(`/medical/infirmier/machines/edit/${id}`);
   };
 
   const handleArchive = async (id) => {

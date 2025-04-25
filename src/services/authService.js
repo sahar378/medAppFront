@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 
 const authService = {
   //pour authentifier.
-    login: async (userId, password) => {
+    /*login: async (userId, password) => {
         try {
           const response = await api.post('/auth/login', { userId, password });
           localStorage.setItem('token', response.data.token);
@@ -15,6 +15,19 @@ const authService = {
           Swal.fire('Erreur', errorMessage, 'error');
           throw new Error(errorMessage); // Relance une erreur claire
         }
+  },*/
+  login: async (userId, password) => {
+    try {
+      const response = await api.post('/auth/login', { userId, password });
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('profiles', JSON.stringify(response.data.profiles));
+      localStorage.setItem('userId', userId);
+      return response.data; // Retourne { token, message, profiles }
+    } catch (error) {
+      const errorMessage = error.response?.data || 'Identifiants incorrects';
+      Swal.fire('Erreur', errorMessage, 'error');
+      throw new Error(errorMessage);
+    }
   },
   //pour invalider le token.
   logout: async () => {
@@ -74,6 +87,16 @@ const authService = {
       const response = await api.get(`/agent/profile?userId=${userId}`);
       return response;
     } catch (error) {
+      throw error;
+    }
+  },
+  // méthode pour récupérer tous les profils (y compris MEDECIN et INFIRMIER)
+  getAllProfils: async () => {
+    try {
+      const response = await api.get('/intendant/all-profils');
+      return response.data;
+    } catch (error) {
+      Swal.fire('Erreur', 'Impossible de récupérer tous les profils', 'error');
       throw error;
     }
   },
@@ -249,6 +272,27 @@ getArchivedMateriels: async () => {
       const response = await api.delete(`/intendant/agents/delete/${userId}`);
       return response.data;
     } catch (error) {
+      throw error;
+    }
+  },
+  // Archiver un agent
+  archiveAgent: async (userId) => {
+    try {
+      const response = await api.post(`/intendant/agents/archive/${userId}`);
+      return response.data;
+    } catch (error) {
+      Swal.fire('Erreur', 'Erreur lors de l’archivage de l’agent', 'error');
+      throw error;
+    }
+  },
+
+  // Récupérer les agents archivés
+  getArchivedAgents: async () => {
+    try {
+      const response = await api.get('/intendant/agents/archived');
+      return response.data;
+    } catch (error) {
+      Swal.fire('Erreur', 'Impossible de récupérer les agents archivés', 'error');
       throw error;
     }
   },
@@ -961,7 +1005,7 @@ addTechnicien: async (technicienData) => {
     const response = await api.post('/techniciens', technicienData);
     return response.data;
   } catch (error) {
-    Swal.fire('Erreur', 'Erreur lors de l’ajout du technicien', 'error');
+   // Swal.fire('Erreur', 'Erreur lors de l’ajout du technicien', 'error');
     throw error;
   }
 },
@@ -971,7 +1015,7 @@ updateTechnicien: async (id, technicienData) => {
     const response = await api.put(`/techniciens/${id}`, technicienData);
     return response.data;
   } catch (error) {
-    Swal.fire('Erreur', 'Erreur lors de la mise à jour du technicien', 'error');
+    //Swal.fire('Erreur', 'Erreur lors de la mise à jour du technicien', 'error');
     throw error;
   }
 },
@@ -988,10 +1032,13 @@ archiveTechnicien: async (id) => {
   await api.put(`/techniciens/${id}/archive`);
 },
 getTechnicienById: async (id) => {
-  const response = await api.get(`/techniciens/${id}`);
-  return response.data;
+  try {
+    const response = await api.get(`/techniciens/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error; // Propager l'erreur pour la gérer dans le composant
+  }
 },
-
 getTechniciensByArchiveStatus: async (endpoint) => {
   try {
     const response = await api.get(endpoint);

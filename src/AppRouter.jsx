@@ -41,7 +41,7 @@ import CreerBonCommande from './pages/stock/CreerBonCommande'; // Nouvelle impor
 import BonsHistorique from './pages/stock/BonsHistorique';
 import IntendantBonsAnnules from './pages/intendant/IntendantBonsAnnules';
 
-import FaireInventaire from './pages/medical/FaireInventaire'; // Nouvelle importation
+import FaireInventaire from './pages/medical/infirmier/FaireInventaire'; // Nouvelle importation
 import HistoriqueInventaires from './pages/HistoriqueInventaires'; // Nouvelle importation
 import DetailsInventaire from './pages/DetailsInventaire';
 
@@ -53,22 +53,25 @@ import FournisseurDetailsReadOnly from './pages/intendant/FournisseurDetailsRead
 import SuperAdminSpace from './pages/super-admin/SuperAdminSpace';
 import IntendantManagement from './pages/super-admin/IntendantManagement';
 
-import GestionReclamations from './pages/medical/GestionReclamations';
+import GestionReclamations from './pages/medical/infirmier/GestionReclamations';
 import ListeReclamationsIntendant from './pages/intendant/ListeReclamationsIntendant';
 import ListeMachinesIntendant from './pages/intendant/ListeMachinesIntendant';
 import ListeTechniciensIntendant from './pages/intendant/ListeTechniciensIntendant';
-import AjoutMachine from './pages/medical/AjoutMachine';
-import AjoutTechnicien from './pages/medical/AjoutTechnicien';
-import EditTechnicien from './pages/medical/EditTechnicien';
-import EditMachine from './pages/medical/EditMachine';
-import EditIntervention from './pages/medical/EditIntervention';
-import ListeTechniciensMedical from './pages/medical/ListeTechniciensMedical';
-import ListeMachinesMedical from './pages/medical/ListeMachinesMedical';
-import ListeReclamationsMedical from './pages/medical/ListeReclamationsMedical';
-import CloseIntervention from './pages/medical/CloseIntervention';
+import AjoutMachine from './pages/medical/infirmier/AjoutMachine';
+import AjoutTechnicien from './pages/medical/infirmier/AjoutTechnicien';
+import EditTechnicien from './pages/medical/infirmier/EditTechnicien';
+import EditMachine from './pages/medical/infirmier/EditMachine';
+import EditIntervention from './pages/medical/infirmier/EditIntervention';
+import ListeTechniciensMedical from './pages/medical/infirmier/ListeTechniciensMedical';
+import ListeMachinesMedical from './pages/medical/infirmier/ListeMachinesMedical';
+import ListeReclamationsMedical from './pages/medical/infirmier/ListeReclamationsMedical';
+import CloseIntervention from './pages/medical/infirmier/CloseIntervention';
 
 
 import MachineDetails from './pages/MachineDetails';
+import InfirmierSpace from './pages/medical/infirmier/InfirmierSpace';
+import MedecinSpace from './pages/medical/medecin/MedecinSpace';
+import GererSeances from './pages/medical/GererSeances'; 
 
 const AppRouter = () => {
   return (
@@ -95,10 +98,10 @@ const AppRouter = () => {
         <Route path="/intendant/notifications/creer" element={<CreerNotification />} />
 
 
-  <Route path="/intendant/reclamations" element={<ListeReclamationsIntendant />} />
-  <Route path="/intendant/machines" element={<ListeMachinesIntendant />} />
-  <Route path="/intendant/techniciens" element={<ListeTechniciensIntendant />} />
-  
+        <Route path="/intendant/reclamations" element={<ListeReclamationsIntendant />} />
+        <Route path="/intendant/machines" element={<ListeMachinesIntendant />} />
+        <Route path="/intendant/techniciens" element={<ListeTechniciensIntendant />} />
+        
 
 
       </Route>
@@ -126,17 +129,28 @@ const AppRouter = () => {
 
       <Route element={<PrivateRoute requiredRole="PERSONNEL_MEDICAL" />}>
         <Route path="/medical" element={<MedicalSpace />} />
-        <Route path="/medical/faire-inventaire" element={<FaireInventaire />} /> {/* Nouvelle route */}
-        <Route path="/medical/machines" element={<AjoutMachine />} />
-  <Route path="/medical/techniciens" element={<AjoutTechnicien />} />
-  <Route path="/medical/reclamations" element={<ListeReclamationsMedical />} />
-  <Route path="/medical/machines/list" element={<ListeMachinesMedical />} />
-  <Route path="/medical/techniciens/list" element={<ListeTechniciensMedical />} />
-  <Route path="/medical/interventions/edit/:id" element={<EditIntervention />} />
-  <Route path="/medical/machines/edit/:id" element={<EditMachine />} />
-  <Route path="/medical/techniciens/edit/:id" element={<EditTechnicien />} />
-  <Route path="/medical/interventions" element={<GestionReclamations />} />
-  <Route path="/medical/interventions/close/:id" element={<CloseIntervention />} />
+        <Route path="/medical/seances" element={<GererSeances />} /> 
+      </Route>
+
+    {/* Routes pour INFIRMIER */}
+    <Route element={<PrivateRoute requiredRole="INFIRMIER" />}>
+        <Route path="/medical/infirmier" element={<InfirmierSpace />} />
+        <Route path="/medical/infirmier/faire-inventaire" element={<FaireInventaire />} />
+        <Route path="/medical/infirmier/interventions" element={<GestionReclamations />} />
+        <Route path="/medical/infirmier/machines" element={<AjoutMachine />} />
+        <Route path="/medical/infirmier/techniciens" element={<AjoutTechnicien />} />
+        <Route path="/medical/infirmier/machines/edit/:id" element={<EditMachine />} />
+        <Route path="/medical/infirmier/techniciens/edit/:id" element={<EditTechnicien />} />
+        <Route path="/medical/infirmier/interventions/edit/:id" element={<EditIntervention />} />
+        <Route path="/medical/infirmier/interventions/list" element={<ListeReclamationsMedical />} />
+        <Route path="/medical/infirmier/machines/list" element={<ListeMachinesMedical />} />
+        <Route path="/medical/infirmier/techniciens/list" element={<ListeTechniciensMedical />} />
+        <Route path="/medical/infirmier/interventions/close/:id" element={<CloseIntervention />} />
+      </Route>
+
+      {/* Routes pour MEDECIN */}
+      <Route element={<PrivateRoute requiredRole="MEDECIN" />}>
+        <Route path="/medical/medecin" element={<MedecinSpace />} />
       </Route>
 
       {/* Routes pour INTENDANT et RESPONSABLE_STOCK */}
@@ -146,18 +160,19 @@ const AppRouter = () => {
         <Route path="/details-inventaire/:id" element={<DetailsInventaire />} />
       </Route>
 
-      {/* Route pour ListeLivraisons avec rôles multiples */}
+     {/* Route pour Profil */}
       <Route element={<PrivateRoute />}>
         <Route path="/profile" element={<Profile />} />
       </Route>
+
+  {/* Route pour Super Admin */}
+    <Route element={<PrivateRoute requiredRole="SUPER_ADMIN" />}>
+      <Route path="/super-admin" element={<SuperAdminSpace />} />
+      <Route path="/super-admin/intendants" element={<IntendantManagement />} />
+    </Route>
+
       <Route path="/" element={<Home />} />
       <Route path="/machines/details/:id" element={<MachineDetails />} />
-
-     {/* Route pour ListeLivraisons avec rôles multiples */}
-<Route element={<PrivateRoute requiredRole="SUPER_ADMIN" />}>
-  <Route path="/super-admin" element={<SuperAdminSpace />} />
-  <Route path="/super-admin/intendants" element={<IntendantManagement />} />
-</Route>
     </Routes>
   );
 };

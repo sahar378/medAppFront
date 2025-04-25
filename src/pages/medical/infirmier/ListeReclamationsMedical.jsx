@@ -1,9 +1,9 @@
-// src/pages/medical/ListeReclamationsMedical.jsx
+// src/pages/medical/infirmier/ListeReclamationsMedical.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
-import authService from '../../services/authService';
+import Navbar from '../../../components/Navbar';
+import Sidebar from '../../../components/Sidebar';
+import authService from '../../../services/authService';
 
 const ListeReclamationsMedical = () => {
   const [interventions, setInterventions] = useState([]);
@@ -24,7 +24,7 @@ const ListeReclamationsMedical = () => {
   }, []);
 
   const handleClose = (id) => {
-    navigate(`/medical/interventions/close/${id}`);
+    navigate(`/medical/infirmier/interventions/close/${id}`);
   };
 
   if (loading) return <div>Chargement...</div>;

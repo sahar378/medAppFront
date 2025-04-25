@@ -32,7 +32,7 @@ const MachineDetails = () => {
       navigate('/intendant/machines', { state: { activeTab: activeTab || 'non-archive' } });
     } else if (from === 'medical') {
       // Retourner vers la liste des machines non archivées pour le médical
-      navigate('/medical/machines/list');
+      navigate('/medical/infirmier/machines/list');
     } else {
       // Par défaut, retour à une page générique (ou précédent)
       navigate(-1);
