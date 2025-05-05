@@ -1105,6 +1105,347 @@ getInterventionById: async (id) => {
 },
 
 
+
+// Gestion des patients
+
+
+getAllPatients: async () => {
+  try {
+    const response = await api.get('/medical/patients');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer la liste des patients', 'error');
+    throw error;
+  }
+},
+
+getArchivedPatients: async () => {
+  try {
+    const response = await api.get('/medical/patients/archived');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer la liste des patients archivés', 'error');
+    throw error;
+  }
+},
+
+getActivePatients: async () => {
+  try {
+    const response = await api.get('/medical/patients/actifs');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer la liste des patients actifs', 'error');
+    throw error;
+  }
+},
+
+getInactiveNonArchivedPatients: async () => {
+  try {
+    const response = await api.get('/medical/patients/inactifs-non-archives');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer la liste des patients non actifs et non archivés', 'error');
+    throw error;
+  }
+},
+
+searchActiveNonArchivedPatientsByNom: async (nom) => {
+  try {
+    const response = await api.get('/medical/patients/search/actifs', { params: { nom } });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de rechercher les patients actifs', 'error');
+    throw error;
+  }
+},
+
+searchInactiveNonArchivedPatientsByNom: async (nom) => {
+  try {
+    const response = await api.get('/medical/patients/search/inactifs-non-archives', { params: { nom } });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de rechercher les patients non actifs et non archivés', 'error');
+    throw error;
+  }
+},
+
+
+
+searchPatientsByNom: async (nom) => {
+  try {
+    const response = await api.get('/medical/patients/search', { params: { nom } });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de rechercher les patients', 'error');
+    throw error;
+  }
+},
+
+
+searchArchivedPatientsByNom: async (nom) => {
+  try {
+    const response = await api.get('/medical/patients/search/archived', { params: { nom } });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de rechercher les patients archivés', 'error');
+    throw error;
+  }
+},
+
+getPatientById: async (id) => {
+  try {
+    const response = await api.get(`/medical/patients/${id}`);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les détails du patient', 'error');
+    throw error;
+  }
+},
+
+createPatient: async (patientData) => {
+  try {
+    const response = await api.post('/medical/patients', patientData);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la création du patient', 'error');
+    throw error;
+  }
+},
+
+updatePatient: async (id, patientData) => {
+  try {
+    const response = await api.put(`/medical/patients/${id}`, patientData);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la mise à jour du patient', 'error');
+    throw error;
+  }
+},
+
+archivePatient: async (id) => {
+  try {
+    await api.put(`/medical/patients/${id}/archive`);
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de l’archivage du patient', 'error');
+    throw error;
+  }
+},
+
+unarchivePatient: async (id) => {
+  try {
+    await api.put(`/medical/patients/${id}/unarchive`);
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors du désarchivage du patient', 'error');
+    throw error;
+  }
+},
+
+togglePatientActif: async (id) => {
+  try {
+    const response = await api.put(`/medical/patients/${id}/toggle-actif`);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors du changement de statut actif', 'error');
+    throw error;
+  }
+},
+
+
+//hathi shiha
+getAllProduitsStandards: async () => {
+  const response = await api.get(`/medical/produits-standards`);
+  return response.data;
+},
+
+getDialysisHistory: async (patientId) => {
+  try {
+    const response = await api.get(`/medical/patients/${patientId}/dialysis-history`);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer l’historique de dialyse', 'error');
+    throw error;
+  }
+},
+
+
+
+//Gestion de séances 
+
+
+getAllSeances: async () => {
+  try {
+    const response = await api.get('/medical/seances');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer la liste des séances', 'error');
+    throw error;
+  }
+},
+
+getSeanceById: async (id) => {
+  try {
+    const response = await api.get(`/medical/seances/${id}`);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les détails de la séance', 'error');
+    throw error;
+  }
+},
+
+//  méthode pour récupérer les séances par patient
+/*getSeancesByPatient: async (patientId) => {
+  const response = await api.get(`/medical/seances?patientId=${patientId}`);
+  return response.data;
+},*/
+
+getSeancesByPatient: async (patientId, startDate, endDate) => {
+  try {
+    const params = {};
+    if (patientId) params.patientId = patientId;
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    const response = await api.get('/medical/seances/patient', { params });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les séances du patient', 'error');
+    throw error;
+  }
+},
+
+// Fetch sessions by date range, optionally filtered by patient
+getSeancesByDateRange: async (patientId, startDate, endDate) => {
+  try {
+    const params = { startDate, endDate };
+    if (patientId) params.patientId = patientId;
+    const response = await api.get(`/medical/seances/filter`, { params });
+    return response.data;
+  } catch (error) {
+    throw new Error('Erreur lors de la récupération des séances par plage de dates');
+  }
+},
+
+createSeance: async (seanceData, serumSaleChoix) => {
+  try {
+    const response = await api.post('/medical/seances', seanceData, {
+      params: { serumSaleChoix },
+    });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la création de la séance', 'error');
+    throw error;
+  }
+},
+
+updateSeance: async (id, seanceData) => {
+  try {
+    const response = await api.put(`/medical/seances/${id}`, seanceData);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la mise à jour de la séance', 'error');
+    throw error;
+  }
+},
+
+  addProduitNonStandard: async (seanceId, produitsNonStandards, produitsSansStock, produitsHorsStock, produitsSpeciaux) => {
+    try {
+      const response = await api.post(`/medical/seances/${seanceId}/produits-non-standards`, {
+        produitsNonStandards,
+        produitsSansStock,
+        produitsHorsStock,
+        produitsSpeciaux,
+      });
+      return response.data;
+    } catch (error) {
+      Swal.fire('Erreur', 'Erreur lors de l’ajout des produits non standards', 'error');
+      throw error;
+    }
+  },
+
+addMesure: async (seanceId, mesureData) => {
+  try {
+    const response = await api.post(`/medical/seances/${seanceId}/mesures`, mesureData);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de l’ajout de la mesure', 'error');
+    throw error;
+  }
+},
+
+getAvailableMachines: async () => {
+  try {
+    const response = await api.get('/machines/disponibles');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer la liste des machines disponibles', 'error');
+    throw error;
+  }
+},
+
+getMedicalPersonnel: async () => {
+  try {
+    const response = await api.get('/agent/medical-personnel');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer la liste du personnel médical', 'error');
+    throw error;
+  }
+},
+
+getProduitsBySeance: async (seanceId) => {
+  try {
+    const response = await api.get(`/medical/seances/${seanceId}/produits`);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les produits de la séance', 'error');
+    throw error;
+  }
+},
+
+getMesuresBySeance: async (seanceId) => {
+  try {
+    const response = await api.get(`/medical/seances/${seanceId}/mesures`);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer l’historique des mesures', 'error');
+    throw error;
+  }
+},
+getAllProduitsUsage: async () => {
+  try {
+    const response = await api.get('/medical/produits-usage');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la récupération des produits utilisés:', 'error');
+    throw error;
+  }
+},
+
+getSeancesByPatientWithDateRange: async (patientId, startDate, endDate) => {
+  try {
+    const response = await api.get('/medical/seances/patient', {
+      params: { patientId, startDate, endDate },
+    });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les séances', 'error');
+    throw error;
+  }
+},
+
+definirSeuilsCategorieAutomatique: async (idCategorie) => {
+  try {
+    const response = await api.post('/stock/seuils/categorie/automatique', null, {
+      params: { idCategorie }
+    });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la mise à jour automatique des seuils', 'error');
+    throw error;
+  }
+},
+
+
+
 };
 
 export default authService;

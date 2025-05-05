@@ -11,15 +11,14 @@ const AddProduit = () => {
     nom: '',
     description: '',
     qteDisponible: '',
-    seuilAlerte: '',
     dateExpiration: '',
     categorie: { idCategorie: 1 }
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'qteDisponible' || name === 'seuilAlerte') {
-      // N'accepter que les chiffres pour qteDisponible et seuilAlerte
+    if (name === 'qteDisponible') {
+      // N'accepter que les chiffres pour qteDisponible
       if (/^\d*$/.test(value)) {
         setFormData(prev => ({ ...prev, [name]: value }));
       }
@@ -55,17 +54,17 @@ const AddProduit = () => {
     try {
       const newProduit = {
         ...formData,
-        qteDisponible: qteDisponibleNum, // Convertir en entier
-        seuilAlerte: parseInt(formData.seuilAlerte, 10) || 0, // Convertir en entier, 0 par défaut
+        qteDisponible: qteDisponibleNum,
         categorie: { idCategorie: parseInt(formData.categorie.idCategorie) }
       };
       await authService.saveProduit(newProduit);
+      // Définir automatiquement les seuils pour la catégorie
+      await authService.definirSeuilsCategorieAutomatique(formData.categorie.idCategorie);
       Swal.fire('Succès', 'Produit ajouté avec succès', 'success');
       setFormData({
         nom: '',
         description: '',
         qteDisponible: '',
-        seuilAlerte: '',
         dateExpiration: '',
         categorie: { idCategorie: 1 }
       });
@@ -124,24 +123,13 @@ const AddProduit = () => {
                   <div className="form-group">
                     <label>Quantité disponible :</label>
                     <input
-                      type="text" // Changé en text
+                      type="text"
                       className="form-control"
                       name="qteDisponible"
                       value={formData.qteDisponible}
                       onChange={handleInputChange}
                       placeholder="Entrez un nombre"
                       required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Seuil d’alerte :</label>
-                    <input
-                      type="text" // Changé en text (optionnel, selon tes besoins)
-                      className="form-control"
-                      name="seuilAlerte"
-                      value={formData.seuilAlerte}
-                      onChange={handleInputChange}
-                      placeholder="Entrez un nombre (facultatif)"
                     />
                   </div>
                   <div className="form-group">

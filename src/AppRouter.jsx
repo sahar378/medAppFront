@@ -71,7 +71,26 @@ import CloseIntervention from './pages/medical/infirmier/CloseIntervention';
 import MachineDetails from './pages/MachineDetails';
 import InfirmierSpace from './pages/medical/infirmier/InfirmierSpace';
 import MedecinSpace from './pages/medical/medecin/MedecinSpace';
+//gestion de séances 
 import GererSeances from './pages/medical/GererSeances'; 
+import CreateSeance from './pages/medical/CreateSeance';
+import SeanceDetails from './pages/medical/SeanceDetails';
+import EditSeance from './pages/medical/EditSeance';
+import AllProduitsStandardsList from './pages/medical/AllProduitsStandardsList';
+import DetailSeance from './pages/medical/DetailSeance';
+import SeanceProduitsUsage from './pages/medical/SeanceProduitsUsage'; // Adjust path as needed
+
+
+//Gestion des patients 
+import PatientsList from './pages/medical/medecin/PatientsList';
+import PatientDetails from './pages/medical/medecin/PatientDetails';
+import CreatePatient from './pages/medical/medecin/CreatePatient';
+import EditPatient from './pages/medical/medecin/EditPatient';
+
+import IntendantPatientsList from './pages/intendant/IntendantPatientsList'; // New import
+import IntendantPatientDialysisHistory from './pages/intendant/IntendantPatientDialysisHistory'; // New import
+
+
 
 const AppRouter = () => {
   return (
@@ -101,6 +120,14 @@ const AppRouter = () => {
         <Route path="/intendant/reclamations" element={<ListeReclamationsIntendant />} />
         <Route path="/intendant/machines" element={<ListeMachinesIntendant />} />
         <Route path="/intendant/techniciens" element={<ListeTechniciensIntendant />} />
+
+        <Route path="/stock/produits-usage" element={<SeanceProduitsUsage />} />
+        <Route path="/stock/produits-standards" element={<AllProduitsStandardsList />} />
+        <Route path="/intendant/patients" element={<IntendantPatientsList />} /> {/* New route */}
+        <Route path="/intendant/patients/:patientId/dialysis-history" element={<IntendantPatientDialysisHistory />} /> {/* New route */}
+
+        <Route path="/medical/seances" element={<GererSeances />} />
+
         
 
 
@@ -124,14 +151,28 @@ const AppRouter = () => {
         <Route path="/stock/bons-historique" element={<BonsHistorique />} />
         <Route path="/stock/bons-historique/:idBonCommande" element={<BonCommandeDetails readOnly={true} />} />
         <Route path="/stock/notifications" element={<Notifications />} />
+
+        <Route path="/stock/produits-usage" element={<SeanceProduitsUsage />} />
+        <Route path="/stock/produits-standards" element={<AllProduitsStandardsList />} />
+
+        
+        
         {/* Autres routes pour RESPONSABLE_STOCK */}
       </Route>
 
       <Route element={<PrivateRoute requiredRole="PERSONNEL_MEDICAL" />}>
         <Route path="/medical" element={<MedicalSpace />} />
-        <Route path="/medical/seances" element={<GererSeances />} /> 
-      </Route>
+        <Route path="/medical/seances" element={<GererSeances />} />
+        <Route path="/medical/seances/create" element={<CreateSeance />} />
+        <Route path="/medical/seances/:id" element={<SeanceDetails />} />
+        <Route path="/medical/seances/edit/:id" element={<EditSeance />} />
+        <Route path="/medical/produits-standards" element={<AllProduitsStandardsList />} />
+        <Route path="/medical/seances/details/:id" element={<DetailSeance />} />
+        <Route path="/medical/produits-usage" element={<SeanceProduitsUsage />} />
+        <Route path="/medical/medecin/patients" element={<PatientsList />} />
 
+
+      </Route>
     {/* Routes pour INFIRMIER */}
     <Route element={<PrivateRoute requiredRole="INFIRMIER" />}>
         <Route path="/medical/infirmier" element={<InfirmierSpace />} />
@@ -151,6 +192,9 @@ const AppRouter = () => {
       {/* Routes pour MEDECIN */}
       <Route element={<PrivateRoute requiredRole="MEDECIN" />}>
         <Route path="/medical/medecin" element={<MedecinSpace />} />
+        <Route path="/medical/medecin/patients/:id" element={<PatientDetails />} />
+        <Route path="/medical/medecin/patients/create" element={<CreatePatient />} />
+        <Route path="/medical/medecin/patients/edit/:id" element={<EditPatient />} />
       </Route>
 
       {/* Routes pour INTENDANT et RESPONSABLE_STOCK */}

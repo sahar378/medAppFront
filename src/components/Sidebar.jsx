@@ -51,30 +51,47 @@ const Sidebar = () => {
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des personnels</li>
                 <li className="nav-item"><Link to="/intendant/habilitation" className="nav-link" title="Gérer les habilitations des personnels"><i className="nav-icon fas fa-users-cog"></i><p>Habilitation</p></Link></li>
                 <li className="nav-item"><Link to="/intendant/agents/add" className="nav-link" title="Ajouter un nouveau personnel"><i className="nav-icon fas fa-user-plus"></i><p>Ajouter un personnel</p></Link></li>
+                
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion de bon de commande</li>
+                <li className="nav-item"><Link to="/intendant/bons-commande" className="nav-link" title="Approbation de bon de commande"><i className="nav-icon fas fa-file-alt"></i><p>Bons de commande</p></Link></li>
+                <li className="nav-item"><Link to="/intendant/bons-annules" className="nav-link" title="Consulter les bons de commande annulés"><i className="nav-icon fas fa-times-circle"></i><p>Bons Annulés</p></Link></li>
+
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion de Notifications</li>
+                <li className="nav-item"><Link to="/intendant/notifications/creer" className="nav-link" title="Créer une notification"><i className="nav-icon fas fa-plus-circle"></i><p>Créer Notification</p></Link></li>
+
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation Stock</li>
                 <li className="nav-item"><Link to="/intendant/stock/active/medicaments" className="nav-link" title="Stock actif des médicaments"><i className="nav-icon fas fa-pills"></i><p>Médicaments Actifs</p></Link></li>
                 <li className="nav-item"><Link to="/intendant/stock/active/materiels" className="nav-link" title="Stock actif des matériels"><i className="nav-icon fas fa-tools"></i><p>Matériels Actifs</p></Link></li>
                 <li className="nav-item"><Link to="/intendant/stock/archived/medicaments" className="nav-link" title="Stock archivé des médicaments"><i className="nav-icon fas fa-archive"></i><p>Médicaments Archivés</p></Link></li>
                 <li className="nav-item"><Link to="/intendant/stock/archived/materiels" className="nav-link" title="Stock archivé des matériels"><i className="nav-icon fas fa-archive"></i><p>Matériels Archivés</p></Link></li>
-                <li className="nav-item"><Link to="/intendant/bons-commande" className="nav-link" title="Approbation de bon de commande"><i className="nav-icon fas fa-file-alt" /><p>Bons de commande</p></Link></li>
-                <li className="nav-item"><Link to="/intendant/bons-annules" className="nav-link"><i className="nav-icon fas fa-paper-plane"></i><p>Bons Annulés</p></Link></li>
+                <li className="nav-item"><Link to="/stock/produits-usage" className="nav-link" title="Voir les produits utilisés par séance"><i className="nav-icon fas fa-boxes"></i><p>Produits Utilisés</p></Link></li>
+                <li className="nav-item"><Link to="/stock/produits-standards" className="nav-link" title="Voir les produits standards des patients"><i className="nav-icon fas fa-star"></i><p>Produits Standards</p></Link></li>
+
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
-                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Livraisons</li>
-                <li className="nav-item"><Link to="/liste-livraisons" className="nav-link" title="Voir toutes les livraisons"><i className="nav-icon fas fa-list"></i><p>Liste des Livraisons</p></Link></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation des Livraisons</li>
+                <li className="nav-item"><Link to="/liste-livraisons" className="nav-link" title="Voir toutes les livraisons"><i className="nav-icon fas fa-truck"></i><p>Liste des Livraisons</p></Link></li>
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation de l'inventaire</li>
                 <li className="nav-item"><Link to="/historique-inventaires" className="nav-link" title="Consulter l’historique des inventaires"><i className="nav-icon fas fa-history"></i><p>Historique Inventaires</p></Link></li>
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
-                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation Fournisseurs</li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation de Fournisseurs</li>
                 <li className="nav-item"><Link to="/intendant/fournisseurs" className="nav-link" title="Consulter la liste des fournisseurs"><i className="nav-icon fas fa-truck"></i><p>Fournisseurs</p></Link></li>
-                <li className="nav-item"><Link to="/intendant/prix" className="nav-link" title="Contrôler les prix des produits"><i className="nav-icon fas fa-money-check-alt" /><p>Contrôle des Prix</p></Link></li>
+                <li className="nav-item"><Link to="/intendant/prix" className="nav-link" title="Contrôler les prix des produits"><i className="nav-icon fas fa-money-check-alt"></i><p>Contrôle des Prix</p></Link></li>
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
-                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Interventions</li>
-                <li className="nav-item"><Link to="/intendant/reclamations" className="nav-link" title="Consulter les réclamations"><i className="nav-icon fas fa-tools"></i><p>Liste des Réclamations</p></Link></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation des Interventions</li>
+                <li className="nav-item"><Link to="/intendant/reclamations" className="nav-link" title="Consulter les réclamations"><i className="nav-icon fas fa-exclamation-triangle"></i><p>Liste des Réclamations</p></Link></li>
                 <li className="nav-item"><Link to="/intendant/machines" className="nav-link" title="Consulter les machines"><i className="nav-icon fas fa-cogs"></i><p>Liste des Machines</p></Link></li>
                 <li className="nav-item"><Link to="/intendant/techniciens" className="nav-link" title="Consulter les techniciens"><i className="nav-icon fas fa-user-cog"></i><p>Liste des Techniciens</p></Link></li>
+                
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
-                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Notifications</li>
-                <li className="nav-item"><Link to="/intendant/notifications/creer" className="nav-link" title="Créer une notification"><i className="nav-icon fas fa-bell"></i><p>Créer Notification</p></Link></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation de Patients</li>
+                <li className="nav-item"><Link to="/intendant/patients" className="nav-link" title="Voir la liste des patients"><i className="nav-icon fas fa-users"></i><p>Liste des Patients</p></Link></li>
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation de Séances</li>
+                <li className="nav-item"><Link to="/medical/seances" className="nav-link" title="Voir les séances effectuées"><i className="nav-icon fas fa-calendar-check"></i><p>Séances effectuées</p></Link></li>
               </>
             )}
             {activeRole === 'RESPONSABLE_STOCK' && (
@@ -84,6 +101,10 @@ const Sidebar = () => {
                 <li className="nav-item"><Link to="/stock/add" className="nav-link" title="Ajouter un nouveau produit au stock"><i className="nav-icon fas fa-plus-circle"></i><p>Ajouter un produit</p></Link></li>
                 <li className="nav-item"><Link to="/stock/medicaments" className="nav-link" title="Voir la liste des médicaments"><i className="nav-icon fas fa-pills"></i><p>Liste des médicaments</p></Link></li>
                 <li className="nav-item"><Link to="/stock/materiels" className="nav-link" title="Voir la liste des matériels"><i className="nav-icon fas fa-tools"></i><p>Liste des matériels</p></Link></li>
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation des Produits</li>
+                <li className="nav-item"><Link to="/stock/produits-usage" className="nav-link" title="Voir les produits utilisés par séance"><i className="nav-icon fas fa-boxes"></i><p>Produits Utilisés</p></Link></li>
+                <li className="nav-item"><Link to="/stock/produits-standards" className="nav-link" title="Voir les produits standards des patients"><i className="nav-icon fas fa-user-md"></i><p>Produits Standards</p></Link></li>
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Livraisons</li>
                 <li className="nav-item"><Link to="/stock/ajouter-livraison" className="nav-link" title="Enregistrer une nouvelle livraison"><i className="nav-icon fas fa-shipping-fast"></i><p>Ajouter une Livraison</p></Link></li>
@@ -103,9 +124,42 @@ const Sidebar = () => {
                 <li className="nav-item"><Link to="/stock/notifications" className="nav-link" title="Voir les notifications"><i className="nav-icon fas fa-bell"></i><p>Notifications</p></Link></li>
               </>
             )}
-            {activeRole === 'PERSONNEL_MEDICAL' && (
+                          {activeRole === 'PERSONNEL_MEDICAL' && (
               <>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>{spaceName}</li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Séances</li>
+                <li className="nav-item">
+                  <Link to="/medical/seances" className="nav-link" title="Gérer les séances">
+                    <i className="nav-icon fas fa-calendar-check"></i>
+                    <p>Gérer les Séances</p>
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to="/medical/seances/create" className="nav-link" title="Créer une séance">
+                    <i className="nav-icon fas fa-calendar-plus"></i>
+                    <p>Créer une Séance</p>
+                  </Link>
+                </li>
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Patients</li>
+                <li className="nav-item">
+                  <Link to="/medical/medecin/patients" className="nav-link" title="Voir la liste des patients">
+                    <i className="nav-icon fas fa-users"></i>
+                    <p>Liste des Patients</p>
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to="/medical/produits-standards" className="nav-link" title="Produits standards">
+                    <i className="nav-icon fas fa-pills"></i>
+                    <p>Produits Standards</p>
+                  </Link>
+                </li>
+                <li className="nav-item">
+              <Link to="/medical/produits-usage" className="nav-link">
+                <i className="nav-icon fas fa-boxes"></i>
+                <p>Produits Utilisés</p>
+              </Link>
+            </li>
               </>
             )}
             {activeRole === 'INFIRMIER' && (
@@ -126,18 +180,31 @@ const Sidebar = () => {
                 <li className="nav-item"><Link to="/medical/infirmier/techniciens/list" className="nav-link" title="Consulter les techniciens"><i className="nav-icon fas fa-list"></i><p>Liste des Techniciens</p></Link></li>
               </>
             )}
-            {activeRole === 'MEDECIN' && (
-              <>
-                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>{spaceName}</li>
-                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Patients</li>
-                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
-                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Séances</li>
-              </>
-            )}
             {activeRole === 'SUPER_ADMIN' && (
               <>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>{spaceName}</li>
                 <li className="nav-item"><Link to="/super-admin/intendants" className="nav-link"><i className="nav-icon fas fa-users-cog"></i><p>Gérer les intendants</p></Link></li>
+              </>
+            )}
+            {activeRole === 'MEDECIN' && (
+              <>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>{spaceName}</li>
+                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Patients</li>
+                <li className="nav-item">
+                  <Link to="/medical/medecin/patients" className="nav-link" title="Gérer les patients">
+                    <i className="nav-icon fas fa-users"></i>
+                    <p>Liste des Patients</p>
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to="/medical/medecin/patients/create" className="nav-link" title="Ajouter un patient">
+                    <i className="nav-icon fas fa-user-plus"></i>
+                    <p>Ajouter un Patient</p>
+                  </Link>
+                </li>
+                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
+                
+                
               </>
             )}
           </ul>

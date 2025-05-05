@@ -1,4 +1,3 @@
-// src/pages/intendant/IntendantSpace.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
@@ -42,156 +41,254 @@ const IntendantSpace = () => {
         <section className="content" style={{ position: 'relative', zIndex: 2 }}>
           <div className="container-fluid">
             <div className="row">
-              <div className="col-md-3">
+              <div className="col-md-4 mb-4">
                 <Link to="/intendant/habilitation" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-primary text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-user-check fa-3x mb-3" />
-                      <h5>Habilitation des agents</h5>
-                      <p>Gérez les habilitations du personnel.</p>
+                  <div
+                    className="card bg-primary text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-users-cog fa-3x mb-3" />
+                      <h5 className="card-title">Habilitation des agents</h5>
+                      <p className="card-text">Gérez les habilitations du personnel.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3">
+              <div className="col-md-4 mb-4">
                 <Link to="/intendant/agents/add" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-success text-white">
-                    <div className="card-body text-center">
+                  <div
+                    className="card bg-purple text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
                       <i className="fas fa-user-plus fa-3x mb-3" />
-                      <h5>Ajouter un personnel</h5>
-                      <p>Ajoutez un nouveau membre au personnel.</p>
+                      <h5 className="card-title">Ajouter un personnel</h5>
+                      <p className="card-text">Ajoutez un nouveau membre au personnel.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3">
+              <div className="col-md-4 mb-4">
                 <Link to="/intendant/stock/active/medicaments" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-info text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-warehouse fa-3x mb-3" />
-                      <h5>Consulter stock</h5>
-                      <p>Vérifiez les niveaux de stock actuels.</p>
+                  <div
+                    className="card bg-info text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-pills fa-3x mb-3" />
+                      <h5 className="card-title">Consulter stock</h5>
+                      <p className="card-text">Vérifiez les niveaux de stock actuels.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3">
+              <div className="col-md-4 mb-4">
                 <Link to="/intendant/bons-commande" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-warning text-white">
-                    <div className="card-body text-center">
+                  <div
+                    className="card bg-warning text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
                       <i className="fas fa-file-alt fa-3x mb-3" />
-                      <h5>Gestion des bons de commande</h5>
-                      <p>Approuver ou gérer les bons de commande.</p>
+                      <h5 className="card-title">Gestion des bons de commande</h5>
+                      <p className="card-text">Approuver ou gérer les bons de commande.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3 mt-4">
+              <div className="col-md-4 mb-4">
                 <Link to="/liste-livraisons" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-dark text-white">
-                    <div className="card-body text-center">
+                  <div
+                    className="card bg-secondary text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
                       <i className="fas fa-truck fa-3x mb-3" />
-                      <h5>Historique des livraisons</h5>
-                      <p>Consultez les livraisons effectuées.</p>
+                      <h5 className="card-title">Historique des livraisons</h5>
+                      <p className="card-text">Consultez les livraisons effectuées.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3 mt-4">
+              <div className="col-md-4 mb-4">
                 <Link to="/intendant/fournisseurs" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-purple text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-truck-loading fa-3x mb-3" />
-                      <h5>Fournisseurs</h5>
-                      <p>Consultez la liste des fournisseurs.</p>
+                  <div
+                    className="card bg-indigo text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-truck fa-3x mb-3" />
+                      <h5 className="card-title">Fournisseurs</h5>
+                      <p className="card-text">Consultez la liste des fournisseurs.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3 mt-4">
+              <div className="col-md-4 mb-4">
                 <Link to="/intendant/prix" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-teal text-white">
-                    <div className="card-body text-center">
+                  <div
+                    className="card bg-teal text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
                       <i className="fas fa-money-check-alt fa-3x mb-3" />
-                      <h5>Contrôle des prix</h5>
-                      <p>Vérifiez et signalez les prix des produits.</p>
+                      <h5 className="card-title">Contrôle des prix</h5>
+                      <p className="card-text">Vérifiez et signalez les prix des produits.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3 mt-4">
+              <div className="col-md-4 mb-4">
                 <Link to="/intendant/bons-annules" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-danger text-white">
-                    <div className="card-body text-center">
+                  <div
+                    className="card bg-danger text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
                       <i className="fas fa-times-circle fa-3x mb-3" />
-                      <h5>Bons annulés</h5>
-                      <p>Consultez les bons de commande annulés.</p>
+                      <h5 className="card-title">Bons annulés</h5>
+                      <p className="card-text">Consultez les bons de commande annulés.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3 mt-4">
+              <div className="col-md-4 mb-4">
                 <Link to="/historique-inventaires" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-info text-white">
-                    <div className="card-body text-center">
+                  <div
+                    className="card bg-maroon text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
                       <i className="fas fa-history fa-3x mb-3" />
-                      <h5>Historique des Inventaires</h5>
-                      <p>Consultez l’historique des inventaires.</p>
+                      <h5 className="card-title">Historique des Inventaires</h5>
+                      <p className="card-text">Consultez l’historique des inventaires.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3 mt-4">
+              <div className="col-md-4 mb-4">
                 <Link to="/intendant/reclamations" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-warning text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-tools fa-3x mb-3" />
-                      <h5>Liste des Réclamations</h5>
-                      <p>Consultez les interventions en cours.</p>
+                  <div
+                    className="card bg-amber text-black"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-exclamation-triangle fa-3x mb-3" />
+                      <h5 className="card-title">Liste des Réclamations</h5>
+                      <p className="card-text">Consultez les interventions en cours.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3 mt-4">
+              <div className="col-md-4 mb-4">
                 <Link to="/intendant/machines" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-success text-white">
-                    <div className="card-body text-center">
+                  <div
+                    className="card bg-olive text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
                       <i className="fas fa-cogs fa-3x mb-3" />
-                      <h5>Liste des Machines</h5>
-                      <p>Consultez les machines disponibles.</p>
+                      <h5 className="card-title">Liste des Machines</h5>
+                      <p className="card-text">Consultez les machines disponibles.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3 mt-4">
+              <div className="col-md-4 mb-4">
                 <Link to="/intendant/techniciens" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-primary text-white">
-                    <div className="card-body text-center">
+                  <div
+                    className="card bg-navy text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
                       <i className="fas fa-user-cog fa-3x mb-3" />
-                      <h5>Liste des Techniciens</h5>
-                      <p>Consultez les techniciens enregistrés.</p>
+                      <h5 className="card-title">Liste des Techniciens</h5>
+                      <p className="card-text">Consultez les techniciens enregistrés.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3 mt-4">
+              <div className="col-md-4 mb-4">
                 <Link to="/intendant/notifications/creer" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-secondary text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-bell fa-3x mb-3" />
-                      <h5>Créer une Notification</h5>
-                      <p>Envoyer un message aux responsables.</p>
+                  <div
+                    className="card bg-yellow text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-plus-circle fa-3x mb-3" />
+                      <h5 className="card-title">Créer une Notification</h5>
+                      <p className="card-text">Envoyer un message aux responsables.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-              <div className="col-md-3 mt-4">
+              <div className="col-md-4 mb-4">
+                <Link to="/stock/produits-usage" style={{ textDecoration: 'none' }}>
+                  <div
+                    className="card bg-lime text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-clipboard-list fa-3x mb-3" />
+                      <h5 className="card-title">Produits utilisés</h5>
+                      <p className="card-text">Consultez les produits utilisés par le personnels médical .</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+              <div className="col-md-4 mb-4">
+                <Link to="/stock/produits-standards" style={{ textDecoration: 'none' }}>
+                  <div
+                    className="card bg-orange text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-exclamation-circle fa-3x mb-3" />
+                      <h5 className="card-title">Produits standards</h5>
+                      <p className="card-text">Vérifiez la quantités disponibles des produits standards.</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+              <div className="col-md-4 mb-4">
+                <Link to="/intendant/patients" style={{ textDecoration: 'none' }}>
+                  <div
+                    className="card bg-cyan text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-users fa-3x mb-3" />
+                      <h5 className="card-title">Liste des Patients</h5>
+                      <p className="card-text">Consultez la liste des patients.</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+              <div className="col-md-4 mb-4">
+                <Link to="/medical/seances" style={{ textDecoration: 'none' }}>
+                  <div
+                    className="card bg-pink text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-calendar-check fa-3x mb-3" />
+                      <h5 className="card-title">Séances Effectuées</h5>
+                      <p className="card-text">Consultez les séances effectuées.</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+              <div className="col-md-4 mb-4">
                 <Link to="/profile" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-dark text-white">
-                    <div className="card-body text-center">
+                  <div
+                    className="card bg-dark text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
                       <i className="fas fa-user fa-3x mb-3" />
-                      <h5>Voir mon profil</h5>
-                      <p>Consultez ou modifiez vos informations.</p>
+                      <h5 className="card-title">Voir mon profil</h5>
+                      <p className="card-text">Consultez ou modifiez vos informations.</p>
                     </div>
                   </div>
                 </Link>

@@ -10,20 +10,29 @@ const MedicamentList = () => {
   const [medicaments, setMedicaments] = useState([]);
   const [filteredMedicaments, setFilteredMedicaments] = useState([]);
   const [alertes, setAlertes] = useState([]);
-  const [nombreMalades, setNombreMalades] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Charger les médicaments et alertes
         const medicamentsData = await authService.getActiveMedicaments();
         const alertesData = await authService.verifierAlertesMedicaments();
-        console.log('Alertes récupérées:', alertesData);
         setMedicaments(medicamentsData);
         setFilteredMedicaments(medicamentsData);
         setAlertes(alertesData);
+
+        // Définir automatiquement les seuils pour la catégorie médicament (idCategorie: 2)
+        await authService.definirSeuilsCategorieAutomatique(2);
+        // Recharger les médicaments et alertes après mise à jour des seuils
+        const updatedMedicaments = await authService.getActiveMedicaments();
+        const updatedAlertes = await authService.verifierAlertesMedicaments();
+        setMedicaments(updatedMedicaments);
+        setFilteredMedicaments(updatedMedicaments); // Ne pas filtrer ici, laisser le second useEffect gérer
+        setAlertes(updatedAlertes);
       } catch (error) {
-        console.error('Erreur lors du chargement des données', error);
+        console.error('Erreur lors du chargement des données ou de la mise à jour des seuils', error);
+        Swal.fire('Erreur', 'Erreur lors du chargement ou de la mise à jour des seuils', 'error');
       }
     };
     fetchData();
@@ -38,39 +47,6 @@ const MedicamentList = () => {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-  };
-
-  const handleDefinirSeuils = async () => {
-    if (!nombreMalades) {
-      Swal.fire('Erreur', 'Veuillez entrer le nombre de malades', 'error');
-      return;
-    }
-  
-    Swal.fire({
-      title: 'Confirmer la mise à jour des seuils',
-      text: 'Êtes-vous sûr de vouloir mettre à jour les seuils des médicaments ?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Oui, mettre à jour',
-      cancelButtonText: 'Annuler'
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await authService.definirSeuilsCategorie(2, parseInt(nombreMalades));
-          const updatedMedicaments = await authService.getActiveMedicaments();
-          const updatedAlertes = await authService.verifierAlertesMedicaments();
-          setMedicaments(updatedMedicaments);
-          setFilteredMedicaments(updatedMedicaments.filter(p => p.nom.toLowerCase().includes(searchTerm.toLowerCase())));
-          setAlertes(updatedAlertes);
-          Swal.fire('Succès', 'Seuils des médicaments mis à jour avec succès', 'success');
-        } catch (error) {
-          console.error('Erreur lors de la mise à jour des seuils', error);
-          Swal.fire('Erreur', 'Erreur lors de la mise à jour des seuils', 'error');
-        }
-      }
-    });
   };
 
   const handleDelete = async (produitId) => {
@@ -152,23 +128,10 @@ const MedicamentList = () => {
                     />
                   </div>
                   <div>
-                    <button className="btn btn-info mr-2" onClick={handleDefinirSeuils}>
-                      Définir seuil
-                    </button>
                     <button className="btn btn-success" onClick={handleCommander}>
                       Commander
                     </button>
                   </div>
-                </div>
-                <div className="form-group">
-                  <label>Nombre de malades :</label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={nombreMalades}
-                    onChange={e => setNombreMalades(e.target.value)}
-                    style={{ maxWidth: '300px' }}
-                  />
                 </div>
                 <table className="table table-bordered">
                   <thead>

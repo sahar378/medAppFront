@@ -42,13 +42,14 @@ const EditProduit = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name !== 'seuilAlerte') { // Empêcher la modification de seuilAlerte
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
 
-    // Afficher une alerte de confirmation avant la modification
     Swal.fire({
       title: 'Confirmer la modification',
       text: 'Êtes-vous sûr de vouloir modifier ce produit ?',
@@ -64,10 +65,11 @@ const EditProduit = () => {
           const updatedProduit = {
             ...formData,
             qteDisponible: parseInt(formData.qteDisponible) || 0,
-            seuilAlerte: parseInt(formData.seuilAlerte) || 0,
             categorie: { idCategorie: parseInt(formData.categorie.idCategorie) }
           };
           await authService.updateProduit(produitId, updatedProduit);
+          // Définir automatiquement les seuils pour la catégorie
+          await authService.definirSeuilsCategorieAutomatique(formData.categorie.idCategorie);
           Swal.fire('Succès', 'Produit mis à jour avec succès', 'success');
           navigate(formData.categorie.idCategorie === 2 ? '/stock/medicaments' : '/stock/materiels');
         } catch (error) {
@@ -136,8 +138,7 @@ const EditProduit = () => {
                       className="form-control"
                       name="seuilAlerte"
                       value={formData.seuilAlerte}
-                      onChange={handleInputChange}
-                      required
+                      disabled // Champ en lecture seule
                     />
                   </div>
                   {formData.categorie.idCategorie === 2 && (

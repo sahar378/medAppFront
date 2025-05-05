@@ -1,4 +1,3 @@
-// src/pages/medical/medecin/MedecinSpace.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../../../components/Navbar';
@@ -42,32 +41,20 @@ const MedecinSpace = () => {
         <section className="content" style={{ position: 'relative', zIndex: 2 }}>
           <div className="container-fluid">
             <div className="row">
-              {/* Gérer les patients */}
-              <div className="col-md-3">
+              <div className="col-md-4 mb-4">
                 <Link to="/medical/medecin/patients" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-primary text-white">
-                    <div className="card-body text-center">
+                  <div
+                    className="card bg-primary text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
                       <i className="fas fa-users fa-3x mb-3" />
-                      <h5>Gérer les Patients</h5>
-                      <p>Consultez ou modifiez les dossiers médicaux.</p>
+                      <h5 className="card-title">Gérer les Patients</h5>
+                      <p className="card-text">Consultez ou modifiez les dossiers médicaux.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-
-              {/* Gérer les séances (prescrire traitements) */}
-              <div className="col-md-3">
-                <Link to="/medical/medecin/seances" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-success text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-stethoscope fa-3x mb-3" />
-                      <h5>Gérer les Séances</h5>
-                      <p>Consultez ou prescrivez des traitements.</p>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-
             </div>
           </div>
         </section>

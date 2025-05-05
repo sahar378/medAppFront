@@ -41,105 +41,122 @@ const InfirmierSpace = () => {
         <section className="content" style={{ position: 'relative', zIndex: 2 }}>
           <div className="container-fluid">
             <div className="row">
-              {/* Faire un inventaire */}
-              <div className="col-md-3">
+              {/* Faire un Inventaire */}
+              <div className="col-md-4 mb-4">
                 <Link to="/medical/infirmier/faire-inventaire" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-info text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-clipboard-check fa-3x mb-3" />
-                      <h5>Faire un Inventaire</h5>
-                      <p>Effectuez un nouvel inventaire du stock.</p>
+                  <div
+                    className="card bg-info text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-clipboard-check fa-3x mb-3"></i>
+                      <h5 className="card-title">Faire un Inventaire</h5>
+                      <p className="card-text">Effectuez un nouvel inventaire du stock.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-
-              {/* Gérer les séances */}
-              <div className="col-md-3">
+              {/* Gérer les Séances */}
+              <div className="col-md-4 mb-4">
                 <Link to="/medical/infirmier/seances" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-success text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-calendar-plus fa-3x mb-3" />
-                      <h5>Gérer les Séances</h5>
-                      <p>Ajoutez ou documentez une séance.</p>
+                  <div
+                    className="card bg-primary text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-calendar-plus fa-3x mb-3"></i>
+                      <h5 className="card-title">Gérer les Séances</h5>
+                      <p className="card-text">Ajoutez ou documentez une séance.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-
-              {/* Créer une réclamation */}
-              <div className="col-md-3">
+              {/* Créer une Réclamation */}
+              <div className="col-md-4 mb-4">
                 <Link to="/medical/infirmier/interventions" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-warning text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-tools fa-3x mb-3" />
-                      <h5>Créer une Réclamation</h5>
-                      <p>Remplissez une réclamation technique.</p>
+                  <div
+                    className="card bg-warning text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-tools fa-3x mb-3"></i>
+                      <h5 className="card-title">Créer une Réclamation</h5>
+                      <p className="card-text">Remplissez une réclamation technique.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-
-              {/* Ajouter une machine */}
-              <div className="col-md-3">
+              {/* Ajouter une Machine */}
+              <div className="col-md-4 mb-4">
                 <Link to="/medical/infirmier/machines" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-warning text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-cogs fa-3x mb-3" />
-                      <h5>Ajouter une Machine</h5>
-                      <p>Ajoutez une nouvelle machine.</p>
+                  <div
+                    className="card bg-purple text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-cogs fa-3x mb-3"></i>
+                      <h5 className="card-title">Ajouter une Machine</h5>
+                      <p className="card-text">Ajoutez une nouvelle machine.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-
-              {/* Ajouter un technicien */}
-              <div className="col-md-3">
+              {/* Ajouter un Technicien */}
+              <div className="col-md-4 mb-4">
                 <Link to="/medical/infirmier/techniciens" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-warning text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-user-cog fa-3x mb-3" />
-                      <h5>Ajouter un Technicien</h5>
-                      <p>Ajoutez un nouveau technicien.</p>
+                  <div
+                    className="card bg-indigo text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-user-cog fa-3x mb-3"></i>
+                      <h5 className="card-title">Ajouter un Technicien</h5>
+                      <p className="card-text">Ajoutez un nouveau technicien.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-
-              {/* Liste des réclamations */}
-              <div className="col-md-3">
+              {/* Liste des Réclamations */}
+              <div className="col-md-4 mb-4">
                 <Link to="/medical/infirmier/interventions/list" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-secondary text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-list fa-3x mb-3" />
-                      <h5>Liste des Réclamations</h5>
-                      <p>Consultez les réclamations existantes.</p>
+                  <div
+                    className="card bg-secondary text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-list fa-3x mb-3"></i>
+                      <h5 className="card-title">Liste des Réclamations</h5>
+                      <p className="card-text">Consultez les réclamations existantes.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-
-              {/* Liste des machines */}
-              <div className="col-md-3">
+              {/* Liste des Machines */}
+              <div className="col-md-4 mb-4">
                 <Link to="/medical/infirmier/machines/list" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-secondary text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-list fa-3x mb-3" />
-                      <h5>Liste des Machines</h5>
-                      <p>Consultez les machines existantes.</p>
+                  <div
+                    className="card bg-teal text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-list fa-3x mb-3"></i>
+                      <h5 className="card-title">Liste des Machines</h5>
+                      <p className="card-text">Consultez les machines existantes.</p>
                     </div>
                   </div>
                 </Link>
               </div>
-
-              {/* Liste des techniciens */}
-              <div className="col-md-3">
+              {/* Liste des Techniciens */}
+              <div className="col-md-4 mb-4">
                 <Link to="/medical/infirmier/techniciens/list" style={{ textDecoration: 'none' }}>
-                  <div className="card bg-secondary text-white">
-                    <div className="card-body text-center">
-                      <i className="fas fa-list fa-3x mb-3" />
-                      <h5>Liste des Techniciens</h5>
-                      <p>Consultez les techniciens existants.</p>
+                  <div
+                    className="card bg-maroon text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-list fa-3x mb-3"></i>
+                      <h5 className="card-title">Liste des Techniciens</h5>
+                      <p className="card-text">Consultez les techniciens existants.</p>
                     </div>
                   </div>
                 </Link>
