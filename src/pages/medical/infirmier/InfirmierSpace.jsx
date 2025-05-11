@@ -56,21 +56,6 @@ const InfirmierSpace = () => {
                   </div>
                 </Link>
               </div>
-              {/* Gérer les Séances */}
-              <div className="col-md-4 mb-4">
-                <Link to="/medical/infirmier/seances" style={{ textDecoration: 'none' }}>
-                  <div
-                    className="card bg-primary text-white"
-                    style={{ height: '200px', width: '100%' }}
-                  >
-                    <div className="card-body text-center d-flex flex-column justify-content-center">
-                      <i className="fas fa-calendar-plus fa-3x mb-3"></i>
-                      <h5 className="card-title">Gérer les Séances</h5>
-                      <p className="card-text">Ajoutez ou documentez une séance.</p>
-                    </div>
-                  </div>
-                </Link>
-              </div>
               {/* Créer une Réclamation */}
               <div className="col-md-4 mb-4">
                 <Link to="/medical/infirmier/interventions" style={{ textDecoration: 'none' }}>

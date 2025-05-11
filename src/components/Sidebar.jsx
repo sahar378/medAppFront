@@ -168,9 +168,6 @@ const Sidebar = () => {
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Inventaires</li>
                 <li className="nav-item"><Link to="/medical/infirmier/faire-inventaire" className="nav-link" title="Effectuer un nouvel inventaire"><i className="nav-icon fas fa-clipboard-check"></i><p>Faire un Inventaire</p></Link></li>
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
-                <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Séances</li>
-                <li className="nav-item"><Link to="/medical/infirmier/seances" className="nav-link" title="Gérer les séances"><i className="nav-icon fas fa-calendar-plus"></i><p>Gérer les Séances</p></Link></li>
-                <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Interventions</li>
                 <li className="nav-item"><Link to="/medical/infirmier/machines" className="nav-link" title="Ajouter une machine"><i className="nav-icon fas fa-cogs"></i><p>Ajouter une Machine</p></Link></li>
                 <li className="nav-item"><Link to="/medical/infirmier/techniciens" className="nav-link" title="Ajouter un technicien"><i className="nav-icon fas fa-user-cog"></i><p>Ajouter un Technicien</p></Link></li>

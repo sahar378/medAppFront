@@ -80,7 +80,9 @@ const CreateSeance = () => {
       serumSaleChoix: 'Sérum salé 1L',
     },
   ]);
-  const [activeTab, setActiveTab] = useState(sessions[0].id);
+  const [activeTab, setActiveTab] = useState(() => {
+    return sessions.length > 0 ? sessions[0].id : null;
+  });
 
   const [machines, setMachines] = useState([]);
   const [personnel, setPersonnel] = useState([]);
@@ -139,6 +141,20 @@ const CreateSeance = () => {
     }
   }, [standardProducts, sessions, activeTab]);
 
+  // Synchronize activeTab when sessions change
+  useEffect(() => {
+    if (sessions.length > 0 && !sessions.some(s => s.id === activeTab)) {
+      setTimeout(() => setActiveTab(sessions[0].id));
+    }
+  }, [sessions, activeTab]);
+
+  // Navigate when sessions are empty
+  useEffect(() => {
+    if (sessions.length === 0) {
+      navigate('/medical/seances');
+    }
+  }, [sessions, navigate]);
+
   // Autocomplete patient search
   const loadPatientOptions = async (inputValue) => {
     if (!inputValue || inputValue.length < 1) return [];
@@ -173,17 +189,50 @@ const CreateSeance = () => {
       return [];
     }
   };
-
   const handleChange = (e, sessionId) => {
     const { name, value } = e.target;
-    setSessions((prev) =>
-      prev.map((session) =>
-        session.id === sessionId
-          ? { ...session, data: { ...session.data, [name]: value } }
+    const currentSession = sessions.find(s => s.id === sessionId);
+  
+    // Validation temps réel améliorée
+    if (name === 'finDialyse' && currentSession?.data.debutDialyse) {
+      const start = new Date(currentSession.data.debutDialyse);
+      const end = new Date(value);
+      
+      if (end < start) {
+        Swal.fire(
+          'Erreur', 
+          'L\'heure de fin doit être postérieure à l\'heure de début', 
+          'error'
+        );
+        return; // Bloque la mise à jour si invalide
+      }
+    }
+  
+    if (name === 'debutDialyse' && currentSession?.data.finDialyse) {
+      const start = new Date(value);
+      const end = new Date(currentSession.data.finDialyse);
+      
+      if (end < start) {
+        Swal.fire(
+          'Erreur', 
+          'L\'heure de fin doit être postérieure à l\'heure de début', 
+          'error'
+        );
+        return;
+      }
+    }
+  
+    // Mise à jour normale si valide
+    setSessions(prev => 
+      prev.map(session => 
+        session.id === sessionId 
+          ? { ...session, data: { ...session.data, [name]: value } } 
           : session
       )
     );
   };
+
+
 
   const handleSelectChange = (e, sessionId) => {
     const { name, value } = e.target;
@@ -402,6 +451,35 @@ const CreateSeance = () => {
   const handleSubmit = async (e, sessionId) => {
     e.preventDefault();
     const session = sessions.find((s) => s.id === sessionId);
+    // Validation finale renforcée
+  if (session.data.debutDialyse && session.data.finDialyse) {
+    const start = new Date(session.data.debutDialyse);
+    const end = new Date(session.data.finDialyse);
+    
+    if (end <= start) {
+      Swal.fire(
+        'Erreur',
+        `La séance doit se terminer après son commencement :
+        Début: ${start.toLocaleString()} 
+        Fin: ${end.toLocaleString()}`,
+        'error'
+      );
+      return;
+    }
+
+    // Vérification supplémentaire pour la durée minimale
+    const dureeMin = 15; // minutes
+    const duree = (end - start) / 60000;
+    
+    if (duree < dureeMin) {
+      Swal.fire(
+        'Erreur',
+        `La durée minimale d'une séance doit être de ${dureeMin} minutes`,
+        'error'
+      );
+      return;
+    }
+  }
     try {
       const seanceResponse = await authService.createSeance(
         session.data,
@@ -450,10 +528,8 @@ const CreateSeance = () => {
       // Remove the submitted session
       setSessions((prev) => {
         const updated = prev.filter((s) => s.id !== sessionId);
-        if (updated.length === 0) {
-          navigate('/medical/seances');
-        } else {
-          setActiveTab(updated[0].id);
+        if (updated.length > 0) {
+          setTimeout(() => setActiveTab(updated[0].id));
         }
         return updated;
       });
@@ -549,29 +625,29 @@ const CreateSeance = () => {
         navigate('/medical/seances');
         return updated;
       }
-  
+
       if (activeTab === sessionId) {
         const closedTabIndex = prev.findIndex((s) => s.id === sessionId);
         let newActiveIndex;
-  
+
         // Determine the new active index
         if (closedTabIndex === prev.length - 1) {
           newActiveIndex = closedTabIndex - 1; // Move to previous tab if last
         } else {
           newActiveIndex = closedTabIndex; // Move to next tab if available
         }
-  
+
         // Ensure the new index is within the updated array bounds
         newActiveIndex = Math.min(newActiveIndex, updated.length - 1);
         newActiveIndex = Math.max(newActiveIndex, 0);
-  
+
         if (newActiveIndex >= 0 && newActiveIndex < updated.length) {
           setActiveTab(updated[newActiveIndex].id);
         } else {
           setActiveTab(updated[0].id); // Fallback to first tab
         }
       }
-  
+
       return updated;
     });
   };
@@ -627,7 +703,7 @@ const CreateSeance = () => {
                         <span
                           className="text-danger ml-2"
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering the tab switch
+                            e.stopPropagation();
                             closeTab(session.id);
                           }}
                           style={{
@@ -697,11 +773,12 @@ const CreateSeance = () => {
                               </select>
                             </div>
                             <div className="col-md-3 form-group mr-2">
-                              <label>Infirmier</label>
+                              <label>Infirmier *</label>
                               <select
                                 className="form-control"
                                 name="infirmier"
                                 onChange={(e) => handleSelectChange(e, session.id)}
+                                required
                               >
                                 <option value="">Sélectionner un infirmier</option>
                                 {personnel
@@ -719,11 +796,12 @@ const CreateSeance = () => {
                               </select>
                             </div>
                             <div className="col-md-3 form-group mr-2">
-                              <label>Médecin</label>
+                              <label>Médecin *</label>
                               <select
                                 className="form-control"
                                 name="medecin"
                                 onChange={(e) => handleSelectChange(e, session.id)}
+                                required
                               >
                                 <option value="">Sélectionner un médecin</option>
                                 {personnel
@@ -752,13 +830,14 @@ const CreateSeance = () => {
                               />
                             </div>
                             <div className="col-md-3 form-group mr-2">
-                              <label>Dialyseur</label>
+                              <label>Dialyseur *</label>
                               <input
                                 type="text"
                                 className="form-control"
                                 name="dialyseur"
                                 value={session.data.dialyseur}
                                 onChange={(e) => handleChange(e, session.id)}
+                                required
                               />
                             </div>
                             <div className="col-md-3 form-group mr-2">
@@ -773,7 +852,7 @@ const CreateSeance = () => {
                               />
                             </div>
                             <div className="col-md-3 form-group mr-2">
-                              <label>PPID (kg)</label>
+                              <label>PPID (kg) *</label>
                               <input
                                 type="number"
                                 step="0.1"
@@ -781,10 +860,11 @@ const CreateSeance = () => {
                                 name="ppid"
                                 value={session.data.ppid || ''}
                                 onChange={(e) => handleChange(e, session.id)}
+                                required
                               />
                             </div>
                             <div className="col-md-3 form-group mr-2">
-                              <label>Poids Sec (kg)</label>
+                              <label>Poids Sec (kg) *</label>
                               <input
                                 type="number"
                                 step="0.1"
@@ -792,6 +872,7 @@ const CreateSeance = () => {
                                 name="ps"
                                 value={session.data.ps || ''}
                                 onChange={(e) => handleChange(e, session.id)}
+                                required
                               />
                             </div>
                             <div className="col-md-3 form-group mr-2">
@@ -900,6 +981,7 @@ const CreateSeance = () => {
                                   name="finDialyse"
                                   value={session.data.finDialyse}
                                   onChange={(e) => handleChange(e, session.id)}
+                                  min={new Date().toISOString().slice(0, 16)} // Optionnel : empêche les dates passées
                                 />
                               </div>
                               <div className="form-group">
