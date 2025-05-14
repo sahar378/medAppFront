@@ -20,6 +20,10 @@ const ArchivedMateriels = () => {
     fetchData();
   }, []);
 
+  const handleManagePrices = (produitId) => {
+    navigate(`/intendant/prix/${produitId}`);
+  };
+
   return (
     <div className="wrapper">
       <Navbar />
@@ -50,12 +54,27 @@ const ArchivedMateriels = () => {
                         <td>{produit.qteDisponible}</td>
                         <td>{produit.seuilAlerte}</td>
                         <td>
-                          <button
-                            className="btn btn-info btn-sm"
-                            onClick={() => navigate(`/intendant/logs/${produit.idProduit}`)}
+                          <div
+                            style={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              flexWrap: 'nowrap',
+                            }}
                           >
-                            Voir les logs
-                          </button>
+                            <button
+                              className="btn btn-info btn-sm"
+                              onClick={() => navigate(`/intendant/logs/${produit.idProduit}`)}
+                            >
+                              Voir les logs
+                            </button>
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() => handleManagePrices(produit.idProduit)}
+                            >
+                              Gérer les prix
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

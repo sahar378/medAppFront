@@ -115,6 +115,8 @@ const AppRouter = () => {
         <Route path="/intendant/bons-commande/:idBonCommande" element={<BonCommandeDetails />} /> {/* Nouvelle route */}
         <Route path="/intendant/prix" element={<ControlePrix />} />
         <Route path="/intendant/notifications/creer" element={<CreerNotification />} />
+        <Route path="/intendant/prix/:produitId" element={<ControlePrix />} /> {/* New route */}
+
 
 
         <Route path="/intendant/reclamations" element={<ListeReclamationsIntendant />} />

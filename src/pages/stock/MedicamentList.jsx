@@ -15,20 +15,17 @@ const MedicamentList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Charger les médicaments et alertes
         const medicamentsData = await authService.getActiveMedicaments();
         const alertesData = await authService.verifierAlertesMedicaments();
         setMedicaments(medicamentsData);
         setFilteredMedicaments(medicamentsData);
         setAlertes(alertesData);
 
-        // Définir automatiquement les seuils pour la catégorie médicament (idCategorie: 2)
         await authService.definirSeuilsCategorieAutomatique(2);
-        // Recharger les médicaments et alertes après mise à jour des seuils
         const updatedMedicaments = await authService.getActiveMedicaments();
         const updatedAlertes = await authService.verifierAlertesMedicaments();
         setMedicaments(updatedMedicaments);
-        setFilteredMedicaments(updatedMedicaments); // Ne pas filtrer ici, laisser le second useEffect gérer
+        setFilteredMedicaments(updatedMedicaments);
         setAlertes(updatedAlertes);
       } catch (error) {
         console.error('Erreur lors du chargement des données ou de la mise à jour des seuils', error);
@@ -79,6 +76,10 @@ const MedicamentList = () => {
 
   const handleCommander = () => {
     navigate('/stock/commande/medicament');
+  };
+
+  const handleManagePrices = (produitId) => {
+    navigate(`/stock/prix/produit/${produitId}`);
   };
 
   return (
@@ -153,18 +154,33 @@ const MedicamentList = () => {
                         <td>{produit.seuilAlerte}</td>
                         <td>{produit.dateExpiration ? new Date(produit.dateExpiration).toLocaleDateString() : '-'}</td>
                         <td>
-                          <button
-                            className="btn btn-warning btn-sm mr-2"
-                            onClick={() => navigate(`/stock/edit/${produit.idProduit}`)}
+                          <div
+                            style={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              flexWrap: 'nowrap',
+                            }}
                           >
-                            Modifier
-                          </button>
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleDelete(produit.idProduit)}
-                          >
-                            Supprimer
-                          </button>
+                            <button
+                              className="btn btn-warning btn-sm"
+                              onClick={() => navigate(`/stock/edit/${produit.idProduit}`)}
+                            >
+                              Modifier
+                            </button>
+                            <button
+                              className="btn btn-danger btn-sm"
+                              onClick={() => handleDelete(produit.idProduit)}
+                            >
+                              Supprimer
+                            </button>
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() => handleManagePrices(produit.idProduit)}
+                            >
+                              Gérer les prix
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

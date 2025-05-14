@@ -79,7 +79,6 @@ const Sidebar = () => {
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation de Fournisseurs</li>
                 <li className="nav-item"><Link to="/intendant/fournisseurs" className="nav-link" title="Consulter la liste des fournisseurs"><i className="nav-icon fas fa-truck"></i><p>Fournisseurs</p></Link></li>
-                <li className="nav-item"><Link to="/intendant/prix" className="nav-link" title="Contrôler les prix des produits"><i className="nav-icon fas fa-money-check-alt"></i><p>Contrôle des Prix</p></Link></li>
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation des Interventions</li>
                 <li className="nav-item"><Link to="/intendant/reclamations" className="nav-link" title="Consulter les réclamations"><i className="nav-icon fas fa-exclamation-triangle"></i><p>Liste des Réclamations</p></Link></li>
@@ -120,7 +119,6 @@ const Sidebar = () => {
                 <li className="nav-item"><Link to="/stock/creer-bon-commande" className="nav-link"><i className="nav-icon fas fa-cart-plus" /><p>Créer un bon de commande</p></Link></li>
                 <li className="nav-item"><Link to="/stock/bons-commande" className="nav-link" title="Créer et gérer les bons de commande"><i className="nav-icon fas fa-file-alt"></i><p>Gestion Bons de Commande</p></Link></li>
                 <li className="nav-item"><Link to="/stock/bons-historique" className="nav-link" title="Consulter l'historique des bons de commande"><i className="nav-icon fas fa-history"></i><p>Historique Bons</p></Link></li>
-                <li className="nav-item"><Link to="/stock/produits-prix" className="nav-link"><i className="nav-icon fas fa-list-alt" /><p>Liste Produits & Prix</p></Link></li>
                 <li className="nav-item"><Link to="/stock/notifications" className="nav-link" title="Voir les notifications"><i className="nav-icon fas fa-bell"></i><p>Notifications</p></Link></li>
               </>
             )}
