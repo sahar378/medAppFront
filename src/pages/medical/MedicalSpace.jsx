@@ -1,3 +1,4 @@
+// src/pages/medical/MedicalSpace.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
@@ -77,9 +78,9 @@ const MedicalSpace = () => {
                   </div>
                 </Link>
               </div>
-              {/* Consulter la liste des patients */}
+              {/* Consulter la liste des patients (Medical) */}
               <div className="col-md-4 mb-4">
-                <Link to="/medical/medecin/patients" style={{ textDecoration: 'none' }}>
+                <Link to="/medical/patients" style={{ textDecoration: 'none' }}>
                   <div
                     className="card bg-info text-white"
                     style={{ height: '200px', width: '100%' }}
@@ -87,7 +88,7 @@ const MedicalSpace = () => {
                     <div className="card-body text-center d-flex flex-column justify-content-center">
                       <i className="fas fa-users fa-3x mb-3"></i>
                       <h5 className="card-title">Liste des Patients</h5>
-                      <p className="card-text">Consultez et gérez les informations des patients.</p>
+                      <p className="card-text">Consultez l’historique de dialyse des patients.</p>
                     </div>
                   </div>
                 </Link>
@@ -156,21 +157,20 @@ const MedicalSpace = () => {
                   </div>
                 </Link>
               </div>
-
               <div className="col-md-4 mb-4">
-                              <Link to="/stock/produits-usage" style={{ textDecoration: 'none' }}>
-                                <div
-                                  className="card bg-lime text-white"
-                                  style={{ height: '200px', width: '100%' }}
-                                >
-                                  <div className="card-body text-center d-flex flex-column justify-content-center">
-                                    <i className="fas fa-clipboard-list fa-3x mb-3" />
-                                    <h5 className="card-title">Produits utilisés</h5>
-                                    <p className="card-text">Consultez les produits utilisés par le personnels médical .</p>
-                                  </div>
-                                </div>
-                              </Link>
-                            </div>
+                <Link to="/stock/produits-usage" style={{ textDecoration: 'none' }}>
+                  <div
+                    className="card bg-lime text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-clipboard-list fa-3x mb-3" />
+                      <h5 className="card-title">Produits utilisés</h5>
+                      <p className="card-text">Consultez les produits utilisés par le personnel médical.</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
             </div>
           </div>
         </section>

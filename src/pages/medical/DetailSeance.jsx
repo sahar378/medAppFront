@@ -4,12 +4,14 @@ import Navbar from '../../components/Navbar';
 import Sidebar from '../../components/Sidebar';
 import authService from '../../services/authService';
 import Swal from 'sweetalert2';
+import { useAuth } from '../../context/AuthContext';
 
 const DetailSeance = () => {
   const { id } = useParams();
   const [seance, setSeance] = useState(null);
   const [mesures, setMesures] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { activeRole } = useAuth();
 
   useEffect(() => {
     const fetchSeanceDetails = async () => {
@@ -30,6 +32,18 @@ const DetailSeance = () => {
     };
     fetchSeanceDetails();
   }, [id]);
+
+  // Determine the "Retour" link based on role
+  const getReturnPath = () => {
+    switch (activeRole) {
+      case 'INTENDANT':
+        return '/intendant';
+      case 'RESPONSABLE_STOCK':
+        return '/stock';
+      default:
+        return '/medical/seances';
+    }
+  };
 
   if (loading) {
     return (
@@ -94,8 +108,13 @@ const DetailSeance = () => {
               <div className="card-header">
                 <h3 className="card-title">Informations Générales</h3>
                 <div className="card-tools">
-                  <Link to="/medical/seances" className="btn btn-tool btn-sm">
-                    <i className="fas fa-arrow-left"></i> Retour aux séances
+                  {activeRole === 'PERSONNEL_MEDICAL' && (
+                    <Link to={`/medical/seances/edit/${seance.idSeance}`} className="btn btn-tool btn-sm mr-2">
+                      <i className="fas fa-edit"></i> Modifier
+                    </Link>
+                  )}
+                  <Link to={getReturnPath()} className="btn btn-tool btn-sm">
+                    <i className="fas fa-arrow-left"></i> Retour
                   </Link>
                 </div>
               </div>
@@ -234,9 +253,14 @@ const DetailSeance = () => {
 
             <div className="row">
               <div className="col-md-12">
-                <Link to="/medical/seances" className="btn btn-default">
+                <Link to={getReturnPath()} className="btn btn-default mr-2">
                   <i className="fas fa-arrow-left mr-1"></i> Retour
                 </Link>
+                {activeRole === 'PERSONNEL_MEDICAL' && (
+                  <Link to={`/medical/seances/edit/${seance.idSeance}`} className="btn btn-primary">
+                    <i className="fas fa-edit mr-1"></i> Modifier
+                  </Link>
+                )}
               </div>
             </div>
           </div>

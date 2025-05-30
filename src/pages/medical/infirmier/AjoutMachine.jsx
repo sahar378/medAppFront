@@ -1,5 +1,5 @@
-// src/pages/medical/infirmier/AjoutMachine.jsx
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../../../components/Navbar';
 import Sidebar from '../../../components/Sidebar';
 import authService from '../../../services/authService';
@@ -14,6 +14,7 @@ const AjoutMachine = () => {
     caracteristique: '',
     voltage: '',
   });
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,9 +30,10 @@ const AjoutMachine = () => {
     try {
       await authService.addMachine(formData);
       Swal.fire('Succès', 'Machine ajoutée', 'success');
-      setFormData({ dateMiseEnService: '', type: '', constructeur: '', fournisseur: '', caracteristique: '', voltage: '' });
+      navigate('/medical/infirmier/machines/list');
     } catch (error) {
-      console.error(error);
+      console.error('Erreur lors de l’ajout de la machine:', error);
+      Swal.fire('Erreur', 'Erreur lors de l’ajout de la machine', 'error');
     }
   };
 
@@ -50,27 +52,63 @@ const AjoutMachine = () => {
                 <form onSubmit={handleSubmit}>
                   <div className="form-group">
                     <label>Date Mise en Service :</label>
-                    <input type="date" className="form-control" name="dateMiseEnService" value={formData.dateMiseEnService} onChange={handleInputChange} required />
+                    <input
+                      type="date"
+                      className="form-control"
+                      name="dateMiseEnService"
+                      value={formData.dateMiseEnService}
+                      onChange={handleInputChange}
+                      required
+                    />
                   </div>
                   <div className="form-group">
                     <label>Type (optionnel) :</label>
-                    <input type="text" className="form-control" name="type" value={formData.type} onChange={handleInputChange} />
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="type"
+                      value={formData.type}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="form-group">
                     <label>Constructeur (optionnel) :</label>
-                    <input type="text" className="form-control" name="constructeur" value={formData.constructeur} onChange={handleInputChange} />
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="constructeur"
+                      value={formData.constructeur}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="form-group">
                     <label>Fournisseur (optionnel) :</label>
-                    <input type="text" className="form-control" name="fournisseur" value={formData.fournisseur} onChange={handleInputChange} />
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="fournisseur"
+                      value={formData.fournisseur}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="form-group">
                     <label>Caractéristiques (optionnel) :</label>
-                    <textarea className="form-control" name="caracteristique" value={formData.caracteristique} onChange={handleInputChange} />
+                    <textarea
+                      className="form-control"
+                      name="caracteristique"
+                      value={formData.caracteristique}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <div className="form-group">
                     <label>Voltage (optionnel) :</label>
-                    <input type="text" className="form-control" name="voltage" value={formData.voltage} onChange={handleInputChange} />
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="voltage"
+                      value={formData.voltage}
+                      onChange={handleInputChange}
+                    />
                   </div>
                   <button type="submit" className="btn btn-primary">Ajouter</button>
                 </form>

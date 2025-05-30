@@ -26,7 +26,7 @@ const GestionPrixProduit = () => {
       const produitResponse = await authService.getProduitById(produitId);
       setProduitNom(produitResponse.nom);
       const fournisseursResponse = await authService.getFournisseursByProduit(produitId);
-      setFournisseursAssocies(fournisseursResponse.filter(f => f.statut !== 2)); // Exclure erased
+      setFournisseursAssocies(fournisseursResponse.filter(f => f.statut !== 2));
     } catch (error) {
       Swal.fire('Erreur', 'Impossible de charger les données', 'error');
     }
@@ -43,7 +43,7 @@ const GestionPrixProduit = () => {
 
   const handleUpdateClick = (item) => {
     setUpdatePrix({
-      idPrix: item.idPrix, // Ajout de l'ID du prix
+      idPrix: item.idPrix,
       idProduit: item.idProduit,
       idFournisseur: item.idFournisseur,
       prixUnitaire: item.prixUnitaire,
@@ -59,7 +59,7 @@ const GestionPrixProduit = () => {
         fournisseur: { idFournisseur: updatePrix.idFournisseur },
         prixUnitaire: parseFloat(updatePrix.prixUnitaire),
         tauxTva: updatePrix.tauxTva === '' || updatePrix.tauxTva === null ? 0 : parseFloat(updatePrix.tauxTva),
-        statut: 1, // Statut reste actif
+        statut: 1,
       });
       setShowUpdateModal(false);
       fetchPrix();
@@ -74,8 +74,6 @@ const GestionPrixProduit = () => {
     setAddPrix({ idProduit: produitId, idFournisseur: '', prixUnitaire: '', tauxTva: '0', date: '' });
     setShowAddModal(true);
   };
-
-
 
   const handleAddSubmit = async () => {
     if (!addPrix.idFournisseur || !addPrix.prixUnitaire || !addPrix.date) {
@@ -95,28 +93,12 @@ const GestionPrixProduit = () => {
       fetchPrix();
       Swal.fire('Succès', 'Prix ajouté', 'success');
     } catch (error) {
-      if (error.response && error.response.data.message === "Un prix actif existe déjà pour ce produit et ce fournisseur.") {
+      if (error.response?.data?.message === "Un prix actif existe déjà pour ce produit et ce fournisseur.") {
         Swal.fire('Erreur', 'Ce prix pour ce fournisseur existe déjà.', 'error');
       } else {
         Swal.fire('Erreur', 'Erreur lors de l’ajout du prix', 'error');
       }
     }
-  };
-
-  const handleAddToCommande = (item) => {
-    navigate(`/stock/commande/${produitNom.toLowerCase().includes('médicament') ? 'medicament' : 'materiel'}`, {
-      state: {
-        bonCommande: {
-          lignesCommande: [
-            {
-              produit: { idProduit: item.idProduit, nom: item.nomProduit },
-              prix: { prixUnitaire: item.prixUnitaire, tauxTva: item.tauxTva || 0 },
-            },
-          ],
-          fournisseur: { idFournisseur: item.idFournisseur },
-        },
-      },
-    });
   };
 
   const handleBack = () => {
@@ -170,16 +152,10 @@ const GestionPrixProduit = () => {
                         <td>{new Date(item.date).toLocaleDateString('fr-TN')}</td>
                         <td>
                           <button
-                            className="btn btn-warning btn-sm mr-2"
+                            className="btn btn-warning btn-sm"
                             onClick={() => handleUpdateClick(item)}
                           >
                             Mettre à jour
-                          </button>
-                          <button
-                            className="btn btn-primary btn-sm"
-                            onClick={() => handleAddToCommande(item)}
-                          >
-                            Ajouter à la Commande
                           </button>
                         </td>
                       </tr>

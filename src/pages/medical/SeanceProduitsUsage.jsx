@@ -8,7 +8,6 @@ import { useAuth } from '../../context/AuthContext';
 
 const SeanceProduitsUsage = () => {
   const [seances, setSeances] = useState([]);
-  const [produitsBySeance, setProduitsBySeance] = useState({});
   const [loading, setLoading] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: '',
@@ -17,7 +16,6 @@ const SeanceProduitsUsage = () => {
   const [triggerFetch, setTriggerFetch] = useState(true);
   const { activeRole } = useAuth();
 
-  // Handle date range change with validation
   const handleDateRangeChange = (e) => {
     const { name, value } = e.target;
     if (name === 'endDate' && dateRange.startDate && value < dateRange.startDate) {
@@ -27,7 +25,6 @@ const SeanceProduitsUsage = () => {
     setDateRange((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle filter button click
   const handleFilter = () => {
     if (dateRange.startDate && !dateRange.endDate) {
       Swal.fire('Erreur', 'Veuillez sélectionner une date de fin', 'error');
@@ -40,11 +37,10 @@ const SeanceProduitsUsage = () => {
     setTriggerFetch(true);
   };
 
-  // Fetch sessions and products
   useEffect(() => {
     if (!triggerFetch) return;
 
-    const fetchSeancesAndProduits = async () => {
+    const fetchSeances = async () => {
       setLoading(true);
       try {
         let seancesData;
@@ -62,22 +58,14 @@ const SeanceProduitsUsage = () => {
 
         setSeances(seancesData);
 
-        // Fetch products for each session
-        const produitsBySeanceData = {};
-        for (const seance of seancesData) {
-          const produits = await authService.getProduitsBySeance(seance.idSeance);
-          produitsBySeanceData[seance.idSeance] = produits;
-        }
-        setProduitsBySeance(produitsBySeanceData);
-
         if (seancesData.length === 0) {
           Swal.fire('Information', 'Aucune séance trouvée pour les critères sélectionnés.', 'info');
         }
       } catch (error) {
-        console.error('Erreur lors de la récupération des séances ou produits:', error);
+        console.error('Erreur lors de la récupération des séances:', error);
         Swal.fire(
           'Erreur',
-          'Impossible de charger les séances ou les produits: ' + (error.message || 'Erreur inconnue'),
+          'Impossible de charger les séances: ' + (error.message || 'Erreur inconnue'),
           'error'
         );
       } finally {
@@ -86,7 +74,7 @@ const SeanceProduitsUsage = () => {
       }
     };
 
-    fetchSeancesAndProduits();
+    fetchSeances();
   }, [triggerFetch, dateRange]);
 
   return (
@@ -169,44 +157,38 @@ const SeanceProduitsUsage = () => {
                 ) : seances.length === 0 ? (
                   <p>Aucune séance trouvée pour les critères sélectionnés.</p>
                 ) : (
-                  seances.map((seance) => (
-                    <div key={seance.idSeance} className="card mb-3">
-                      <div className="card-header bg-info">
-                        <h5 className="card-title">
-                          Séance ID: {seance.idSeance} | Patient: {seance.patient.prenom}{' '}
-                          {seance.patient.nom} | Date: {new Date(seance.date).toLocaleString()}
-                        </h5>
-                      </div>
-                      <div className="card-body">
-                        {produitsBySeance[seance.idSeance]?.length > 0 ? (
-                          <table className="table table-bordered table-striped">
-                            <thead>
-                              <tr>
-                                <th>Nom du Produit</th>
-                                <th>Quantité Administrée</th>
-                                <th>Standard</th>
-                                <th>Date d’Administration</th>
-                                <th>Observation</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {produitsBySeance[seance.idSeance].map((produit) => (
-                                <tr key={produit.idDetail}>
-                                  <td>{produit.nomProduit}</td>
-                                  <td>{produit.qteAdministre}</td>
-                                  <td>{produit.standard ? 'Oui' : 'Non'}</td>
-                                  <td>{new Date(produit.dateTemps).toLocaleString()}</td>
-                                  <td>{produit.observation || '-'}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        ) : (
-                          <p>Aucun produit utilisé dans cette séance.</p>
-                        )}
-                      </div>
-                    </div>
-                  ))
+                  <table className="table table-bordered table-hover">
+                    <thead>
+                      <tr>
+                        <th>Séance ID</th>
+                        <th>Patient</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {seances.map((seance) => (
+                        <tr
+                          key={seance.idSeance}
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => window.location.href = `/medical/seances/${seance.idSeance}/produits/details`}
+                        >
+                          <td>{seance.idSeance}</td>
+                          <td>{seance.patient.prenom} {seance.patient.nom}</td>
+                          <td>{new Date(seance.date).toLocaleString()}</td>
+                          <td>
+                            <Link
+                              to={`/medical/seances/${seance.idSeance}/produits/details`}
+                              className="btn btn-info btn-sm"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <i className="fas fa-eye"></i> Consulter
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 )}
               </div>
             </div>

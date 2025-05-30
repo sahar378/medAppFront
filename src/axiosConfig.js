@@ -11,7 +11,6 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     // Ne pas ajouter le token pour /api/auth/login
     if (token && config.url !== '/auth/login') {
-      console.log('Sending token:', token); // Add logging
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;

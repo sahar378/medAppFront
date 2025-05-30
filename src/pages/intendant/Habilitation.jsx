@@ -1,4 +1,3 @@
-// src/pages/intendant/Habilitation.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
@@ -9,7 +8,11 @@ import Swal from 'sweetalert2';
 const Habilitation = () => {
   const [agentsWithAccess, setAgentsWithAccess] = useState([]);
   const [agentsWithoutAccess, setAgentsWithoutAccess] = useState([]);
-  const [archivedAgents, setArchivedAgents] = useState([]); // Nouvel état pour les agents archivés
+  const [archivedAgents, setArchivedAgents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredAgentsWithAccess, setFilteredAgentsWithAccess] = useState([]);
+  const [filteredAgentsWithoutAccess, setFilteredAgentsWithoutAccess] = useState([]);
+  const [filteredArchivedAgents, setFilteredArchivedAgents] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -22,10 +25,14 @@ const Habilitation = () => {
       try {
         const withAccess = await authService.getAgentsWithAccess();
         const withoutAccess = await authService.getAgentsWithoutAccess();
-        const archived = await authService.getArchivedAgents(); // Récupérer les agents archivés
+        const archived = await authService.getArchivedAgents();
         setAgentsWithAccess(withAccess);
         setAgentsWithoutAccess(withoutAccess);
         setArchivedAgents(archived);
+        // Initialiser les données filtrées avec les données complètes
+        setFilteredAgentsWithAccess(withAccess);
+        setFilteredAgentsWithoutAccess(withoutAccess);
+        setFilteredArchivedAgents(archived);
       } catch (error) {
         console.error('Erreur lors de la récupération des agents:', error);
         Swal.fire('Erreur', 'Impossible de charger les agents', 'error');
@@ -33,6 +40,36 @@ const Habilitation = () => {
     };
     fetchData();
   }, []);
+
+  // Gérer la recherche par matricule
+  const handleSearchChange = async (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (value.trim() === '') {
+      // Si la recherche est vide, réinitialiser les listes filtrées
+      setFilteredAgentsWithAccess(agentsWithAccess);
+      setFilteredAgentsWithoutAccess(agentsWithoutAccess);
+      setFilteredArchivedAgents(archivedAgents);
+    } else {
+      try {
+        const response = await authService.searchAgentsByMatricule(value);
+        // Filtrer les agents par onglet
+        const filteredWithAccess = response.filter(agent => 
+          agent.password && agent.archived === 0);
+        const filteredWithoutAccess = response.filter(agent => 
+          !agent.password && agent.archived === 0);
+        const filteredArchived = response.filter(agent => 
+          agent.archived === 1);
+        setFilteredAgentsWithAccess(filteredWithAccess);
+        setFilteredAgentsWithoutAccess(filteredWithoutAccess);
+        setFilteredArchivedAgents(filteredArchived);
+      } catch (error) {
+        console.error('Erreur lors de la recherche par matricule:', error);
+        Swal.fire('Erreur', 'Impossible de rechercher les agents', 'error');
+      }
+    }
+  };
 
   // Fonction pour vérifier si un utilisateur a le rôle INTENDANT
   const isIntendant = (agent) => {
@@ -64,6 +101,17 @@ const Habilitation = () => {
         </div>
         <section className="content">
           <div className="container-fluid">
+            {/* Barre de recherche */}
+            <div className="form-group mb-3">
+              <label>Rechercher par matricule :</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Entrez le matricule..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+            </div>
             <ul className="nav nav-tabs">
               <li className="nav-item">
                 <button
@@ -110,7 +158,7 @@ const Habilitation = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {agentsWithAccess.map(agent => (
+                        {filteredAgentsWithAccess.map(agent => (
                           <tr key={agent.userId} style={getRowStyle(agent)}>
                             <td>{agent.userId}</td>
                             <td>{agent.nom}</td>
@@ -123,7 +171,6 @@ const Habilitation = () => {
                               >
                                 Gérer
                               </Link>
-                              {/* Badge pour les intendants */}
                               {isIntendant(agent) && (
                                 <span
                                   className={`badge ml-2 ${agent.enabled ? 'badge-success' : 'badge-danger'}`}
@@ -158,7 +205,7 @@ const Habilitation = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {agentsWithoutAccess.map(agent => (
+                        {filteredAgentsWithoutAccess.map(agent => (
                           <tr key={agent.userId} style={getRowStyle(agent)}>
                             <td>{agent.userId}</td>
                             <td>{agent.nom}</td>
@@ -171,7 +218,6 @@ const Habilitation = () => {
                               >
                                 Gérer
                               </Link>
-                              {/* Badge pour les intendants */}
                               {isIntendant(agent) && (
                                 <span
                                   className={`badge ml-2 ${agent.enabled ? 'badge-success' : 'badge-danger'}`}
@@ -206,7 +252,7 @@ const Habilitation = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {archivedAgents.map(agent => (
+                        {filteredArchivedAgents.map(agent => (
                           <tr key={agent.userId} style={getRowStyle(agent)}>
                             <td>{agent.userId}</td>
                             <td>{agent.nom}</td>
@@ -219,7 +265,6 @@ const Habilitation = () => {
                               >
                                 Voir
                               </Link>
-                              {/* Badge pour les intendants */}
                               {isIntendant(agent) && (
                                 <span
                                   className={`badge ml-2 ${agent.enabled ? 'badge-success' : 'badge-danger'}`}

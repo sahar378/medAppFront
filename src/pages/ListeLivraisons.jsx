@@ -133,7 +133,7 @@ const ListeLivraisons = () => {
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="Rechercher par produit ou fournisseur..."
+                      placeholder="Rechercher par produit"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
@@ -7,6 +7,34 @@ import Sidebar from '../../components/Sidebar';
 import authService from '../../services/authService';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../context/AuthContext';
+
+// Custom debounce hook
+const useDebounce = (callback, delay) => {
+  const [timeoutId, setTimeoutId] = useState(null);
+
+  const debouncedCallback = useCallback(
+    (...args) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      const id = setTimeout(() => {
+        callback(...args);
+      }, delay);
+      setTimeoutId(id);
+    },
+    [callback, delay, timeoutId]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [timeoutId]);
+
+  return debouncedCallback;
+};
 
 const GererSeances = () => {
   const [seances, setSeances] = useState([]);
@@ -26,9 +54,9 @@ const GererSeances = () => {
       try {
         let patientsData;
         if (activeRole === 'INTENDANT') {
-          patientsData = await authService.getAllPatients(); // Simplified data for INTENDANT
+          patientsData = await authService.getAllPatients();
         } else {
-          patientsData = await authService.getActivePatients(); // Full data for PERSONNEL_MEDICAL
+          patientsData = await authService.getActivePatients();
         }
         const validPatients = Array.isArray(patientsData)
           ? patientsData.filter((patient) => patient && patient.idPatient)
@@ -100,53 +128,64 @@ const GererSeances = () => {
     fetchSeances();
   }, [triggerFetch, selectedPatient, dateRange]);
 
-  // Handle patient search for autocomplete
-  const handlePatientSearch = async (query) => {
-    if (query.length < 2) {
-      try {
-        let patientsData;
-        if (activeRole === 'INTENDANT') {
-          patientsData = await authService.getAllPatients();
-        } else {
-          patientsData = await authService.getActivePatients();
+  // Patient search logic
+  const searchPatients = useCallback(
+    async (query) => {
+      if (query.length < 2) {
+        try {
+          let patientsData;
+          if (activeRole === 'INTENDANT') {
+            patientsData = await authService.getAllPatients();
+          } else {
+            patientsData = await authService.getActivePatients();
+          }
+          const validPatients = Array.isArray(patientsData)
+            ? patientsData.filter((patient) => patient && patient.idPatient)
+            : [];
+          setPatients(validPatients);
+        } catch (error) {
+          console.error('Erreur lors de la récupération des patients:', error);
+          Swal.fire('Erreur', 'Impossible de charger les patients', 'error');
         }
-        const validPatients = Array.isArray(patientsData)
-          ? patientsData.filter((patient) => patient && patient.idPatient)
+        return;
+      }
+      try {
+        let response;
+        if (activeRole === 'INTENDANT') {
+          response = await authService.getAllPatients();
+          response = response.filter((patient) =>
+            `${patient.prenom} ${patient.nom}`.toLowerCase().includes(query.toLowerCase())
+          );
+        } else {
+          response = await authService.searchActiveNonArchivedPatientsByNom(query);
+        }
+        const validPatients = Array.isArray(response)
+          ? response.filter((patient) => patient && patient.idPatient)
           : [];
         setPatients(validPatients);
       } catch (error) {
-        console.error('Erreur lors de la récupération des patients:', error);
-        Swal.fire('Erreur', 'Impossible de charger les patients', 'error');
+        console.error('Erreur lors de la recherche des patients:', error);
+        Swal.fire('Erreur', 'Impossible de rechercher les patients', 'error');
       }
-      return;
-    }
-    try {
-      let response;
-      if (activeRole === 'INTENDANT') {
-        response = await authService.getAllPatients(); // Filter locally for INTENDANT
-        response = response.filter((patient) =>
-          `${patient.prenom} ${patient.nom}`.toLowerCase().includes(query.toLowerCase())
-        );
-      } else {
-        response = await authService.searchActiveNonArchivedPatientsByNom(query);
-      }
-      const validPatients = Array.isArray(response)
-        ? response.filter((patient) => patient && patient.idPatient)
-        : [];
-      setPatients(validPatients);
-      if (validPatients.length === 0) {
-        Swal.fire('Information', 'Aucun patient trouvé pour cette recherche.', 'info');
-      }
-    } catch (error) {
-      console.error('Erreur lors de la recherche des patients:', error);
-      Swal.fire('Erreur', 'Impossible de rechercher les patients', 'error');
-    }
+    },
+    [activeRole]
+  );
+
+  // Debounced search
+  const debouncedSearch = useDebounce(searchPatients, 500);
+
+  // Handle patient search for autocomplete
+  const handlePatientSearch = (query) => {
+    debouncedSearch(query);
   };
 
   // Handle patient selection
   const handlePatientSelect = (selected) => {
     setSelectedPatient(selected);
     setTriggerFetch(true);
+    if (selected.length === 0 && patients.length === 0) {
+      Swal.fire('Information', 'Aucun patient trouvé pour cette recherche.', 'info');
+    }
   };
 
   // Handle date range changes with validation
@@ -170,6 +209,18 @@ const GererSeances = () => {
       return;
     }
     setTriggerFetch(true);
+  };
+
+  // Determine the details path based on role
+  const getDetailsPath = (seanceId) => {
+    switch (activeRole) {
+      case 'INTENDANT':
+        return `/intendant/seances/details/${seanceId}`;
+      case 'RESPONSABLE_STOCK':
+        return `/stock/seances/details/${seanceId}`;
+      default:
+        return `/medical/seances/details/${seanceId}`;
+    }
   };
 
   return (
@@ -278,7 +329,7 @@ const GererSeances = () => {
                           <td>{seance.medecin?.prenom} {seance.medecin?.nom || '-'}</td>
                           <td>
                             <Link
-                              to={`/medical/seances/details/${seance.idSeance}`}
+                              to={getDetailsPath(seance.idSeance)}
                               className="btn btn-info btn-sm"
                               title="Voir les détails"
                             >

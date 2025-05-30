@@ -1,4 +1,3 @@
-// src/pages/super-admin/IntendantManagement.jsx
 import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
 import Sidebar from '../../components/Sidebar';
@@ -8,7 +7,11 @@ import Swal from 'sweetalert2';
 const IntendantManagement = () => {
     const [intendants, setIntendants] = useState([]);
     const [newIntendant, setNewIntendant] = useState({
-        nom: '', prenom: '', email: '', dateNaissance: '', numeroTelephone: ''
+        nom: '',
+        prenom: '',
+        email: '',
+        dateNaissance: '',
+        numeroTelephone: ''
     });
     const [phoneError, setPhoneError] = useState('');
     const [emailError, setEmailError] = useState('');
@@ -60,50 +63,99 @@ const IntendantManagement = () => {
             Swal.fire('Erreur', 'L’adresse email n’est pas valide.', 'error');
             return;
         }
-        try {
-            const response = await authService.createIntendant(newIntendant);
-            Swal.fire('Succès', `Intendant créé avec matricule ${response.userId}. Attribuez un mot de passe temporaire via "Réinitialiser MDP".`, 'success');
-            setNewIntendant({ nom: '', prenom: '', email: '', dateNaissance: '', numeroTelephone: '' });
-            setPhoneError('');
-            setEmailError('');
-            fetchIntendants();
-        } catch (error) {
-            Swal.fire('Erreur', 'Erreur lors de la création', 'error');
+
+        // Show confirmation dialog
+        const result = await Swal.fire({
+            title: 'Confirmer la création',
+            text: 'Êtes-vous sûr de vouloir créer cet intendant ?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, créer',
+            cancelButtonText: 'Annuler',
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await authService.createIntendant(newIntendant);
+                Swal.fire('Succès', `Intendant créé avec matricule ${response.userId}. Attribuez un mot de passe temporaire via "Réinitialiser MDP".`, 'success');
+                setNewIntendant({ nom: '', prenom: '', email: '', dateNaissance: '', numeroTelephone: '' });
+                setPhoneError('');
+                setEmailError('');
+                fetchIntendants();
+            } catch (error) {
+                Swal.fire('Erreur', error.response?.data || 'Erreur lors de la création', 'error');
+            }
         }
     };
 
     const handleResetPassword = async (userId) => {
+        // Prompt for temporary password
         const { value: tempPassword } = await Swal.fire({
             title: 'Nouveau mot de passe temporaire',
             input: 'text',
             inputPlaceholder: 'Entrez un mot de passe temporaire',
             showCancelButton: true,
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Annuler',
             inputValidator: (value) => {
                 if (!value) {
                     return 'Vous devez entrer un mot de passe !';
                 }
             }
         });
+
         if (tempPassword) {
-            try {
-                await authService.resetIntendantPassword(userId, tempPassword);
-                Swal.fire('Succès', 'Mot de passe temporaire attribué. Un email avec les identifiants a été envoyé.', 'success');
-            } catch (error) {
-                Swal.fire('Erreur', "Erreur lors de l'attribution du mot de passe", 'error');
+            // Show confirmation dialog after password entry
+            const confirmResult = await Swal.fire({
+                title: 'Confirmer la réinitialisation',
+                text: 'Êtes-vous sûr de vouloir réinitialiser le mot de passe de cet intendant avec ce mot de passe temporaire ?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Oui, réinitialiser',
+                cancelButtonText: 'Annuler',
+            });
+
+            if (confirmResult.isConfirmed) {
+                try {
+                    await authService.resetIntendantPassword(userId, tempPassword);
+                    Swal.fire('Succès', 'Mot de passe temporaire attribué. Un email avec les identifiants a été envoyé.', 'success');
+                } catch (error) {
+                    Swal.fire('Erreur', error.response?.data || "Erreur lors de l'attribution du mot de passe", 'error');
+                }
             }
         }
     };
 
     const handleToggleStatus = async (userId, currentStatus) => {
-        try {
-            await authService.toggleIntendantStatus(userId);
-            Swal.fire('Succès', currentStatus 
-                ? 'Compte désactivé. Un email a été envoyé.' 
-                : 'Compte activé. Un email a été envoyé.', 
-                'success');
-            fetchIntendants();
-        } catch (error) {
-            Swal.fire('Erreur', 'Erreur lors de la modification du statut', 'error');
+        // Show confirmation dialog
+        const result = await Swal.fire({
+            title: currentStatus ? 'Confirmer la désactivation' : 'Confirmer l’activation',
+            text: currentStatus 
+                ? 'Êtes-vous sûr de vouloir désactiver cet intendant ?' 
+                : 'Êtes-vous sûr de vouloir activer cet intendant ?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: currentStatus ? 'Oui, désactiver' : 'Oui, activer',
+            cancelButtonText: 'Annuler',
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await authService.toggleIntendantStatus(userId);
+                Swal.fire('Succès', currentStatus 
+                    ? 'Compte désactivé. Un email a été envoyé.' 
+                    : 'Compte activé. Un email a été envoyé.', 
+                    'success');
+                fetchIntendants();
+            } catch (error) {
+                Swal.fire('Erreur', error.response?.data || 'Erreur lors de la modification du statut', 'error');
+            }
         }
     };
 
@@ -123,26 +175,69 @@ const IntendantManagement = () => {
                                 <form onSubmit={handleCreateIntendant}>
                                     <div className="row">
                                         <div className="col-md-4 form-group">
-                                            <input type="text" className="form-control" name="nom" placeholder="Nom" value={newIntendant.nom} onChange={handleInputChange} required />
+                                            <input 
+                                                type="text" 
+                                                className="form-control" 
+                                                name="nom" 
+                                                placeholder="Nom" 
+                                                value={newIntendant.nom} 
+                                                onChange={handleInputChange} 
+                                                required 
+                                            />
                                         </div>
                                         <div className="col-md-4 form-group">
-                                            <input type="text" className="form-control" name="prenom" placeholder="Prénom" value={newIntendant.prenom} onChange={handleInputChange} required />
+                                            <input 
+                                                type="text" 
+                                                className="form-control" 
+                                                name="prenom" 
+                                                placeholder="Prénom" 
+                                                value={newIntendant.prenom} 
+                                                onChange={handleInputChange} 
+                                                required 
+                                            />
                                         </div>
                                         <div className="col-md-4 form-group">
-                                            <input type="email" className={`form-control ${emailError ? 'is-invalid' : ''}`} name="email" placeholder="Email" value={newIntendant.email} onChange={handleInputChange} required />
+                                            <input 
+                                                type="email" 
+                                                className={`form-control ${emailError ? 'is-invalid' : ''}`} 
+                                                name="email" 
+                                                placeholder="Email" 
+                                                value={newIntendant.email} 
+                                                onChange={handleInputChange} 
+                                                required 
+                                            />
                                             {emailError && <div className="invalid-feedback">{emailError}</div>}
                                         </div>
                                     </div>
                                     <div className="row">
                                         <div className="col-md-6 form-group">
-                                            <input type="date" className="form-control" name="dateNaissance" value={newIntendant.dateNaissance} onChange={handleInputChange} required />
+                                            <input 
+                                                type="date" 
+                                                className="form-control" 
+                                                name="dateNaissance" 
+                                                value={newIntendant.dateNaissance} 
+                                                onChange={handleInputChange} 
+                                                required 
+                                            />
                                         </div>
                                         <div className="col-md-6 form-group">
-                                            <input type="text" className={`form-control ${phoneError ? 'is-invalid' : ''}`} name="numeroTelephone" placeholder="Numéro de téléphone (8 chiffres)" value={newIntendant.numeroTelephone} onChange={handleInputChange} required />
+                                            <input 
+                                                type="text" 
+                                                className={`form-control ${phoneError ? 'is-invalid' : ''}`} 
+                                                name="numeroTelephone" 
+                                                placeholder="Numéro de téléphone (8 chiffres)" 
+                                                value={newIntendant.numeroTelephone} 
+                                                onChange={handleInputChange} 
+                                                required 
+                                            />
                                             {phoneError && <div className="invalid-feedback">{phoneError}</div>}
                                         </div>
                                     </div>
-                                    <button type="submit" className="btn btn-primary" disabled={phoneError !== '' || emailError !== '' || !newIntendant.email}>
+                                    <button 
+                                        type="submit" 
+                                        className="btn btn-primary" 
+                                        disabled={phoneError !== '' || emailError !== '' || !newIntendant.email}
+                                    >
                                         Créer
                                     </button>
                                 </form>
@@ -171,10 +266,16 @@ const IntendantManagement = () => {
                                                 <td>{intendant.email}</td>
                                                 <td>{intendant.statut ? 'Actif' : 'Inactif'}</td>
                                                 <td>
-                                                    <button className="btn btn-warning btn-sm mr-2" onClick={() => handleResetPassword(intendant.userId)}>
+                                                    <button 
+                                                        className="btn btn-warning btn-sm mr-2" 
+                                                        onClick={() => handleResetPassword(intendant.userId)}
+                                                    >
                                                         Réinitialiser MDP
                                                     </button>
-                                                    <button className={`btn btn-sm ${intendant.statut ? 'btn-danger' : 'btn-success'}`} onClick={() => handleToggleStatus(intendant.userId, intendant.statut)}>
+                                                    <button 
+                                                        className={`btn btn-sm ${intendant.statut ? 'btn-danger' : 'btn-success'}`} 
+                                                        onClick={() => handleToggleStatus(intendant.userId, intendant.statut)}
+                                                    >
                                                         {intendant.statut ? 'Désactiver' : 'Activer'}
                                                     </button>
                                                 </td>

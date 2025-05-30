@@ -114,25 +114,39 @@ const AjouterLivraison = () => {
       return;
     }
 
-    const livraison = {
-      idProduit: parseInt(formData.idProduit, 10),
-      idFournisseur: parseInt(formData.idFournisseur, 10),
-      quantiteLivree: quantiteLivreeNum,
-      date: formData.date, // Format YYYY-MM-DD, pas besoin d'heure
-      observation: formData.observation || '',
-      livreur: formData.livreur
-    };
-    console.log('Données envoyées au backend :', livraison);
+    // Afficher la confirmation Swal avant d'envoyer les données
+    Swal.fire({
+      title: 'Confirmer l\'enregistrement ?',
+      text: 'Voulez-vous vraiment enregistrer cette livraison ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Oui, enregistrer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const livraison = {
+          idProduit: parseInt(formData.idProduit, 10),
+          idFournisseur: parseInt(formData.idFournisseur, 10),
+          quantiteLivree: quantiteLivreeNum,
+          date: formData.date,
+          observation: formData.observation || '',
+          livreur: formData.livreur
+        };
+        console.log('Données envoyées au backend :', livraison);
 
-    try {
-      const response = await authService.addLivraison(livraison);
-      console.log('Réponse du backend :', response);
-      Swal.fire('Succès', 'Livraison enregistrée avec succès', 'success');
-      navigate('/liste-livraisons');
-    } catch (error) {
-      console.error('Erreur lors de l’enregistrement:', error.response?.data);
-      Swal.fire('Erreur', error.response?.data?.message || 'Erreur lors de l’enregistrement', 'error');
-    }
+        try {
+          const response = await authService.addLivraison(livraison);
+          console.log('Réponse du backend :', response);
+          Swal.fire('Succès', 'Livraison enregistrée avec succès', 'success');
+          navigate('/liste-livraisons');
+        } catch (error) {
+          console.error('Erreur lors de l’enregistrement:', error.response?.data);
+          Swal.fire('Erreur', error.response?.data?.message || 'Erreur lors de l’enregistrement', 'error');
+        }
+      }
+    });
   };
 
   return (

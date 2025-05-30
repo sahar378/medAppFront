@@ -89,31 +89,46 @@ const EditTechnicien = () => {
       return;
     }
 
-    try {
-      await authService.updateTechnicien(id, formData);
-      Swal.fire('Succès', 'Technicien mis à jour avec succès', 'success');
-      navigate('/medical/infirmier/techniciens/list');
-    } catch (error) {
-      // Extraire le message d'erreur du backend
-      const errorMessage = error.response?.data?.message || error.message || 'Une erreur est survenue';
-      if (errorMessage.toLowerCase().includes('un technicien avec cet email existe déjà')) {
-        Swal.fire(
-          'Erreur',
-          `L’email "${formData.email}" est déjà associé à un autre technicien. Veuillez utiliser un email différent.`,
-          'error'
-        );
-      } else if (errorMessage.toLowerCase().includes('email est obligatoire')) {
-        Swal.fire('Erreur', 'L’email est obligatoire', 'error');
-      } else if (errorMessage.toLowerCase().includes('plusieurs techniciens ont le même email')) {
-        Swal.fire(
-          'Erreur',
-          'Problème dans la base de données : plusieurs techniciens ont le même email. Veuillez contacter l’administrateur pour corriger cela.',
-          'error'
-        );
-      } else {
-        Swal.fire('Erreur', errorMessage, 'error');
+    // Show confirmation dialog
+    const result = await Swal.fire({
+      title: 'Confirmer la modification',
+      text: 'Êtes-vous sûr de vouloir mettre à jour les informations de ce technicien ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, mettre à jour',
+      cancelButtonText: 'Annuler',
+    });
+
+    // Proceed only if the user confirms
+    if (result.isConfirmed) {
+      try {
+        await authService.updateTechnicien(id, formData);
+        Swal.fire('Succès', 'Technicien mis à jour avec succès', 'success');
+        navigate('/medical/infirmier/techniciens/list');
+      } catch (error) {
+        // Extraire le message d'erreur du backend
+        const errorMessage = error.response?.data?.message || error.message || 'Une erreur est survenue';
+        if (errorMessage.toLowerCase().includes('un technicien avec cet email existe déjà')) {
+          Swal.fire(
+            'Erreur',
+            `L’email "${formData.email}" est déjà associé à un autre technicien. Veuillez utiliser un email différent.`,
+            'error'
+          );
+        } else if (errorMessage.toLowerCase().includes('email est obligatoire')) {
+          Swal.fire('Erreur', 'L’email est obligatoire', 'error');
+        } else if (errorMessage.toLowerCase().includes('plusieurs techniciens ont le même email')) {
+          Swal.fire(
+            'Erreur',
+            'Problème dans la base de données : plusieurs techniciens ont le même email. Veuillez contacter l’administrateur pour corriger cela.',
+            'error'
+          );
+        } else {
+          Swal.fire('Erreur', errorMessage, 'error');
+        }
+        console.error(error);
       }
-      console.error(error);
     }
   };
 

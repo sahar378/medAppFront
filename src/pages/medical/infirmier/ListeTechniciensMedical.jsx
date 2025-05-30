@@ -1,4 +1,3 @@
-// src/pages/medical/infirmier/ListeTechniciensMedical.jsx
 import React, { useState, useEffect } from 'react';
 import Navbar from '../../../components/Navbar';
 import Sidebar from '../../../components/Sidebar';
@@ -9,20 +8,27 @@ import { useNavigate } from 'react-router-dom';
 const ListeTechniciensMedical = () => {
   const [techniciens, setTechniciens] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTechniciens = async () => {
       try {
-        const data = await authService.getTechniciensByArchiveStatus('/techniciens/non-archived');
+        let data;
+        if (searchTerm.trim()) {
+          data = await authService.searchTechniciens(searchTerm, false); // Force archived = false
+        } else {
+          data = await authService.getTechniciensByArchiveStatus('/techniciens/non-archived');
+        }
         setTechniciens(data);
         setLoading(false);
       } catch (error) {
         setLoading(false);
+        Swal.fire('Erreur', 'Impossible de récupérer les techniciens', 'error');
       }
     };
     fetchTechniciens();
-  }, []);
+  }, [searchTerm]);
 
   const handleEdit = (id) => {
     navigate(`/medical/infirmier/techniciens/edit/${id}`);
@@ -64,6 +70,20 @@ const ListeTechniciensMedical = () => {
           <div className="container-fluid">
             <div className="card">
               <div className="card-header">
+                <div className="input-group mb-3" style={{ maxWidth: '300px' }}>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Rechercher un technicien..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <div className="input-group-append">
+                    <button className="btn btn-outline-secondary" type="button" onClick={() => setSearchTerm('')}>
+                      Effacer
+                    </button>
+                  </div>
+                </div>
                 <h3 className="card-title">Techniciens Non Archivés</h3>
               </div>
               <div className="card-body">
@@ -72,6 +92,8 @@ const ListeTechniciensMedical = () => {
                     <tr>
                       <th>ID</th>
                       <th>Nom</th>
+                      <th>Prénom</th>
+                      <th>Société</th>
                       <th>Téléphone</th>
                       <th>Email</th>
                       <th>Actions</th>
@@ -82,13 +104,21 @@ const ListeTechniciensMedical = () => {
                       <tr key={technicien.idTechnicien}>
                         <td>{technicien.idTechnicien}</td>
                         <td>{technicien.nom}</td>
+                        <td>{technicien.prenom || '-'}</td>
+                        <td>{technicien.societe || '-'}</td>
                         <td>{technicien.telephone || '-'}</td>
                         <td>{technicien.email || '-'}</td>
                         <td>
-                          <button className="btn btn-warning btn-sm" onClick={() => handleEdit(technicien.idTechnicien)}>
+                          <button
+                            className="btn btn-warning btn-sm"
+                            onClick={() => handleEdit(technicien.idTechnicien)}
+                          >
                             Modifier
                           </button>
-                          <button className="btn btn-danger btn-sm ml-2" onClick={() => handleArchive(technicien.idTechnicien)}>
+                          <button
+                            className="btn btn-danger btn-sm ml-2"
+                            onClick={() => handleArchive(technicien.idTechnicien)}
+                          >
                             Archiver
                           </button>
                         </td>

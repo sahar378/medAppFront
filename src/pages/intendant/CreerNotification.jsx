@@ -19,7 +19,7 @@ const CreerNotification = () => {
         try {
             await authService.creerNotification({ message: formData.message });
             Swal.fire('Succès', 'Notification envoyée avec succès', 'success');
-            navigate('/intendant');
+            navigate('/intendant/notifications');
         } catch (error) {
             console.error('Erreur lors de la création de la notification', error);
         }

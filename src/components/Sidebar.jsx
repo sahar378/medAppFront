@@ -60,7 +60,8 @@ const Sidebar = () => {
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion de Notifications</li>
                 <li className="nav-item"><Link to="/intendant/notifications/creer" className="nav-link" title="Créer une notification"><i className="nav-icon fas fa-plus-circle"></i><p>Créer Notification</p></Link></li>
-
+                <li className="nav-item"><Link to="/intendant/notifications" className="nav-link" title="Consulter les notifications"><i className="nav-icon fas fa-bell"></i><p>Consulter Notifications</p></Link></li>
+                
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation Stock</li>
                 <li className="nav-item"><Link to="/intendant/stock/active/medicaments" className="nav-link" title="Stock actif des médicaments"><i className="nav-icon fas fa-pills"></i><p>Médicaments Actifs</p></Link></li>
@@ -81,7 +82,7 @@ const Sidebar = () => {
                 <li className="nav-item"><Link to="/intendant/fournisseurs" className="nav-link" title="Consulter la liste des fournisseurs"><i className="nav-icon fas fa-truck"></i><p>Fournisseurs</p></Link></li>
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Consultation des Interventions</li>
-                <li className="nav-item"><Link to="/intendant/reclamations" className="nav-link" title="Consulter les réclamations"><i className="nav-icon fas fa-exclamation-triangle"></i><p>Liste des Réclamations</p></Link></li>
+                <li className="nav-item"><Link to="/intendant/reclamations" className="nav-link" title="Consulter les réclamations"><i className="nav-icon fas fa-exclamation-triangle"></i><p>Liste des Interventions</p></Link></li>
                 <li className="nav-item"><Link to="/intendant/machines" className="nav-link" title="Consulter les machines"><i className="nav-icon fas fa-cogs"></i><p>Liste des Machines</p></Link></li>
                 <li className="nav-item"><Link to="/intendant/techniciens" className="nav-link" title="Consulter les techniciens"><i className="nav-icon fas fa-user-cog"></i><p>Liste des Techniciens</p></Link></li>
                 
@@ -141,9 +142,9 @@ const Sidebar = () => {
                 <li className="nav-item"><hr style={{ borderColor: '#4f5962', margin: '10px 0' }} /></li>
                 <li className="nav-header" style={{ color: '#c2c7d0', fontSize: '12px', textTransform: 'uppercase' }}>Gestion des Patients</li>
                 <li className="nav-item">
-                  <Link to="/medical/medecin/patients" className="nav-link" title="Voir la liste des patients">
-                    <i className="nav-icon fas fa-users"></i>
-                    <p>Liste des Patients</p>
+                  <Link to="/medical/patients" className="nav-link" title="Consulter l’historique de dialyse">
+                    <i className="nav-icon fas fa-history"></i>
+                    <p>Consulter les patients</p>
                   </Link>
                 </li>
                 <li className="nav-item">

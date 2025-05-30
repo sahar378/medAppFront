@@ -35,7 +35,7 @@ const ListeReclamationsIntendant = () => {
       <Sidebar />
       <div className="content-wrapper">
         <div className="content-header">
-          <h1 className="m-0">Liste des Réclamations</h1>
+          <h1 className="m-0">Liste des Interventions</h1>
         </div>
         <section className="content">
           <div className="container-fluid">

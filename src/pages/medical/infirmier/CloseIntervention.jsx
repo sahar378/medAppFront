@@ -1,4 +1,3 @@
-// src/pages/medical/infirmier/CloseIntervention.jsx
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../../components/Navbar';
@@ -22,22 +21,40 @@ const CloseIntervention = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation for required fields
     if (!formData.reparation || !formData.dateReparation) {
       Swal.fire('Erreur', 'La réparation et la date de réparation sont obligatoires', 'error');
       return;
     }
-    try {
-      await authService.closeIntervention(
-        id,
-        formData.reparation,
-        formData.dateReparation,
-        formData.lieuReparation
-      );
-      Swal.fire('Succès', 'Intervention fermée avec succès', 'success');
-      navigate('/medical/infirmier/interventions/list');
+
+    // Show confirmation dialog
+    const result = await Swal.fire({
+      title: 'Confirmer la fermeture',
+      text: 'Êtes-vous sûr de vouloir fermer cette intervention ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, fermer',
+      cancelButtonText: 'Annuler',
+    });
+
+    // Proceed only if the user confirms
+    if (result.isConfirmed) {
+      try {
+        await authService.closeIntervention(
+          id,
+          formData.reparation,
+          formData.dateReparation,
+          formData.lieuReparation
+        );
+        Swal.fire('Succès', 'Intervention fermée avec succès', 'success');
+        navigate('/medical/infirmier/interventions/list');
       } catch (error) {
-      console.error(error);
-      Swal.fire('Erreur', 'Erreur lors de la fermeture', 'error');
+        console.error(error);
+        Swal.fire('Erreur', 'Erreur lors de la fermeture', 'error');
+      }
     }
   };
 

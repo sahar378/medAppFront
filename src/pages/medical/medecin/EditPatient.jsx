@@ -47,12 +47,29 @@ const EditPatient = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await authService.updatePatient(id, patient);
-      Swal.fire('Succès', 'Patient mis à jour avec succès', 'success');
-      navigate('/medical/medecin/patients');
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour du patient', error);
+
+    // Show confirmation dialog
+    const result = await Swal.fire({
+      title: 'Confirmer la modification',
+      text: 'Êtes-vous sûr de vouloir mettre à jour les informations de ce patient ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, mettre à jour',
+      cancelButtonText: 'Annuler',
+    });
+
+    // Proceed only if the user confirms
+    if (result.isConfirmed) {
+      try {
+        await authService.updatePatient(id, patient);
+        Swal.fire('Succès', 'Patient mis à jour avec succès', 'success');
+        navigate(`/medical/medecin/patients/${id}`);
+      } catch (error) {
+        console.error('Erreur lors de la mise à jour du patient', error);
+        Swal.fire('Erreur', 'Erreur lors de la mise à jour du patient', 'error');
+      }
     }
   };
 
@@ -198,7 +215,7 @@ const EditPatient = () => {
                   </div>
                   <button type="submit" className="btn btn-primary">Mettre à jour</button>
                   <Link
-                    to="/medical/medecin/patients"
+                    to={`/medical/medecin/patients/${id}`}
                     className="btn btn-secondary ml-2"
                   >
                     Annuler

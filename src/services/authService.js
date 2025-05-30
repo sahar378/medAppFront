@@ -869,9 +869,11 @@ creerNotification: async (notificationData) => {
   }
 },
 
-getNotifications: async () => {
+// Modification de la méthode getNotifications
+getNotifications: async (date) => {
   try {
-      const response = await api.get('/notifications');
+      const params = date ? { params: { date } } : {};
+      const response = await api.get('/notifications', params);
       return response.data;
   } catch (error) {
       Swal.fire('Erreur', 'Impossible de récupérer les notifications', 'error');
@@ -1139,6 +1141,16 @@ getActivePatients: async () => {
   }
 },
 
+getNonArchivedPatients: async () => {
+  try {
+    const response = await api.get('/patients/non-archived');
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de récupérer les patients non archivés', 'error');
+    throw error;
+  }
+},
+
 getInactiveNonArchivedPatients: async () => {
   try {
     const response = await api.get('/medical/patients/inactifs-non-archives');
@@ -1345,6 +1357,26 @@ updateSeance: async (id, seanceData) => {
     throw error;
   }
 },
+updateMesure: async (mesureId, mesureData) => {
+  try {
+    const response = await api.put(`/medical/seances/mesures/${mesureId}`, mesureData);
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Erreur lors de la mise à jour de la mesure', 'error');
+    throw error;
+  }
+},
+updateSeanceProduits: async (seanceId, produitsData) => {
+  try {
+    const response = await api.put(
+      `/medical/seances/${seanceId}/produits`,
+      produitsData,
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Erreur lors de la mise à jour des produits');
+  }
+},
 
   addProduitNonStandard: async (seanceId, produitsNonStandards, produitsSansStock, produitsHorsStock, produitsSpeciaux) => {
     try {
@@ -1420,6 +1452,17 @@ getAllProduitsUsage: async () => {
   }
 },
 
+getProduitByNom: async (nom) => {
+  try {
+    const response = await api.get('/medical/produitsStandards', { params: { nom } });
+    return response.data.length > 0 ? response.data[0] : null;
+  } catch (error) {
+    console.error(`Erreur lors de la récupération du produit ${nom}:`, error);
+    Swal.fire('Erreur', `Impossible de récupérer le produit ${nom}`, 'error');
+    throw error;
+  }
+},
+
 getSeancesByPatientWithDateRange: async (patientId, startDate, endDate) => {
   try {
     const response = await api.get('/medical/seances/patient', {
@@ -1444,7 +1487,29 @@ definirSeuilsCategorieAutomatique: async (idCategorie) => {
   }
 },
 
+searchTechniciens: async (searchTerm, archived = false) => {
+  try {
+      const response = await api.get('/techniciens/search', {
+          params: { searchTerm, archived },
+      });
+      return response.data;
+  } catch (error) {
+      Swal.fire('Erreur', 'Erreur lors de la recherche des techniciens', 'error');
+      throw error;
+  }
+},
 
+searchAgentsByMatricule: async (matricule) => {
+  try {
+    const response = await api.get('/intendant/agents/search', {
+      params: { matricule }
+    });
+    return response.data;
+  } catch (error) {
+    Swal.fire('Erreur', 'Impossible de rechercher les agents par matricule', 'error');
+    throw error;
+  }
+},
 
 };
 

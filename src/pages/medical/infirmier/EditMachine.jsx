@@ -1,4 +1,3 @@
-// src/pages/medical/infirmier/EditMachine.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../../components/Navbar';
@@ -47,17 +46,35 @@ const EditMachine = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation for required field
     if (!formData.dateMiseEnService) {
       Swal.fire('Erreur', 'La date de mise en service est obligatoire', 'error');
       return;
     }
-    try {
-      await authService.updateMachine(id, formData);
-      Swal.fire('Succès', 'Machine mise à jour', 'success');
-      navigate('/medical/infirmier/machines/list');
-    } catch (error) {
-      console.error(error);
-      Swal.fire('Erreur', 'Erreur lors de la mise à jour', 'error');
+
+    // Show confirmation dialog
+    const result = await Swal.fire({
+      title: 'Confirmer la modification',
+      text: 'Êtes-vous sûr de vouloir mettre à jour les informations de cette machine ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, mettre à jour',
+      cancelButtonText: 'Annuler',
+    });
+
+    // Proceed only if the user confirms
+    if (result.isConfirmed) {
+      try {
+        await authService.updateMachine(id, formData);
+        Swal.fire('Succès', 'Machine mise à jour', 'success');
+        navigate('/medical/infirmier/machines/list');
+      } catch (error) {
+        console.error(error);
+        Swal.fire('Erreur', 'Erreur lors de la mise à jour', 'error');
+      }
     }
   };
 
@@ -137,7 +154,11 @@ const EditMachine = () => {
                     />
                   </div>
                   <button type="submit" className="btn btn-primary">Mettre à jour</button>
-                  <button type="button" className="btn btn-secondary ml-2" onClick={() => navigate('/medical/infirmier/machines/list')}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary ml-2"
+                    onClick={() => navigate('/medical/infirmier/machines/list')}
+                  >
                     Annuler
                   </button>
                 </form>

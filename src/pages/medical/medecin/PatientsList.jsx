@@ -138,30 +138,58 @@ const PatientsList = () => {
     setSelectedPatient([]);
   };
 
-  // Handle toggle active/inactive status
-  const handleToggleActif = async (patientId) => {
-    try {
-      await authService.togglePatientActif(patientId);
-      Swal.fire('Succès', 'Statut du patient mis à jour', 'success');
-      await fetchPatients(); // Reload the patient list
-      setSelectedPatient([]); // Clear search
-    } catch (error) {
-      console.error('Erreur lors de la modification du statut:', error);
-      Swal.fire('Erreur', 'Impossible de modifier le statut', 'error');
+  // Handle toggle active/inactive status with confirmation
+  const handleToggleActif = async (patientId, isActive) => {
+    const actionText = isActive ? 'désactiver' : 'activer';
+    const result = await Swal.fire({
+      title: `Êtes-vous sûr de vouloir ${actionText} ce patient ?`,
+      text: `Cette action va ${actionText} le statut du patient.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: `Oui, ${actionText} !`,
+      cancelButtonText: 'Annuler',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await authService.togglePatientActif(patientId);
+        Swal.fire('Succès', 'Statut du patient mis à jour', 'success');
+        await fetchPatients(); // Reload the patient list
+        setSelectedPatient([]); // Clear search
+      } catch (error) {
+        console.error('Erreur lors de la modification du statut:', error);
+        Swal.fire('Erreur', 'Impossible de modifier le statut', 'error');
+      }
     }
   };
 
-  // Handle archive/unarchive action
+  // Handle archive/unarchive action with confirmation
   const handleArchive = async (patientId, isArchived) => {
-    try {
-      const action = isArchived ? 'unarchivePatient' : 'archivePatient';
-      await authService[action](patientId);
-      Swal.fire('Succès', `Patient ${isArchived ? 'désarchivé' : 'archivé'}`, 'success');
-      await fetchPatients(); // Reload the patient list
-      setSelectedPatient([]); // Clear search
-    } catch (error) {
-      console.error(`Erreur lors de ${isArchived ? 'désarchivage' : 'archivage'}:`, error);
-      Swal.fire('Erreur', `Impossible de ${isArchived ? 'désarchiver' : 'archiver'} le patient`, 'error');
+    const actionText = isArchived ? 'désarchiver' : 'archiver';
+    const result = await Swal.fire({
+      title: `Êtes-vous sûr de vouloir ${actionText} ce patient ?`,
+      text: `Cette action va ${actionText} le patient.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: `Oui, ${actionText} !`,
+      cancelButtonText: 'Annuler',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const action = isArchived ? 'unarchivePatient' : 'archivePatient';
+        await authService[action](patientId);
+        Swal.fire('Succès', `Patient ${isArchived ? 'désarchivé' : 'archivé'}`, 'success');
+        await fetchPatients(); // Reload the patient list
+        setSelectedPatient([]); // Clear search
+      } catch (error) {
+        console.error(`Erreur lors de ${isArchived ? 'désarchivage' : 'archivage'}:`, error);
+        Swal.fire('Erreur', `Impossible de ${isArchived ? 'désarchiver' : 'archiver'} le patient`, 'error');
+      }
     }
   };
 
@@ -254,34 +282,29 @@ const PatientsList = () => {
                           <td>{patient.archive ? 'Oui' : 'Non'}</td>
                           {activeRole === 'MEDECIN' && (
                             <td>
-                              <Link
-                                to={`/medical/medecin/patients/${patient.idPatient}`}
-                                className="btn btn-info btn-sm mr-1"
-                                title="Voir les détails"
-                              >
-                                <i className="fas fa-eye"></i>
-                              </Link>
-                              <Link
-                                to={`/medical/medecin/patients/edit/${patient.idPatient}`}
-                                className="btn btn-primary btn-sm mr-1"
-                                title="Modifier"
-                              >
-                                <i className="fas fa-edit"></i>
-                              </Link>
-                              <button
-                                className="btn btn-warning btn-sm mr-1"
-                                onClick={() => handleToggleActif(patient.idPatient)}
-                                title="Activer/Désactiver"
-                              >
-                                <i className="fas fa-toggle-on"></i>
-                              </button>
-                              <button
-                                className="btn btn-danger btn-sm"
-                                onClick={() => handleArchive(patient.idPatient, patient.archive)}
-                                title={patient.archive ? 'Désarchiver' : 'Archiver'}
-                              >
-                                <i className={patient.archive ? 'fas fa-undo' : 'fas fa-archive'}></i>
-                              </button>
+                              <div className="d-flex align-items-center">
+                                <Link
+                                  to={`/medical/medecin/patients/${patient.idPatient}`}
+                                  className="btn btn-outline-primary btn-sm mr-2"
+                                  title="Consulter les détails"
+                                >
+                                  Consulter
+                                </Link>
+                                <button
+                                  className="btn btn-outline-warning btn-sm mr-2"
+                                  onClick={() => handleToggleActif(patient.idPatient, patient.actif)}
+                                  title="Activer/Désactiver"
+                                >
+                                  {patient.actif ? 'Désactiver' : 'Activer'}
+                                </button>
+                                <button
+                                  className={`btn btn-outline-${patient.archive ? 'success' : 'danger'} btn-sm`}
+                                  onClick={() => handleArchive(patient.idPatient, patient.archive)}
+                                  title={patient.archive ? 'Désarchiver' : 'Archiver'}
+                                >
+                                  {patient.archive ? 'Désarchiver' : 'Archiver'}
+                                </button>
+                              </div>
                             </td>
                           )}
                         </tr>

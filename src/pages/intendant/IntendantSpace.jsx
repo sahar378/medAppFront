@@ -223,6 +223,22 @@ const IntendantSpace = () => {
                   </div>
                 </Link>
               </div>
+               {/* Notifications */}
+               <div className="col-md-4 mb-4">
+                <Link to="/stock/notifications" style={{ textDecoration: 'none' }}>
+                  <div
+                    className="card bg-warning text-white"
+                    style={{ height: '200px', width: '100%' }}
+                  >
+                    <div className="card-body text-center d-flex flex-column justify-content-center">
+                      <i className="fas fa-bell fa-3x mb-3"></i>
+                      <h5 className="card-title">Notifications</h5>
+                      <p className="card-text">Voir les signalements et alertes.</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+              
               <div className="col-md-4 mb-4">
                 <Link to="/stock/produits-usage" style={{ textDecoration: 'none' }}>
                   <div

@@ -130,7 +130,7 @@ const ActiveMedicaments = () => {
                               className="btn btn-primary btn-sm"
                               onClick={() => handleManagePrices(produit.idProduit)}
                             >
-                              Gérer les prix
+                            Voir les prix
                             </button>
                           </div>
                         </td>
