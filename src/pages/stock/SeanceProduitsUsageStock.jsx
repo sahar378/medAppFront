@@ -6,21 +6,60 @@ import authService from '../../services/authService';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../context/AuthContext';
 
-const SeanceProduitsUsage = () => {
+const SeanceProduitsUsageStock = () => {
   const [seances, setSeances] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [dateRange, setDateRange] = useState({
+    startDate: '',
+    endDate: '',
+  });
+  const [triggerFetch, setTriggerFetch] = useState(true);
   const { activeRole } = useAuth();
 
+  const handleDateRangeChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'endDate' && dateRange.startDate && value < dateRange.startDate) {
+      Swal.fire('Erreur', 'La date de fin doit être après la date de début', 'error');
+      return;
+    }
+    setDateRange((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFilter = () => {
+    if (dateRange.startDate && !dateRange.endDate) {
+      Swal.fire('Erreur', 'Veuillez sélectionner une date de fin', 'error');
+      return;
+    }
+    if (!dateRange.startDate && dateRange.endDate) {
+      Swal.fire('Erreur', 'Veuillez sélectionner une date de début', 'error');
+      return;
+    }
+    setTriggerFetch(true);
+  };
+
   useEffect(() => {
+    if (!triggerFetch) return;
+
     const fetchSeances = async () => {
       setLoading(true);
       try {
-        const seancesData = await authService.getSeancesLastTwoDays();
-        seancesData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        let seancesData;
+        const startDate = dateRange.startDate || null;
+        const endDate = dateRange.endDate || null;
+
+        console.log('Fetching sessions with params:', { startDate, endDate });
+
+        if (startDate && endDate) {
+          seancesData = await authService.getSeancesByDateRange(null, startDate, endDate);
+        } else {
+          seancesData = await authService.getSeancesByPatient(null, null, null);
+          seancesData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+
         setSeances(seancesData);
 
         if (seancesData.length === 0) {
-          Swal.fire('Information', 'Aucune séance trouvée pour les 2 derniers jours.', 'info');
+          Swal.fire('Information', 'Aucune séance trouvée pour les critères sélectionnés.', 'info');
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des séances:', error);
@@ -31,11 +70,12 @@ const SeanceProduitsUsage = () => {
         );
       } finally {
         setLoading(false);
+        setTriggerFetch(false);
       }
     };
 
     fetchSeances();
-  }, []);
+  }, [triggerFetch, dateRange]);
 
   return (
     <div className="wrapper">
@@ -56,16 +96,53 @@ const SeanceProduitsUsage = () => {
           <div className="container-fluid">
             <div className="card">
               <div className="card-header">
-                <h3 className="card-title">Liste des Séances (Derniers 2 Jours)</h3>
+                <h3 className="card-title">Filtrer les Produits Utilisés</h3>
                 <div className="card-tools">
-                  {activeRole === 'PERSONNEL_MEDICAL' && (
-                    <Link to="/medical" className="btn btn-tool btn-sm">
-                      <i className="fas fa-arrow-left"></i> Retour à l'espace médical
+                  {activeRole === 'RESPONSABLE_STOCK' && (
+                    <Link to="/stock" className="btn btn-tool btn-sm">
+                      <i className="fas fa-arrow-left"></i> Retour à l'espace stock
+                    </Link>
+                  )}
+                  {activeRole === 'INTENDANT' && (
+                    <Link to="/intendant" className="btn btn-tool btn-sm">
+                      <i className="fas fa-arrow-left"></i> Retour à l'espace intendant
                     </Link>
                   )}
                 </div>
               </div>
               <div className="card-body">
+                <div className="row mb-4">
+                  <div className="col-md-3 form-group">
+                    <label>Date de Début</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      name="startDate"
+                      value={dateRange.startDate}
+                      onChange={handleDateRangeChange}
+                    />
+                  </div>
+                  <div className="col-md-3 form-group">
+                    <label>Date de Fin</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      name="endDate"
+                      value={dateRange.endDate}
+                      onChange={handleDateRangeChange}
+                    />
+                  </div>
+                  <div className="col-md-12 form-group mt-3">
+                    <button
+                      className="btn btn-primary"
+                      onClick={handleFilter}
+                      disabled={loading}
+                    >
+                      <i className="fas fa-filter mr-1"></i> Filtrer
+                    </button>
+                  </div>
+                </div>
+
                 {loading ? (
                   <div className="text-center">
                     <div className="spinner-border" role="status">
@@ -73,7 +150,7 @@ const SeanceProduitsUsage = () => {
                     </div>
                   </div>
                 ) : seances.length === 0 ? (
-                  <p>Aucune séance trouvée pour les 2 derniers jours.</p>
+                  <p>Aucune séance trouvée pour les critères sélectionnés.</p>
                 ) : (
                   <table className="table table-bordered table-hover">
                     <thead>
@@ -117,4 +194,4 @@ const SeanceProduitsUsage = () => {
   );
 };
 
-export default SeanceProduitsUsage;
+export default SeanceProduitsUsageStock;

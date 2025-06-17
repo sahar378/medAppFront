@@ -7,7 +7,12 @@ import Swal from 'sweetalert2';
 import AsyncSelect from 'react-select/async';
 
 const CreateSeance = () => {
-  // State for managing multiple sessions (tabs)
+  // Fonction pour valider les entrées numériques
+  const validateNumericInput = (value) => {
+    return value === '' || /^[0-9]*\.?[0-9]*$/.test(value);
+  };
+
+  // State initial modifié pour les champs numériques (en chaînes)
   const [sessions, setSessions] = useState([
     {
       id: Date.now(),
@@ -19,35 +24,35 @@ const CreateSeance = () => {
         date: '',
         observation: '',
         dialyseur: '',
-        caBain: 1.5,
-        ppid: null,
-        ps: null,
+        caBain: '1.5',
+        ppid: '',
+        ps: '',
         debutDialyse: '',
         finDialyse: '',
-        poidsEntree: null,
-        poidsSortie: null,
+        poidsEntree: '',
+        poidsSortie: '',
         restitution: '',
         circuitFiltre: '',
         taDebutDebout: '',
         taDebutCouche: '',
-        temperatureDebut: null,
+        temperatureDebut: '',
         taFinDebout: '',
         taFinCouche: '',
-        temperatureFin: null,
+        temperatureFin: '',
         traitement: '',
       },
       mesures: [],
       newMesure: {
         heure: '',
         ta: '',
-        pouls: null,
-        debitMlMn: null,
+        pouls: '',
+        debitMlMn: '',
         hep: '',
-        pv: null,
-        ptm: null,
-        conduc: null,
-        ufMlH: null,
-        ufTotalAffiche: null,
+        pv: '',
+        ptm: '',
+        conduc: '',
+        ufMlH: '',
+        ufTotalAffiche: '',
         observation: '',
       },
       produitsNonStandards: {
@@ -189,6 +194,8 @@ const CreateSeance = () => {
       return [];
     }
   };
+
+  // Gestionnaires modifiés pour les champs texte
   const handleChange = (e, sessionId) => {
     const { name, value } = e.target;
     const currentSession = sessions.find(s => s.id === sessionId);
@@ -204,7 +211,7 @@ const CreateSeance = () => {
           'L\'heure de fin doit être postérieure à l\'heure de début', 
           'error'
         );
-        return; // Bloque la mise à jour si invalide
+        return;
       }
     }
   
@@ -222,7 +229,6 @@ const CreateSeance = () => {
       }
     }
   
-    // Mise à jour normale si valide
     setSessions(prev => 
       prev.map(session => 
         session.id === sessionId 
@@ -232,7 +238,35 @@ const CreateSeance = () => {
     );
   };
 
+  // Gestionnaire pour les champs numériques
+  const handleNumericChange = (e, sessionId) => {
+    const { name, value } = e.target;
+    
+    if (validateNumericInput(value)) {
+      setSessions(prev => 
+        prev.map(session => 
+          session.id === sessionId 
+            ? { ...session, data: { ...session.data, [name]: value } } 
+            : session
+        )
+      );
+    }
+  };
 
+  // Gestionnaire pour les mesures numériques
+  const handleNumericMesureChange = (e, sessionId) => {
+    const { name, value } = e.target;
+    
+    if (validateNumericInput(value)) {
+      setSessions(prev =>
+        prev.map((session) =>
+          session.id === sessionId
+            ? { ...session, newMesure: { ...session.newMesure, [name]: value } }
+            : session
+        )
+      );
+    }
+  };
 
   const handleSelectChange = (e, sessionId) => {
     const { name, value } = e.target;
@@ -306,40 +340,47 @@ const CreateSeance = () => {
 
   const handleCompressChange = (e, sessionId) => {
     const { value } = e.target;
-    setSessions((prev) =>
-      prev.map((session) =>
-        session.id === sessionId
-          ? {
-              ...session,
-              produitsNonStandards: {
-                ...session.produitsNonStandards,
-                Compress: value,
-              },
-            }
-          : session
-      )
-    );
+    if (validateNumericInput(value)) {
+      setSessions((prev) =>
+        prev.map((session) =>
+          session.id === sessionId
+            ? {
+                ...session,
+                produitsNonStandards: {
+                  ...session.produitsNonStandards,
+                  Compress: value,
+                },
+              }
+            : session
+        )
+      );
+    }
   };
 
   const handleProduitSansStockChange = (e, produit, sessionId) => {
     const { value } = e.target;
-    setSessions((prev) =>
-      prev.map((session) =>
-        session.id === sessionId
-          ? {
-              ...session,
-              produitsSansStock: {
-                ...session.produitsSansStock,
-                [produit]: value,
-              },
-            }
-          : session
-      )
-    );
+    if (validateNumericInput(value)) {
+      setSessions((prev) =>
+        prev.map((session) =>
+          session.id === sessionId
+            ? {
+                ...session,
+                produitsSansStock: {
+                  ...session.produitsSansStock,
+                  [produit]: value,
+                },
+              }
+            : session
+        )
+      );
+    }
   };
 
   const handleProduitHorsStockChange = (e, index, field, sessionId) => {
     const { value } = e.target;
+    if (field === 'qte' && !validateNumericInput(value)) {
+      return;
+    }
     setSessions((prev) =>
       prev.map((session) =>
         session.id === sessionId
@@ -378,16 +419,18 @@ const CreateSeance = () => {
 
   const handleProduitSpecialQuantityChange = (e, produitNom, sessionId) => {
     const { value } = e.target;
-    setSessions((prev) =>
-      prev.map((session) =>
-        session.id === sessionId
-          ? {
-              ...session,
-              produitsSpeciaux: { ...session.produitsSpeciaux, [produitNom]: value },
-            }
-          : session
-      )
-    );
+    if (validateNumericInput(value)) {
+      setSessions((prev) =>
+        prev.map((session) =>
+          session.id === sessionId
+            ? {
+                ...session,
+                produitsSpeciaux: { ...session.produitsSpeciaux, [produitNom]: value },
+              }
+            : session
+        )
+      );
+    }
   };
 
   const addProduitHorsStock = (sessionId) => {
@@ -432,14 +475,14 @@ const CreateSeance = () => {
               newMesure: {
                 heure: '',
                 ta: '',
-                pouls: null,
-                debitMlMn: null,
+                pouls: '',
+                debitMlMn: '',
                 hep: '',
-                pv: null,
-                ptm: null,
-                conduc: null,
-                ufMlH: null,
-                ufTotalAffiche: null,
+                pv: '',
+                ptm: '',
+                conduc: '',
+                ufMlH: '',
+                ufTotalAffiche: '',
                 observation: '',
               },
             }
@@ -448,46 +491,87 @@ const CreateSeance = () => {
     );
   };
 
+  // Fonction pour convertir les données avant l'envoi
+  const convertDataToNumbers = (data) => {
+    const numericFields = [
+      'caBain', 'ppid', 'ps', 'poidsEntree', 'poidsSortie',
+      'temperatureDebut', 'temperatureFin'
+    ];
+    
+    const converted = { ...data };
+    numericFields.forEach(field => {
+      if (converted[field] !== '' && converted[field] !== null) {
+        converted[field] = parseFloat(converted[field]);
+      } else {
+        converted[field] = null;
+      }
+    });
+    return converted;
+  };
+
   const handleSubmit = async (e, sessionId) => {
     e.preventDefault();
     const session = sessions.find((s) => s.id === sessionId);
+    
     // Validation finale renforcée
-  if (session.data.debutDialyse && session.data.finDialyse) {
-    const start = new Date(session.data.debutDialyse);
-    const end = new Date(session.data.finDialyse);
-    
-    if (end <= start) {
-      Swal.fire(
-        'Erreur',
-        `La séance doit se terminer après son commencement :
-        Début: ${start.toLocaleString()} 
-        Fin: ${end.toLocaleString()}`,
-        'error'
-      );
-      return;
-    }
+    if (session.data.debutDialyse && session.data.finDialyse) {
+      const start = new Date(session.data.debutDialyse);
+      const end = new Date(session.data.finDialyse);
+      
+      if (end <= start) {
+        Swal.fire(
+          'Erreur',
+          `La séance doit se terminer après son commencement :
+          Début: ${start.toLocaleString()} 
+          Fin: ${end.toLocaleString()}`,
+          'error'
+        );
+        return;
+      }
 
-    // Vérification supplémentaire pour la durée minimale
-    const dureeMin = 15; // minutes
-    const duree = (end - start) / 60000;
-    
-    if (duree < dureeMin) {
-      Swal.fire(
-        'Erreur',
-        `La durée minimale d'une séance doit être de ${dureeMin} minutes`,
-        'error'
-      );
-      return;
+      // Vérification supplémentaire pour la durée minimale
+      const dureeMin = 15; // minutes
+      const duree = (end - start) / 60000;
+      
+      if (duree < dureeMin) {
+        Swal.fire(
+          'Erreur',
+          `La durée minimale d'une séance doit être de ${dureeMin} minutes`,
+          'error'
+        );
+        return;
+      }
     }
-  }
+    
     try {
+      // Conversion des données principales
+      const convertedData = convertDataToNumbers(session.data);
+      
+      // Conversion des mesures
+      const convertedMesures = session.mesures.map(mesure => {
+        const numericFields = [
+          'pouls', 'debitMlMn', 'pv', 'ptm', 'conduc', 
+          'ufMlH', 'ufTotalAffiche'
+        ];
+        
+        const newMesure = { ...mesure };
+        numericFields.forEach(field => {
+          if (newMesure[field] !== '' && newMesure[field] !== null) {
+            newMesure[field] = parseFloat(newMesure[field]);
+          } else {
+            newMesure[field] = null;
+          }
+        });
+        return newMesure;
+      });
+
       const seanceResponse = await authService.createSeance(
-        session.data,
+        convertedData,
         session.serumSaleChoix
       );
       const seanceId = seanceResponse.idSeance;
 
-      for (const mesure of session.mesures) {
+      for (const mesure of convertedMesures) {
         try {
           await authService.addMesure(seanceId, mesure);
         } catch (error) {
@@ -496,18 +580,26 @@ const CreateSeance = () => {
         }
       }
 
-      const produitsNonStandardsFiltered = Object.fromEntries(
-        Object.entries(session.produitsNonStandards).filter(([_, qte]) => qte && parseInt(qte) > 0)
-      );
-      const produitsSansStockFiltered = Object.fromEntries(
-        Object.entries(session.produitsSansStock).filter(([_, qte]) => qte && parseInt(qte) > 0)
-      );
+      // Conversion des produits
+      const convertProductValues = (obj) => {
+        return Object.fromEntries(
+          Object.entries(obj)
+            .filter(([_, v]) => v !== '' && v !== null && !isNaN(v))
+            .map(([k, v]) => [k, parseFloat(v)])
+        );
+      };
+
+      const produitsNonStandardsFiltered = convertProductValues(session.produitsNonStandards);
+      const produitsSansStockFiltered = convertProductValues(session.produitsSansStock);
+      
       const produitsHorsStockFiltered = session.produitsHorsStock
-        .filter((item) => item.nom && item.qte && parseInt(item.qte) > 0)
-        .reduce((acc, item) => ({ ...acc, [item.nom]: item.qte }), {});
-      const produitsSpeciauxFiltered = Object.fromEntries(
-        Object.entries(session.produitsSpeciaux).filter(([_, qte]) => qte && parseInt(qte) > 0)
-      );
+        .filter((item) => item.nom && item.qte && !isNaN(item.qte))
+        .reduce((acc, item) => ({ 
+          ...acc, 
+          [item.nom]: parseFloat(item.qte) 
+        }), {});
+      
+      const produitsSpeciauxFiltered = convertProductValues(session.produitsSpeciaux);
 
       if (
         Object.keys(produitsNonStandardsFiltered).length ||
@@ -554,35 +646,35 @@ const CreateSeance = () => {
         date: '',
         observation: '',
         dialyseur: '',
-        caBain: 1.5,
-        ppid: null,
-        ps: null,
+        caBain: '1.5',
+        ppid: '',
+        ps: '',
         debutDialyse: '',
         finDialyse: '',
-        poidsEntree: null,
-        poidsSortie: null,
+        poidsEntree: '',
+        poidsSortie: '',
         restitution: '',
         circuitFiltre: '',
         taDebutDebout: '',
         taDebutCouche: '',
-        temperatureDebut: null,
+        temperatureDebut: '',
         taFinDebout: '',
         taFinCouche: '',
-        temperatureFin: null,
+        temperatureFin: '',
         traitement: '',
       },
       mesures: [],
       newMesure: {
         heure: '',
         ta: '',
-        pouls: null,
-        debitMlMn: null,
+        pouls: '',
+        debitMlMn: '',
         hep: '',
-        pv: null,
-        ptm: null,
-        conduc: null,
-        ufMlH: null,
-        ufTotalAffiche: null,
+        pv: '',
+        ptm: '',
+        conduc: '',
+        ufMlH: '',
+        ufTotalAffiche: '',
         observation: '',
       },
       produitsNonStandards: {
@@ -843,35 +935,35 @@ const CreateSeance = () => {
                             <div className="col-md-3 form-group mr-2">
                               <label>Ca++ Bain n° (mmol/L)</label>
                               <input
-                                type="number"
-                                step="0.1"
+                                type="text"
+                                inputMode="decimal"
                                 className="form-control"
                                 name="caBain"
                                 value={session.data.caBain}
-                                onChange={(e) => handleChange(e, session.id)}
+                                onChange={(e) => handleNumericChange(e, session.id)}
                               />
                             </div>
                             <div className="col-md-3 form-group mr-2">
                               <label>PPID (kg) *</label>
                               <input
-                                type="number"
-                                step="0.1"
+                                type="text"
+                                inputMode="decimal"
                                 className="form-control"
                                 name="ppid"
                                 value={session.data.ppid || ''}
-                                onChange={(e) => handleChange(e, session.id)}
+                                onChange={(e) => handleNumericChange(e, session.id)}
                                 required
                               />
                             </div>
                             <div className="col-md-3 form-group mr-2">
                               <label>Poids Sec (kg) *</label>
                               <input
-                                type="number"
-                                step="0.1"
+                                type="text"
+                                inputMode="decimal"
                                 className="form-control"
                                 name="ps"
                                 value={session.data.ps || ''}
-                                onChange={(e) => handleChange(e, session.id)}
+                                onChange={(e) => handleNumericChange(e, session.id)}
                                 required
                               />
                             </div>
@@ -931,12 +1023,12 @@ const CreateSeance = () => {
                               <div className="form-group">
                                 <label>Poids à l’entrée (kg)</label>
                                 <input
-                                  type="number"
-                                  step="0.1"
+                                  type="text"
+                                  inputMode="decimal"
                                   className="form-control"
                                   name="poidsEntree"
                                   value={session.data.poidsEntree || ''}
-                                  onChange={(e) => handleChange(e, session.id)}
+                                  onChange={(e) => handleNumericChange(e, session.id)}
                                 />
                               </div>
                               <div className="form-group">
@@ -962,12 +1054,12 @@ const CreateSeance = () => {
                               <div className="form-group">
                                 <label>Température (°C)</label>
                                 <input
-                                  type="number"
-                                  step="0.1"
+                                  type="text"
+                                  inputMode="decimal"
                                   className="form-control"
                                   name="temperatureDebut"
                                   value={session.data.temperatureDebut || ''}
-                                  onChange={(e) => handleChange(e, session.id)}
+                                  onChange={(e) => handleNumericChange(e, session.id)}
                                 />
                               </div>
                             </div>
@@ -981,18 +1073,18 @@ const CreateSeance = () => {
                                   name="finDialyse"
                                   value={session.data.finDialyse}
                                   onChange={(e) => handleChange(e, session.id)}
-                                  min={new Date().toISOString().slice(0, 16)} // Optionnel : empêche les dates passées
+                                  min={new Date().toISOString().slice(0, 16)}
                                 />
                               </div>
                               <div className="form-group">
                                 <label>Poids à la sortie (kg)</label>
                                 <input
-                                  type="number"
-                                  step="0.1"
+                                  type="text"
+                                  inputMode="decimal"
                                   className="form-control"
                                   name="poidsSortie"
                                   value={session.data.poidsSortie || ''}
-                                  onChange={(e) => handleChange(e, session.id)}
+                                  onChange={(e) => handleNumericChange(e, session.id)}
                                 />
                               </div>
                               <div className="form-group">
@@ -1018,12 +1110,12 @@ const CreateSeance = () => {
                               <div className="form-group">
                                 <label>Température (°C)</label>
                                 <input
-                                  type="number"
-                                  step="0.1"
+                                  type="text"
+                                  inputMode="decimal"
                                   className="form-control"
                                   name="temperatureFin"
                                   value={session.data.temperatureFin || ''}
-                                  onChange={(e) => handleChange(e, session.id)}
+                                  onChange={(e) => handleNumericChange(e, session.id)}
                                 />
                               </div>
                             </div>
@@ -1056,7 +1148,7 @@ const CreateSeance = () => {
                                   name="pertePoids"
                                   value={
                                     session.data.poidsEntree && session.data.poidsSortie
-                                      ? (session.data.poidsEntree - session.data.poidsSortie).toFixed(1)
+                                      ? (parseFloat(session.data.poidsEntree) - parseFloat(session.data.poidsSortie)).toFixed(1)
                                       : ''
                                   }
                                   readOnly
@@ -1065,11 +1157,12 @@ const CreateSeance = () => {
                               <div className="form-group">
                                 <label>UF Total (ml)</label>
                                 <input
-                                  type="number"
+                                  type="text"
+                                  inputMode="decimal"
                                   className="form-control"
                                   name="ufTotal"
                                   value={session.data.ufTotal || ''}
-                                  onChange={(e) => handleChange(e, session.id)}
+                                  onChange={(e) => handleNumericChange(e, session.id)}
                                 />
                               </div>
                               <div className="form-group">
@@ -1141,20 +1234,22 @@ const CreateSeance = () => {
                                   </td>
                                   <td>
                                     <input
-                                      type="number"
+                                      type="text"
+                                      inputMode="decimal"
                                       className="form-control"
                                       name="pouls"
                                       value={session.newMesure.pouls || ''}
-                                      onChange={(e) => handleMesureChange(e, session.id)}
+                                      onChange={(e) => handleNumericMesureChange(e, session.id)}
                                     />
                                   </td>
                                   <td>
                                     <input
-                                      type="number"
+                                      type="text"
+                                      inputMode="decimal"
                                       className="form-control"
                                       name="debitMlMn"
                                       value={session.newMesure.debitMlMn || ''}
-                                      onChange={(e) => handleMesureChange(e, session.id)}
+                                      onChange={(e) => handleNumericMesureChange(e, session.id)}
                                     />
                                   </td>
                                   <td>
@@ -1168,47 +1263,52 @@ const CreateSeance = () => {
                                   </td>
                                   <td>
                                     <input
-                                      type="number"
+                                      type="text"
+                                      inputMode="decimal"
                                       className="form-control"
                                       name="pv"
                                       value={session.newMesure.pv || ''}
-                                      onChange={(e) => handleMesureChange(e, session.id)}
+                                      onChange={(e) => handleNumericMesureChange(e, session.id)}
                                     />
                                   </td>
                                   <td>
                                     <input
-                                      type="number"
+                                      type="text"
+                                      inputMode="decimal"
                                       className="form-control"
                                       name="ptm"
                                       value={session.newMesure.ptm || ''}
-                                      onChange={(e) => handleMesureChange(e, session.id)}
+                                      onChange={(e) => handleNumericMesureChange(e, session.id)}
                                     />
                                   </td>
                                   <td>
                                     <input
-                                      type="number"
+                                      type="text"
+                                      inputMode="decimal"
                                       className="form-control"
                                       name="conduc"
                                       value={session.newMesure.conduc || ''}
-                                      onChange={(e) => handleMesureChange(e, session.id)}
+                                      onChange={(e) => handleNumericMesureChange(e, session.id)}
                                     />
                                   </td>
                                   <td>
                                     <input
-                                      type="number"
+                                      type="text"
+                                      inputMode="decimal"
                                       className="form-control"
                                       name="ufMlH"
                                       value={session.newMesure.ufMlH || ''}
-                                      onChange={(e) => handleMesureChange(e, session.id)}
+                                      onChange={(e) => handleNumericMesureChange(e, session.id)}
                                     />
                                   </td>
                                   <td>
                                     <input
-                                      type="number"
+                                      type="text"
+                                      inputMode="decimal"
                                       className="form-control"
                                       name="ufTotalAffiche"
                                       value={session.newMesure.ufTotalAffiche || ''}
-                                      onChange={(e) => handleMesureChange(e, session.id)}
+                                      onChange={(e) => handleNumericMesureChange(e, session.id)}
                                     />
                                   </td>
                                   <td>
@@ -1283,11 +1383,11 @@ const CreateSeance = () => {
                             <div className="col-md-3 form-group">
                               <label>Compress</label>
                               <input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 className="form-control"
                                 value={session.produitsNonStandards['Compress']}
                                 onChange={(e) => handleCompressChange(e, session.id)}
-                                min="0"
                               />
                             </div>
                           </div>
@@ -1298,13 +1398,13 @@ const CreateSeance = () => {
                               <div key={produit} className="col-md-3 form-group">
                                 <label>{produit}</label>
                                 <input
-                                  type="number"
+                                  type="text"
+                                  inputMode="decimal"
                                   className="form-control"
                                   value={session.produitsSansStock[produit]}
                                   onChange={(e) =>
                                     handleProduitSansStockChange(e, produit, session.id)
                                   }
-                                  min="0"
                                 />
                               </div>
                             ))}
@@ -1326,14 +1426,14 @@ const CreateSeance = () => {
                               </div>
                               <div className="col-md-2">
                                 <input
-                                  type="number"
+                                  type="text"
+                                  inputMode="decimal"
                                   className="form-control"
                                   placeholder="Quantité"
                                   value={item.qte}
                                   onChange={(e) =>
                                     handleProduitHorsStockChange(e, index, 'qte', session.id)
                                   }
-                                  min="0"
                                 />
                               </div>
                               <div className="col-md-2">
@@ -1374,13 +1474,13 @@ const CreateSeance = () => {
                               </div>
                               <div className="col-md-2">
                                 <input
-                                  type="number"
+                                  type="text"
+                                  inputMode="decimal"
                                   className="form-control"
                                   value={session.produitsSpeciaux[materiel.label] || '1'}
                                   onChange={(e) =>
                                     handleProduitSpecialQuantityChange(e, materiel.label, session.id)
                                   }
-                                  min="1"
                                 />
                               </div>
                             </div>

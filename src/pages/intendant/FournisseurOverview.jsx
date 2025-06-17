@@ -1,4 +1,3 @@
-// src/pages/intendant/FournisseurOverview.jsx
 import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
 import Sidebar from '../../components/Sidebar';
@@ -30,7 +29,7 @@ const FournisseurOverview = () => {
 
   useEffect(() => {
     const filtered = fournisseurs.filter(f =>
-      f.nom.toLowerCase().includes(searchTerm.toLowerCase())
+      `${f.nom} ${f.prenom}`.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredFournisseurs(filtered);
   }, [searchTerm, fournisseurs]);
@@ -95,7 +94,7 @@ const FournisseurOverview = () => {
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="Rechercher par nom..."
+                        placeholder="Rechercher par nom ou prénom..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
@@ -114,6 +113,7 @@ const FournisseurOverview = () => {
                         <tr>
                           <th>ID</th>
                           <th>Nom</th>
+                          <th>Prénom</th>
                           <th>Email</th>
                         </tr>
                       </thead>
@@ -128,11 +128,12 @@ const FournisseurOverview = () => {
                             >
                               <td>{f.idFournisseur}</td>
                               <td>{f.nom}</td>
+                              <td>{f.prenom}</td>
                               <td>{f.email}</td>
                             </tr>
                           ))
                         ) : (
-                          <tr><td colSpan="3">Aucun fournisseur disponible</td></tr>
+                          <tr><td colSpan="4">Aucun fournisseur disponible</td></tr>
                         )}
                       </tbody>
                     </table>

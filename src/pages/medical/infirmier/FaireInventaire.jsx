@@ -1,4 +1,3 @@
-// src/pages/medical/infirmier/FaireInventaire.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../../components/Navbar';
@@ -9,8 +8,6 @@ import Swal from 'sweetalert2';
 const FaireInventaire = () => {
     const [produits, setProduits] = useState([]);
     const [quantitesSaisies, setQuantitesSaisies] = useState({});
-    const [observations, setObservations] = useState({});
-    const [isVerified, setIsVerified] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,65 +23,60 @@ const FaireInventaire = () => {
     }, []);
 
     const handleQuantiteChange = (produitId, value) => {
-        setQuantitesSaisies((prev) => ({
-            ...prev,
-            [produitId]: value,
-        }));
+        // Allow only integer input or empty string
+        if (value === '' || /^[0-9]*$/.test(value)) {
+            setQuantitesSaisies((prev) => ({
+                ...prev,
+                [produitId]: value,
+            }));
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Saisie invalide',
+                text: 'Seuls les chiffres sont autorisés pour les quantités.',
+                timer: 2000,
+                showConfirmButton: false,
+            });
+        }
     };
 
-    const allQuantitesSaisies = () => {
-        return produits.every((produit) => quantitesSaisies[produit.idProduit] !== undefined && quantitesSaisies[produit.idProduit] !== '');
+    const isValidInput = () => {
+        return produits.every((produit) => {
+            const quantite = quantitesSaisies[produit.idProduit];
+            return quantite !== undefined && quantite !== '' && /^[0-9]+$/.test(quantite);
+        });
     };
 
-    const hasDifference = (observation) => {
-        return observation && observation.includes("Différence détectée");
+    const checkEmptyFields = () => {
+        return produits.some((produit) => {
+            const quantite = quantitesSaisies[produit.idProduit];
+            return quantite === undefined || quantite === '';
+        });
     };
 
-    const handleVerifier = async () => {
-        if (!allQuantitesSaisies()) {
-            Swal.fire('Erreur', 'Veuillez saisir toutes les quantités avant de vérifier.', 'error');
+    const handleEnregistrer = async () => {
+        if (!isValidInput()) {
+            const message = checkEmptyFields()
+                ? 'Veuillez remplir tous les champs avec des nombres entiers.'
+                : 'Veuillez saisir uniquement des nombres entiers pour toutes les quantités.';
+            Swal.fire('Erreur', message, 'error');
             return;
         }
 
         const lignes = produits.map((produit) => ({
             produit: { idProduit: produit.idProduit },
-            qteSaisie: parseInt(quantitesSaisies[produit.idProduit], 10) || 0, // Conversion en entier
+            qteSaisie: parseInt(quantitesSaisies[produit.idProduit], 10),
             observationProduit: '',
         }));
 
         try {
-            const inventaire = await authService.faireInventaire(lignes);
-            if (!inventaire || !inventaire.lignesInventaire) {
-                throw new Error('Réponse invalide du serveur : lignesInventaire manquant');
-            }
-            setObservations(
-                inventaire.lignesInventaire.reduce((acc, ligne) => ({
-                    ...acc,
-                    [ligne.produit.idProduit]: ligne.observationProduit,
-                }), {})
-            );
-            setIsVerified(true);
-            Swal.fire('Succès', 'Inventaire vérifié avec succès', 'success');
+            await authService.faireInventaire(lignes);
+            Swal.fire('Succès', 'Inventaire enregistré avec succès', 'success');
+            navigate('/medical/infirmier');
         } catch (error) {
-            console.error('Erreur lors de la vérification', error);
-            Swal.fire('Erreur', 'Une erreur est survenue lors de la vérification', 'error');
+            console.error('Erreur lors de l\'enregistrement', error);
+            Swal.fire('Erreur', 'Une erreur est survenue lors de l\'enregistrement', 'error');
         }
-    };
-
-    const handleTerminer = async () => {
-        Swal.fire({
-            title: 'Confirmer la sauvegarde ?',
-            text: 'Voulez-vous enregistrer cet inventaire ?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Oui',
-            cancelButtonText: 'Non',
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                Swal.fire('Succès', 'Inventaire sauvegardé avec succès', 'success');
-                navigate('/medical/infirmier');
-            }
-        });
     };
 
     return (
@@ -102,43 +94,32 @@ const FaireInventaire = () => {
                                 <tr>
                                     <th>Nom du Produit</th>
                                     <th>Quantité à Saisir</th>
-                                    <th>Observation</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {produits.map((produit) => (
-                                    <tr 
-                                        key={produit.idProduit} 
-                                        style={{ backgroundColor: hasDifference(observations[produit.idProduit]) ? '#ffcccc' : 'inherit' }}
-                                    >
+                                    <tr key={produit.idProduit}>
                                         <td>{produit.nom}</td>
                                         <td>
                                             <input
-                                                type="text" // Changement de number à text
+                                                type="text"
                                                 className="form-control"
                                                 value={quantitesSaisies[produit.idProduit] || ''}
                                                 onChange={(e) => handleQuantiteChange(produit.idProduit, e.target.value)}
-                                                disabled={isVerified}
                                             />
                                         </td>
-                                        <td>{observations[produit.idProduit] || ''}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                         <div className="mt-3">
                             <button
-                                className="btn btn-primary"
-                                onClick={handleVerifier}
-                                disabled={!allQuantitesSaisies() || isVerified}
+                                className="btn btn-success"
+                                onClick={handleEnregistrer}
+                                disabled={!isValidInput()}
                             >
-                                Vérifier
+                                Enregistrer
                             </button>
-                            {isVerified && (
-                                <button className="btn btn-success ml-2" onClick={handleTerminer}>
-                                    Terminer
-                                </button>
-                            )}
                         </div>
                     </div>
                 </div>

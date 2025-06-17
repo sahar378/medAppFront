@@ -9,6 +9,12 @@ const EditSeance = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // Fonction de validation pour les entrées numériques
+  const validateNumericInput = (value) => {
+    return value === '' || /^[0-9]*\.?[0-9]*$/.test(value);
+  };
+
+  // État initial modifié avec les champs numériques en chaînes
   const [seance, setSeance] = useState({
     patient: null,
     machine: null,
@@ -17,37 +23,40 @@ const EditSeance = () => {
     date: '',
     observation: '',
     dialyseur: '',
-    caBain: 1.5,
-    ppid: null,
-    ps: null,
+    caBain: '1.5',
+    ppid: '',
+    ps: '',
     debutDialyse: '',
     finDialyse: '',
-    poidsEntree: null,
-    poidsSortie: null,
+    poidsEntree: '',
+    poidsSortie: '',
     restitution: '',
     circuitFiltre: '',
     taDebutDebout: '',
     taDebutCouche: '',
-    temperatureDebut: null,
+    temperatureDebut: '',
     taFinDebout: '',
     taFinCouche: '',
-    temperatureFin: null,
+    temperatureFin: '',
     traitement: '',
   });
+  
   const [mesures, setMesures] = useState([]);
+  
   const [newMesure, setNewMesure] = useState({
     heure: '',
     ta: '',
-    pouls: null,
-    debitMlMn: null,
+    pouls: '',
+    debitMlMn: '',
     hep: '',
-    pv: null,
-    ptm: null,
-    conduc: null,
-    ufMlH: null,
-    ufTotalAffiche: null,
+    pv: '',
+    ptm: '',
+    conduc: '',
+    ufMlH: '',
+    ufTotalAffiche: '',
     observation: '',
   });
+  
   const [patients, setPatients] = useState([]);
   const [machines, setMachines] = useState([]);
   const [personnel, setPersonnel] = useState([]);
@@ -66,30 +75,46 @@ const EditSeance = () => {
           authService.getMedicalPersonnel(),
         ]);
 
-        console.log('Seance Data:', seanceData);
-        console.log('Personnel Data:', personnelData);
-        console.log('Sample Profil:', personnelData[0]?.profils);
-
         // Transformation des rôles
         const personnelWithRoles = (personnelData || []).map(person => ({
           ...person,
           roles: Array.isArray(person.profils) ? person.profils.map(profil => profil.libelleProfil || '') : []
         }));
 
-        setSeance({
+        // Conversion des champs numériques en chaînes
+        const convertedSeanceData = {
           ...seanceData,
+          caBain: seanceData.caBain ? seanceData.caBain.toString() : '1.5',
+          ppid: seanceData.ppid ? seanceData.ppid.toString() : '',
+          ps: seanceData.ps ? seanceData.ps.toString() : '',
+          poidsEntree: seanceData.poidsEntree ? seanceData.poidsEntree.toString() : '',
+          poidsSortie: seanceData.poidsSortie ? seanceData.poidsSortie.toString() : '',
+          temperatureDebut: seanceData.temperatureDebut ? seanceData.temperatureDebut.toString() : '',
+          temperatureFin: seanceData.temperatureFin ? seanceData.temperatureFin.toString() : '',
           date: seanceData.date ? new Date(seanceData.date).toISOString().slice(0, 16) : '',
           debutDialyse: seanceData.debutDialyse ? new Date(seanceData.debutDialyse).toISOString().slice(0, 16) : '',
           finDialyse: seanceData.finDialyse ? new Date(seanceData.finDialyse).toISOString().slice(0, 16) : '',
           infirmier: seanceData.infirmier || null,
           medecin: seanceData.medecin || null,
-        });
-        setMesures(mesuresData || []);
+        };
+
+        // Conversion des mesures
+        const convertedMesuresData = (mesuresData || []).map(mesure => ({
+          ...mesure,
+          pouls: mesure.pouls !== null ? mesure.pouls.toString() : '',
+          debitMlMn: mesure.debitMlMn !== null ? mesure.debitMlMn.toString() : '',
+          pv: mesure.pv !== null ? mesure.pv.toString() : '',
+          ptm: mesure.ptm !== null ? mesure.ptm.toString() : '',
+          conduc: mesure.conduc !== null ? mesure.conduc.toString() : '',
+          ufMlH: mesure.ufMlH !== null ? mesure.ufMlH.toString() : '',
+          ufTotalAffiche: mesure.ufTotalAffiche !== null ? mesure.ufTotalAffiche.toString() : '',
+        }));
+
+        setSeance(convertedSeanceData);
+        setMesures(convertedMesuresData);
         setPatients(patientsData || []);
         setMachines(machinesData || []);
         setPersonnel(personnelWithRoles.filter(p => p.roles.length > 0));
-
-        console.log('Personnel with Roles:', personnelWithRoles);
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error);
         setError('Impossible de charger les données pour la modification.');
@@ -101,11 +126,24 @@ const EditSeance = () => {
     fetchData();
   }, [id]);
 
+  // Gestionnaire pour les champs numériques
+  const handleNumericChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (validateNumericInput(value)) {
+      setSeance((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  // Gestionnaire pour les champs non numériques
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSeance((prev) => ({
       ...prev,
-      [name]: value === '' ? null : value,
+      [name]: value,
     }));
   };
 
@@ -130,23 +168,45 @@ const EditSeance = () => {
     }
   };
 
+  // Gestionnaire numérique pour les mesures existantes
+  const handleNumericMesureChange = (index, field, value) => {
+    if (!validateNumericInput(value)) return;
+    
+    const updatedMesures = [...mesures];
+    updatedMesures[index] = {
+      ...updatedMesures[index],
+      [field]: value,
+    };
+    setMesures(updatedMesures);
+  };
+
+  // Gestionnaire pour les champs non numériques des mesures
   const handleMesureChange = (index, field, value) => {
     const updatedMesures = [...mesures];
     updatedMesures[index] = {
       ...updatedMesures[index],
-      [field]: value === '' ? null : value,
+      [field]: value,
     };
-    if (field === 'heure' && value) {
-      updatedMesures[index][field] = new Date(value).toISOString();
-    }
     setMesures(updatedMesures);
   };
 
+  // Gestionnaire numérique pour les nouvelles mesures
+  const handleNewNumericMesureChange = (e) => {
+    const { name, value } = e.target;
+    if (!validateNumericInput(value)) return;
+    
+    setNewMesure((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Gestionnaire pour les champs non numériques des nouvelles mesures
   const handleNewMesureChange = (e) => {
     const { name, value } = e.target;
     setNewMesure((prev) => ({
       ...prev,
-      [name]: value === '' ? null : value,
+      [name]: value,
     }));
   };
 
@@ -156,26 +216,48 @@ const EditSeance = () => {
       return;
     }
     const heureISO = new Date(newMesure.heure).toISOString();
+    
+    // Création de l'objet avec conversion des champs numériques
     const mesureToAdd = {
       ...newMesure,
       heure: heureISO,
+      pouls: newMesure.pouls ? parseFloat(newMesure.pouls) : null,
+      debitMlMn: newMesure.debitMlMn ? parseFloat(newMesure.debitMlMn) : null,
+      pv: newMesure.pv ? parseFloat(newMesure.pv) : null,
+      ptm: newMesure.ptm ? parseFloat(newMesure.ptm) : null,
+      conduc: newMesure.conduc ? parseFloat(newMesure.conduc) : null,
+      ufMlH: newMesure.ufMlH ? parseFloat(newMesure.ufMlH) : null,
+      ufTotalAffiche: newMesure.ufTotalAffiche ? parseFloat(newMesure.ufTotalAffiche) : null,
       seance: { idSeance: parseInt(id) },
     };
 
     try {
       const savedMesure = await authService.addMesure(id, mesureToAdd);
-      setMesures((prev) => [...prev, savedMesure]);
+      
+      // Conversion pour l'affichage
+      const convertedMesure = {
+        ...savedMesure,
+        pouls: savedMesure.pouls !== null ? savedMesure.pouls.toString() : '',
+        debitMlMn: savedMesure.debitMlMn !== null ? savedMesure.debitMlMn.toString() : '',
+        pv: savedMesure.pv !== null ? savedMesure.pv.toString() : '',
+        ptm: savedMesure.ptm !== null ? savedMesure.ptm.toString() : '',
+        conduc: savedMesure.conduc !== null ? savedMesure.conduc.toString() : '',
+        ufMlH: savedMesure.ufMlH !== null ? savedMesure.ufMlH.toString() : '',
+        ufTotalAffiche: savedMesure.ufTotalAffiche !== null ? savedMesure.ufTotalAffiche.toString() : '',
+      };
+      
+      setMesures((prev) => [...prev, convertedMesure]);
       setNewMesure({
         heure: '',
         ta: '',
-        pouls: null,
-        debitMlMn: null,
+        pouls: '',
+        debitMlMn: '',
         hep: '',
-        pv: null,
-        ptm: null,
-        conduc: null,
-        ufMlH: null,
-        ufTotalAffiche: null,
+        pv: '',
+        ptm: '',
+        conduc: '',
+        ufMlH: '',
+        ufTotalAffiche: '',
         observation: '',
       });
       Swal.fire('Succès', 'Mesure ajoutée avec succès', 'success');
@@ -183,6 +265,24 @@ const EditSeance = () => {
       console.error('Erreur lors de l’ajout de la mesure:', error);
       Swal.fire('Erreur', 'Erreur lors de l’ajout de la mesure.', 'error');
     }
+  };
+
+  // Fonction pour convertir les données avant l'envoi
+  const convertDataToNumbers = (data) => {
+    const numericFields = [
+      'caBain', 'ppid', 'ps', 'poidsEntree', 'poidsSortie',
+      'temperatureDebut', 'temperatureFin'
+    ];
+    
+    const converted = { ...data };
+    numericFields.forEach(field => {
+      if (converted[field] !== '' && converted[field] !== null) {
+        converted[field] = parseFloat(converted[field]);
+      } else {
+        converted[field] = null;
+      }
+    });
+    return converted;
   };
 
   const handleSubmit = async (e) => {
@@ -212,24 +312,27 @@ const EditSeance = () => {
         }
       }
 
-      // Validation for numeric fields
-      const numericFields = ['caBain', 'ppid', 'ps', 'poidsEntree', 'poidsSortie', 'temperatureDebut', 'temperatureFin'];
-      for (const field of numericFields) {
-        if (seance[field] !== null && (isNaN(seance[field]) || seance[field] < 0)) {
-          Swal.fire('Erreur', `Le champ ${field} doit être un nombre positif.`, 'error');
-          return;
-        }
-      }
-
       try {
-        await authService.updateSeance(id, seance);
+        // Conversion des données principales
+        const convertedSeance = convertDataToNumbers(seance);
+        await authService.updateSeance(id, convertedSeance);
 
+        // Conversion et mise à jour des mesures
         for (const mesure of mesures) {
           if (mesure.idDetailMesure) {
-            await authService.updateMesure(mesure.idDetailMesure, {
+            const convertedMesure = {
               ...mesure,
+              pouls: mesure.pouls ? parseFloat(mesure.pouls) : null,
+              debitMlMn: mesure.debitMlMn ? parseFloat(mesure.debitMlMn) : null,
+              pv: mesure.pv ? parseFloat(mesure.pv) : null,
+              ptm: mesure.ptm ? parseFloat(mesure.ptm) : null,
+              conduc: mesure.conduc ? parseFloat(mesure.conduc) : null,
+              ufMlH: mesure.ufMlH ? parseFloat(mesure.ufMlH) : null,
+              ufTotalAffiche: mesure.ufTotalAffiche ? parseFloat(mesure.ufTotalAffiche) : null,
               seance: { idSeance: parseInt(id) },
-            });
+            };
+            
+            await authService.updateMesure(mesure.idDetailMesure, convertedMesure);
           }
         }
 
@@ -406,34 +509,34 @@ const EditSeance = () => {
                   <div className="col-md-3 mb-3">
                     <label>Ca++ Bain (mmol/L):</label>
                     <input
-                      type="number"
-                      step="0.1"
+                      type="text"
+                      inputMode="decimal"
                       className="form-control"
                       name="caBain"
-                      value={seance.caBain || 1.5}
-                      onChange={handleChange}
+                      value={seance.caBain}
+                      onChange={handleNumericChange}
                     />
                   </div>
                   <div className="col-md-3 mb-3">
                     <label>PPID (kg):</label>
                     <input
-                      type="number"
-                      step="0.1"
+                      type="text"
+                      inputMode="decimal"
                       className="form-control"
                       name="ppid"
-                      value={seance.ppid || ''}
-                      onChange={handleChange}
+                      value={seance.ppid}
+                      onChange={handleNumericChange}
                     />
                   </div>
                   <div className="col-md-3 mb-3">
                     <label>Poids Sec (kg):</label>
                     <input
-                      type="number"
-                      step="0.1"
+                      type="text"
+                      inputMode="decimal"
                       className="form-control"
                       name="ps"
-                      value={seance.ps || ''}
-                      onChange={handleChange}
+                      value={seance.ps}
+                      onChange={handleNumericChange}
                     />
                   </div>
                 </div>
@@ -461,12 +564,12 @@ const EditSeance = () => {
                     <div className="form-group">
                       <label>Poids à l’entrée (kg):</label>
                       <input
-                        type="number"
-                        step="0.1"
+                        type="text"
+                        inputMode="decimal"
                         className="form-control"
                         name="poidsEntree"
-                        value={seance.poidsEntree || ''}
-                        onChange={handleChange}
+                        value={seance.poidsEntree}
+                        onChange={handleNumericChange}
                       />
                     </div>
                     <div className="form-group">
@@ -492,12 +595,12 @@ const EditSeance = () => {
                     <div className="form-group">
                       <label>Température (°C):</label>
                       <input
-                        type="number"
-                        step="0.1"
+                        type="text"
+                        inputMode="decimal"
                         className="form-control"
                         name="temperatureDebut"
-                        value={seance.temperatureDebut || ''}
-                        onChange={handleChange}
+                        value={seance.temperatureDebut}
+                        onChange={handleNumericChange}
                       />
                     </div>
                   </div>
@@ -516,12 +619,12 @@ const EditSeance = () => {
                     <div className="form-group">
                       <label>Poids à la sortie (kg):</label>
                       <input
-                        type="number"
-                        step="0.1"
+                        type="text"
+                        inputMode="decimal"
                         className="form-control"
                         name="poidsSortie"
-                        value={seance.poidsSortie || ''}
-                        onChange={handleChange}
+                        value={seance.poidsSortie}
+                        onChange={handleNumericChange}
                       />
                     </div>
                     <div className="form-group">
@@ -547,12 +650,12 @@ const EditSeance = () => {
                     <div className="form-group">
                       <label>Température (°C):</label>
                       <input
-                        type="number"
-                        step="0.1"
+                        type="text"
+                        inputMode="decimal"
                         className="form-control"
                         name="temperatureFin"
-                        value={seance.temperatureFin || ''}
-                        onChange={handleChange}
+                        value={seance.temperatureFin}
+                        onChange={handleNumericChange}
                       />
                     </div>
                   </div>
@@ -629,20 +732,22 @@ const EditSeance = () => {
                         </td>
                         <td>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             className="form-control"
                             name="pouls"
                             value={newMesure.pouls || ''}
-                            onChange={handleNewMesureChange}
+                            onChange={handleNewNumericMesureChange}
                           />
                         </td>
                         <td>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             className="form-control"
                             name="debitMlMn"
                             value={newMesure.debitMlMn || ''}
-                            onChange={handleNewMesureChange}
+                            onChange={handleNewNumericMesureChange}
                           />
                         </td>
                         <td>
@@ -656,47 +761,52 @@ const EditSeance = () => {
                         </td>
                         <td>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             className="form-control"
                             name="pv"
                             value={newMesure.pv || ''}
-                            onChange={handleNewMesureChange}
+                            onChange={handleNewNumericMesureChange}
                           />
                         </td>
                         <td>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             className="form-control"
                             name="ptm"
                             value={newMesure.ptm || ''}
-                            onChange={handleNewMesureChange}
+                            onChange={handleNewNumericMesureChange}
                           />
                         </td>
                         <td>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             className="form-control"
                             name="conduc"
                             value={newMesure.conduc || ''}
-                            onChange={handleNewMesureChange}
+                            onChange={handleNewNumericMesureChange}
                           />
                         </td>
                         <td>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             className="form-control"
                             name="ufMlH"
                             value={newMesure.ufMlH || ''}
-                            onChange={handleNewMesureChange}
+                            onChange={handleNewNumericMesureChange}
                           />
                         </td>
                         <td>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             className="form-control"
                             name="ufTotalAffiche"
                             value={newMesure.ufTotalAffiche || ''}
-                            onChange={handleNewMesureChange}
+                            onChange={handleNewNumericMesureChange}
                           />
                         </td>
                         <td>
@@ -731,18 +841,20 @@ const EditSeance = () => {
                             </td>
                             <td>
                               <input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 className="form-control"
                                 value={mesure.pouls || ''}
-                                onChange={(e) => handleMesureChange(index, 'pouls', e.target.value)}
+                                onChange={(e) => handleNumericMesureChange(index, 'pouls', e.target.value)}
                               />
                             </td>
                             <td>
                               <input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 className="form-control"
                                 value={mesure.debitMlMn || ''}
-                                onChange={(e) => handleMesureChange(index, 'debitMlMn', e.target.value)}
+                                onChange={(e) => handleNumericMesureChange(index, 'debitMlMn', e.target.value)}
                               />
                             </td>
                             <td>
@@ -755,42 +867,47 @@ const EditSeance = () => {
                             </td>
                             <td>
                               <input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 className="form-control"
                                 value={mesure.pv || ''}
-                                onChange={(e) => handleMesureChange(index, 'pv', e.target.value)}
+                                onChange={(e) => handleNumericMesureChange(index, 'pv', e.target.value)}
                               />
                             </td>
                             <td>
                               <input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 className="form-control"
                                 value={mesure.ptm || ''}
-                                onChange={(e) => handleMesureChange(index, 'ptm', e.target.value)}
+                                onChange={(e) => handleNumericMesureChange(index, 'ptm', e.target.value)}
                               />
                             </td>
                             <td>
                               <input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 className="form-control"
                                 value={mesure.conduc || ''}
-                                onChange={(e) => handleMesureChange(index, 'conduc', e.target.value)}
+                                onChange={(e) => handleNumericMesureChange(index, 'conduc', e.target.value)}
                               />
                             </td>
                             <td>
                               <input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 className="form-control"
                                 value={mesure.ufMlH || ''}
-                                onChange={(e) => handleMesureChange(index, 'ufMlH', e.target.value)}
+                                onChange={(e) => handleNumericMesureChange(index, 'ufMlH', e.target.value)}
                               />
                             </td>
                             <td>
                               <input
-                                type="number"
+                                type="text"
+                                inputMode="decimal"
                                 className="form-control"
                                 value={mesure.ufTotalAffiche || ''}
-                                onChange={(e) => handleMesureChange(index, 'ufTotalAffiche', e.target.value)}
+                                onChange={(e) => handleNumericMesureChange(index, 'ufTotalAffiche', e.target.value)}
                               />
                             </td>
                             <td>

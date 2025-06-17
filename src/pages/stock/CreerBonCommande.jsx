@@ -16,7 +16,7 @@ const CreerBonCommande = () => {
   const [selectedProduit, setSelectedProduit] = useState(null);
   const [selectedFournisseurId, setSelectedFournisseurId] = useState('');
   const [bonCommandeId, setBonCommandeId] = useState(null);
-  const [initialFournisseurId, setInitialFournisseurId] = useState(null); // Nouveau state pour le fournisseur initial
+  const [initialFournisseurId, setInitialFournisseurId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +27,7 @@ const CreerBonCommande = () => {
         if (state?.bonCommande) {
           const bon = state.bonCommande;
           setBonCommandeId(bon.idBonCommande);
-          setInitialFournisseurId(bon.fournisseur.idFournisseur); // Stocke le fournisseur initial
+          setInitialFournisseurId(bon.fournisseur.idFournisseur);
           const bonAvecCalculs = await authService.getBonCommandeAvecCalculs(bon.idBonCommande);
           setCommandeItems(bonAvecCalculs.lignesAvecCalculs.map(item => ({
             idProduit: item.idProduit,
@@ -185,6 +185,26 @@ const CreerBonCommande = () => {
     });
   };
 
+  // Fonction pour confirmer la soumission (modification/validation)
+  const confirmSubmit = () => {
+    Swal.fire({
+      title: bonCommandeId ? 'Confirmer la modification' : 'Confirmer la commande',
+      text: bonCommandeId 
+        ? 'Voulez-vous vraiment modifier ce bon de commande ?' 
+        : 'Voulez-vous valider ce bon de commande ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: bonCommandeId ? 'Oui, modifier' : 'Oui, valider',
+      cancelButtonText: 'Non, annuler'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleSubmitCommande();
+      }
+    });
+  };
+
   const handleSubmitCommande = async () => {
     if (commandeItems.length === 0) {
       Swal.fire('Erreur', 'Veuillez ajouter au moins un produit', 'error');
@@ -231,6 +251,24 @@ const CreerBonCommande = () => {
       const errorMessage = error.response?.data?.message || 'Erreur lors de la soumission du bon de commande';
       Swal.fire('Erreur', errorMessage, 'error');
     }
+  };
+
+  // Fonction pour confirmer l'annulation
+  const confirmCancel = () => {
+    Swal.fire({
+      title: 'Confirmer l\'annulation',
+      text: 'Voulez-vous vraiment annuler cette opération ? Toutes les modifications non enregistrées seront perdues.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, annuler',
+      cancelButtonText: 'Non, rester'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate('/stock/bons-commande');
+      }
+    });
   };
 
   const produitOptions = produits.map(p => ({
@@ -347,12 +385,12 @@ const CreerBonCommande = () => {
                   </div>
                 )}
                 <div className="mt-3">
-                  <button className="btn btn-primary mr-2" onClick={handleSubmitCommande}>
+                  <button className="btn btn-primary mr-2" onClick={confirmSubmit}>
                     {bonCommandeId ? 'Modifier' : 'Valider'} la commande
                   </button>
                   <button
                     className="btn btn-secondary"
-                    onClick={() => navigate('/stock/bons-commande')}
+                    onClick={confirmCancel}
                   >
                     Annuler
                   </button>

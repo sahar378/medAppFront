@@ -16,7 +16,7 @@ const SeanceProduitsDetails = () => {
   useEffect(() => {
     console.log('Seance ID from params:', seanceId);
     if (!seanceId || seanceId === 'undefined') {
-      Swal.fire('Erreur', 'ID de séance invalide', 'error').then(() => window.location.href = '/medical/seances/produits');
+      Swal.fire('Erreur', 'ID de séance invalide', 'error').then(() => window.location.href = '/medical/produits-usage');
       return;
     }
 
@@ -36,6 +36,9 @@ const SeanceProduitsDetails = () => {
     };
     fetchSeanceAndProduits();
   }, [seanceId]);
+
+  // Determine the back link based on activeRole
+  const backLink = activeRole === 'PERSONNEL_MEDICAL' ? '/medical/produits-usage' : '/stock/produits-usage';
 
   if (loading) {
     return (
@@ -86,12 +89,19 @@ const SeanceProduitsDetails = () => {
               <div className="card-header">
                 <h3 className="card-title">Produits Utilisés</h3>
                 <div className="card-tools">
-                  <Link to="/medical/produits-usage" className="btn btn-tool btn-sm">
+                  <Link to={backLink} className="btn btn-tool btn-sm">
                     <i className="fas fa-arrow-left"></i> Retour
                   </Link>
                 </div>
               </div>
               <div className="card-body">
+                <style>
+                  {`
+                    .highlight-row {
+                      background-color: #f8d7da !important; /* Light red background */
+                    }
+                  `}
+                </style>
                 {produits.length > 0 ? (
                   <table className="table table-bordered table-striped">
                     <thead>
@@ -105,7 +115,10 @@ const SeanceProduitsDetails = () => {
                     </thead>
                     <tbody>
                       {produits.map((produit) => (
-                        <tr key={produit.idDetail}>
+                        <tr 
+                          key={produit.idDetail}
+                          className={!produit.standard ? "highlight-row" : ""}
+                        >
                           <td>{produit.nomProduit}</td>
                           <td>{produit.qteAdministre}</td>
                           <td>{produit.standard ? 'Oui' : 'Non'}</td>

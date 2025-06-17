@@ -1,4 +1,3 @@
-// src/pages/stock/AddFournisseur.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
@@ -10,6 +9,7 @@ const AddFournisseur = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     nom: '',
+    prenom: '',
     email: '',
     adresse: '',
     telephone: '',
@@ -19,29 +19,56 @@ const AddFournisseur = () => {
     rc: '',
     codeTva: ''
   });
-  const [errors, setErrors] = useState({ email: '', telephone: '' }); // État pour les messages d'erreur
+  const [errors, setErrors] = useState({ 
+    nom: '', 
+    prenom: '',
+    email: '', 
+    telephone: '' 
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Validation spécifique pour chaque champ
+    // Validation pour le nom et prénom (lettres, accents, espaces, tirets, apostrophes)
+    if (name === 'nom' || name === 'prenom') {
+      const nameRegex = /^[a-zA-ZÀ-ÿ\s\-']+$/;
+      if (value !== '' && !nameRegex.test(value)) {
+        setErrors(prev => ({ 
+          ...prev, 
+          [name]: `Le ${name === 'nom' ? 'nom' : 'prénom'} ne doit contenir que des lettres, espaces, tirets ou apostrophes` 
+        }));
+      } else {
+        setErrors(prev => ({ ...prev, [name]: '' }));
+      }
+    }
+
+    // Validation pour l'email
     if (name === 'email') {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Regex simple pour email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value) && value !== '') {
-        setErrors(prev => ({ ...prev, email: 'Veuillez entrer un email valide (ex: exemple@domaine.com)' }));
+        setErrors(prev => ({ 
+          ...prev, 
+          email: 'Veuillez entrer un email valide (ex: exemple@domaine.com)' 
+        }));
       } else {
         setErrors(prev => ({ ...prev, email: '' }));
       }
     }
 
+    // Validation pour le téléphone
     if (name === 'telephone') {
-      const phoneRegex = /^\d{0,8}$/; // Accepte jusqu'à 8 chiffres
+      const phoneRegex = /^\d{0,8}$/;
       if (!phoneRegex.test(value)) {
-        setErrors(prev => ({ ...prev, telephone: 'Le numéro doit contenir uniquement des chiffres (8 maximum)' }));
+        setErrors(prev => ({ 
+          ...prev, 
+          telephone: 'Le numéro doit contenir uniquement des chiffres' 
+        }));
       } else if (value.length > 0 && value.length < 8) {
-        setErrors(prev => ({ ...prev, telephone: 'Le numéro doit contenir exactement 8 chiffres' }));
-      } else if (value.length === 8) {
-        setErrors(prev => ({ ...prev, telephone: '' }));
+        setErrors(prev => ({ 
+          ...prev, 
+          telephone: 'Le numéro doit contenir exactement 8 chiffres' 
+        }));
       } else {
         setErrors(prev => ({ ...prev, telephone: '' }));
       }
@@ -52,44 +79,85 @@ const AddFournisseur = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsSubmitting(true);
+    
     // Vérification des champs obligatoires
-    if (!formData.nom || !formData.email || !formData.adresse || !formData.telephone) {
+    if (!formData.nom || !formData.prenom || !formData.email || !formData.adresse || !formData.telephone) {
       Swal.fire('Erreur', 'Veuillez remplir tous les champs obligatoires', 'error');
+      setIsSubmitting(false);
       return;
     }
 
-    // Validation finale avant soumission
+    // Validation finale du nom
+    const nameRegex = /^[a-zA-ZÀ-ÿ\s\-']+$/;
+    if (!nameRegex.test(formData.nom)) {
+      Swal.fire('Erreur', 'Le nom contient des caractères invalides', 'error');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validation finale du prénom
+    if (!nameRegex.test(formData.prenom)) {
+      Swal.fire('Erreur', 'Le prénom contient des caractères invalides', 'error');
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validation finale de l'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      Swal.fire('Erreur', 'L\'email n\'est pas valide', 'error');
+      Swal.fire('Erreur', 'Veuillez entrer une adresse email valide', 'error');
+      setIsSubmitting(false);
       return;
     }
 
+    // Validation finale du téléphone
     if (!/^\d{8}$/.test(formData.telephone)) {
       Swal.fire('Erreur', 'Le numéro de téléphone doit contenir exactement 8 chiffres', 'error');
+      setIsSubmitting(false);
       return;
     }
 
     try {
-      const response = await authService.createFournisseur(formData);
-      if (response.exists) {
-        const statutText = response.fournisseur.statut === 0 ? 'actif' :
-                          response.fournisseur.statut === 1 ? 'inactif' : 'supprimé';
+      await authService.createFournisseur(formData);
+      Swal.fire('Succès', 'Fournisseur ajouté avec succès', 'success');
+      navigate('/stock/fournisseurs');
+    } catch (error) {
+      let errorMessage = "Erreur lors de l'ajout du fournisseur";
+      
+      if (error.response) {
+        if (error.response.data && error.response.data.error) {
+          errorMessage = error.response.data.error;
+        } else if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        }
+      }
+
+      if (errorMessage.includes('existe déjà')) {
         Swal.fire({
-          title: 'Information',
-          text: `Le fournisseur "${response.fournisseur.nom}" existe déjà dans le système avec le statut "${statutText}".`,
-          icon: 'info',
-          confirmButtonText: 'OK'
+          icon: 'warning',
+          title: 'Fournisseur existant',
+          text: 'Un fournisseur avec cet email existe déjà dans le système',
         });
       } else {
-        Swal.fire('Succès', 'Fournisseur ajouté avec succès', 'success');
-        navigate('/stock/fournisseurs');
+        Swal.fire('Erreur', errorMessage, 'error');
       }
-    } catch (error) {
-      Swal.fire('Erreur', 'Erreur lors de l’ajout du fournisseur', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const isDisabled = 
+    !formData.nom || 
+    !formData.prenom || 
+    !formData.email || 
+    !formData.adresse || 
+    !formData.telephone || 
+    errors.nom || 
+    errors.prenom || 
+    errors.email || 
+    errors.telephone || 
+    isSubmitting;
 
   return (
     <div className="wrapper">
@@ -97,7 +165,9 @@ const AddFournisseur = () => {
       <Sidebar />
       <div className="content-wrapper">
         <div className="content-header">
-          <h1 className="m-0">Ajouter un Fournisseur</h1>
+          <div className="container-fluid">
+            <h1 className="m-0">Ajouter un Fournisseur</h1>
+          </div>
         </div>
         <section className="content">
           <div className="container-fluid">
@@ -108,12 +178,25 @@ const AddFournisseur = () => {
                     <label>Nom *</label>
                     <input
                       type="text"
-                      className="form-control"
+                      className={`form-control ${errors.nom ? 'is-invalid' : ''}`}
                       name="nom"
                       value={formData.nom}
                       onChange={handleChange}
                       required
                     />
+                    {errors.nom && <div className="invalid-feedback">{errors.nom}</div>}
+                  </div>
+                  <div className="form-group">
+                    <label>Prénom *</label>
+                    <input
+                      type="text"
+                      className={`form-control ${errors.prenom ? 'is-invalid' : ''}`}
+                      name="prenom"
+                      value={formData.prenom}
+                      onChange={handleChange}
+                      required
+                    />
+                    {errors.prenom && <div className="invalid-feedback">{errors.prenom}</div>}
                   </div>
                   <div className="form-group">
                     <label>Email *</label>
@@ -146,6 +229,7 @@ const AddFournisseur = () => {
                       name="telephone"
                       value={formData.telephone}
                       onChange={handleChange}
+                      maxLength={8}
                       required
                     />
                     {errors.telephone && <div className="invalid-feedback">{errors.telephone}</div>}
@@ -200,10 +284,28 @@ const AddFournisseur = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary mr-2">Ajouter</button>
-                  <button type="button" className="btn btn-secondary" onClick={() => navigate('/stock/fournisseurs')}>
-                    Annuler
-                  </button>
+                  <div className="d-flex justify-content-end mt-4">
+                    <button 
+                      type="button" 
+                      className="btn btn-secondary mr-2" 
+                      onClick={() => navigate('/stock/fournisseurs')}
+                      disabled={isSubmitting}
+                    >
+                      Annuler
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="btn btn-primary"
+                      disabled={isDisabled}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                          <span className="sr-only">Ajout en cours...</span>
+                        </>
+                      ) : 'Ajouter'}
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>

@@ -79,6 +79,8 @@ import MedicalPatientsList from './pages/medical/MedicalPatientsList';
 import MedicalPatientDialysisHistory from './pages/medical/MedicalPatientDialysisHistory';
 import EditSeanceProduits from './pages/medical/EditSeanceProduits';
 import SeanceProduitsDetails from './pages/medical/SeanceProduitsDetails';
+import SeanceProduitsUsageStock from './pages/stock/SeanceProduitsUsageStock';
+
 
 const AppRouter = () => {
   return (
@@ -108,7 +110,6 @@ const AppRouter = () => {
         <Route path="/intendant/reclamations" element={<ListeReclamationsIntendant />} />
         <Route path="/intendant/machines" element={<ListeMachinesIntendant />} />
         <Route path="/intendant/techniciens" element={<ListeTechniciensIntendant />} />
-        <Route path="/stock/produits-usage" element={<SeanceProduitsUsage />} />
         <Route path="/stock/produits-standards" element={<AllProduitsStandardsList />} />
         <Route path="/intendant/patients" element={<IntendantPatientsList />} />
         <Route path="/intendant/patients/:patientId/dialysis-history" element={<IntendantPatientDialysisHistory />} />
@@ -136,7 +137,7 @@ const AppRouter = () => {
         <Route path="/stock/bons-historique" element={<BonsHistorique />} />
         <Route path="/stock/bons-historique/:idBonCommande" element={<BonCommandeDetails readOnly={true} />} />
         <Route path="/stock/notifications" element={<Notifications />} />
-        <Route path="/stock/produits-usage" element={<SeanceProduitsUsage />} />
+
         <Route path="/stock/produits-standards" element={<AllProduitsStandardsList />} />
         <Route path="/medical/seances/:seanceId/produits/details" element={<SeanceProduitsDetails />} />
         <Route path="/stock/seances/details/:id" element={<DetailSeance />} />
@@ -179,6 +180,8 @@ const AppRouter = () => {
         <Route path="/liste-livraisons" element={<ListeLivraisons />} />
         <Route path="/historique-inventaires" element={<HistoriqueInventaires />} />
         <Route path="/details-inventaire/:id" element={<DetailsInventaire />} />
+
+        <Route path="/stock/produits-usage" element={<SeanceProduitsUsageStock />} />
       </Route>
       <Route element={<PrivateRoute />}>
         <Route path="/profile" element={<Profile />} />

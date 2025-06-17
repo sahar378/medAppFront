@@ -16,7 +16,6 @@ const PatientDetails = () => {
 
   const fetchPatientDetails = useCallback(async () => {
     try {
-      // Check user role
       if (activeRole !== 'MEDECIN') {
         Swal.fire('Accès interdit', 'Vous n’avez pas les autorisations nécessaires pour voir les détails du patient.', 'error');
         navigate('/medical/seances');
@@ -83,6 +82,9 @@ const PatientDetails = () => {
     );
   }
 
+  // Déterminer l'onglet à retourner en fonction du statut du patient
+  const returnTab = patient.archive ? 'archived' : patient.actif ? 'actifs' : 'inactifs';
+
   return (
     <div className="wrapper">
       <Navbar />
@@ -99,15 +101,21 @@ const PatientDetails = () => {
               <div className="card-header">
                 <h3 className="card-title">{patient.prenom} {patient.nom}</h3>
                 <div className="card-tools">
-                  <Link
-                    to={`/medical/medecin/patients/edit/${id}`}
-                    className="btn btn-warning btn-sm"
-                  >
-                    Modifier
-                  </Link>
+                  {!patient.archive && (
+                    <Link
+                      to={`/medical/medecin/patients/edit/${id}`}
+                      className="btn btn-warning btn-sm"
+                    >
+                      Modifier
+                    </Link>
+                  )}
                   <Link
                     to="/medical/medecin/patients"
                     className="btn btn-secondary btn-sm ml-1"
+                    onClick={(e) => {
+                      e.preventDefault(); // Empêche le comportement par défaut du Link
+                      navigate('/medical/medecin/patients', { state: { tab: returnTab } });
+                    }}
                   >
                     Retour
                   </Link>
@@ -116,6 +124,7 @@ const PatientDetails = () => {
               <div className="card-body">
                 <div className="row">
                   <div className="col-md-6">
+                    <p><strong>Code Patient :</strong> {patient.codePatient || 'Non spécifié'}</p>
                     <p><strong>Nom :</strong> {patient.nom || 'Non spécifié'}</p>
                     <p><strong>Prénom :</strong> {patient.prenom || 'Non spécifié'}</p>
                     <p><strong>Date de naissance :</strong> {patient.dateNaissance ? patient.dateNaissance : 'Non spécifiée'}</p>

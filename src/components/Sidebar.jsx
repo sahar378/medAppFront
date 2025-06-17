@@ -147,12 +147,7 @@ const Sidebar = () => {
                     <p>Consulter les patients</p>
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <Link to="/medical/produits-standards" className="nav-link" title="Produits standards">
-                    <i className="nav-icon fas fa-pills"></i>
-                    <p>Produits Standards</p>
-                  </Link>
-                </li>
+              
                 <li className="nav-item">
               <Link to="/medical/produits-usage" className="nav-link">
                 <i className="nav-icon fas fa-boxes"></i>

@@ -109,6 +109,21 @@ const authService = {
       throw error;
     }
   },
+//new method to call the password change endpoint , permet the user to change their password mel profil
+    changeProfilePassword: async (userId, currentPassword, newPassword, confirmPassword) => {
+    try {
+      const response = await api.post('/agent/profile/change-password', {
+        userId,
+        newPassword,
+        confirmPassword
+      }, {
+        params: { currentPassword }
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response.data;
+    }
+  },
 
 // Gestion de stock
 getAllProduits: async () => {
@@ -807,13 +822,22 @@ async getLivraisonsByFournisseurAndDate(idFournisseur, date) {
 },
 
 // Gestion des inventaires pour le personnel médical
-faireInventaire: async (lignes) => {
+/*faireInventaire: async (lignes) => {
   try {
       const response = await api.post('/medical/inventaire/verifier', lignes);
       return response.data;
   } catch (error) {
       Swal.fire('Erreur', 'Erreur lors de la vérification de l’inventaire', 'error');
       throw error; // Propager l'erreur pour la gérer dans le composant
+  }
+},*/
+faireInventaire: async (lignes) => {
+  try {
+      const response = await api.post('/medical/inventaire/enregistrer', lignes);
+      return response.data;
+  } catch (error) {
+      Swal.fire('Erreur', 'Erreur lors de l’enregistrement de l’inventaire', 'error');
+      throw error;
   }
 },
 
@@ -1263,6 +1287,22 @@ togglePatientActif: async (id) => {
 },
 
 
+checkPatientExists: async  (nom, prenom, numeroTelephone, excludeId = null) => {
+  try {
+    const response = await api.get(`/check-exists`, {params: { 
+        nom, 
+        prenom, 
+        numeroTelephone,
+        excludeId
+      }
+    });
+  return response.data.exists;
+  } catch (error) {
+    console.error('Error checking patient existence', error);
+    throw error;
+  }
+},
+
 //hathi shiha
 getAllProduitsStandards: async () => {
   const response = await api.get(`/medical/produits-standards`);
@@ -1357,6 +1397,19 @@ updateSeance: async (id, seanceData) => {
     throw error;
   }
 },
+
+
+
+
+getSeancesLastTwoDays: async () => {
+    try {
+      const response = await api.get('/medical/seances/last-two-days');
+      return response.data;
+    } catch (error) {
+      Swal.fire('Erreur', 'Impossible de récupérer les séances des 2 derniers jours', 'error');
+      throw error;
+    }
+  },
 updateMesure: async (mesureId, mesureData) => {
   try {
     const response = await api.put(`/medical/seances/mesures/${mesureId}`, mesureData);

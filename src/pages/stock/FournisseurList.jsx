@@ -1,4 +1,3 @@
-// src/pages/stock/FournisseurList.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
@@ -32,7 +31,7 @@ const FournisseurList = () => {
 
   useEffect(() => {
     const filtered = fournisseurs.filter(f =>
-      f.nom.toLowerCase().includes(searchTerm.toLowerCase())
+      `${f.nom} ${f.prenom}`.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredFournisseurs(filtered);
   }, [searchTerm, fournisseurs]);
@@ -47,7 +46,6 @@ const FournisseurList = () => {
       let confirmationText = '';
       let causeSuppression = null;
 
-      // Configurer le message de confirmation selon le statut
       if (nouveauStatut === 1) {
         confirmationTitle = 'Rendre Inactif';
         confirmationText = `Êtes-vous sûr de vouloir rendre le fournisseur "${nomFournisseur}" inactif ?`;
@@ -59,7 +57,6 @@ const FournisseurList = () => {
         confirmationText = `Êtes-vous sûr de vouloir supprimer le fournisseur "${nomFournisseur}" ?`;
       }
 
-      // Afficher la confirmation initiale
       const result = await Swal.fire({
         title: confirmationTitle,
         text: confirmationText,
@@ -73,7 +70,6 @@ const FournisseurList = () => {
 
       if (!result.isConfirmed) return;
 
-      // Si suppression (statut 2), demander la cause
       if (nouveauStatut === 2) {
         const { value: cause } = await Swal.fire({
           title: 'Cause de suppression',
@@ -93,7 +89,6 @@ const FournisseurList = () => {
         causeSuppression = cause;
       }
 
-      // Effectuer le changement de statut
       await authService.changerStatutFournisseur(id, nouveauStatut, causeSuppression);
       setFournisseurs(fournisseurs.filter(f => f.idFournisseur !== id));
       setFilteredFournisseurs(filteredFournisseurs.filter(f => f.idFournisseur !== id));
@@ -153,7 +148,7 @@ const FournisseurList = () => {
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Rechercher par nom..."
+                    placeholder="Rechercher par nom ou prénom..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -172,6 +167,7 @@ const FournisseurList = () => {
                     <tr>
                       <th>ID</th>
                       <th>Nom</th>
+                      <th>Prénom</th>
                       <th>Email</th>
                       <th>Actions</th>
                     </tr>
@@ -186,19 +182,20 @@ const FournisseurList = () => {
                         >
                           <td>{fournisseur.idFournisseur}</td>
                           <td>{fournisseur.nom}</td>
+                          <td>{fournisseur.prenom}</td>
                           <td>{fournisseur.email}</td>
                           <td onClick={(e) => e.stopPropagation()}>
                             {activeTab === 'actif' && (
                               <>
                                 <button
                                   className="btn btn-warning btn-sm mr-2"
-                                  onClick={() => handleChangerStatut(fournisseur.idFournisseur, 1, fournisseur.nom)}
+                                  onClick={() => handleChangerStatut(fournisseur.idFournisseur, 1, `${fournisseur.nom} ${fournisseur.prenom}`)}
                                 >
                                   Rendre Inactif
                                 </button>
                                 <button
                                   className="btn btn-danger btn-sm"
-                                  onClick={() => handleChangerStatut(fournisseur.idFournisseur, 2, fournisseur.nom)}
+                                  onClick={() => handleChangerStatut(fournisseur.idFournisseur, 2, `${fournisseur.nom} ${fournisseur.prenom}`)}
                                 >
                                   Supprimer
                                 </button>
@@ -208,13 +205,13 @@ const FournisseurList = () => {
                               <>
                                 <button
                                   className="btn btn-success btn-sm mr-2"
-                                  onClick={() => handleChangerStatut(fournisseur.idFournisseur, 0, fournisseur.nom)}
+                                  onClick={() => handleChangerStatut(fournisseur.idFournisseur, 0, `${fournisseur.nom} ${fournisseur.prenom}`)}
                                 >
                                   Rendre Actif
                                 </button>
                                 <button
                                   className="btn btn-danger btn-sm"
-                                  onClick={() => handleChangerStatut(fournisseur.idFournisseur, 2, fournisseur.nom)}
+                                  onClick={() => handleChangerStatut(fournisseur.idFournisseur, 2, `${fournisseur.nom} ${fournisseur.prenom}`)}
                                 >
                                   Supprimer
                                 </button>
@@ -227,7 +224,7 @@ const FournisseurList = () => {
                         </tr>
                       ))
                     ) : (
-                      <tr><td colSpan="4">Aucun fournisseur disponible</td></tr>
+                      <tr><td colSpan="5">Aucun fournisseur disponible</td></tr>
                     )}
                   </tbody>
                 </table>

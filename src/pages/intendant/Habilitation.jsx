@@ -265,13 +265,6 @@ const Habilitation = () => {
                               >
                                 Voir
                               </Link>
-                              {isIntendant(agent) && (
-                                <span
-                                  className={`badge ml-2 ${agent.enabled ? 'badge-success' : 'badge-danger'}`}
-                                >
-                                  {agent.enabled ? 'Activé' : 'Désactivé'}
-                                </span>
-                              )}
                             </td>
                           </tr>
                         ))}

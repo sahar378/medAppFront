@@ -9,7 +9,7 @@ const ListeMachinesIntendant = () => {
   const [machines, setMachines] = useState([]);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'non-archive'); // Restaurer l'onglet actif
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'non-archive');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,7 +69,10 @@ const ListeMachinesIntendant = () => {
                     <tr>
                       <th>ID</th>
                       <th>Date Mise en Service</th>
-                      <th>Disponibilité</th>
+                      {/* Colonne conditionnelle pour la disponibilité */}
+                      {activeTab === 'non-archive' && <th>Disponibilité</th>}
+                      {/* Colonne conditionnelle pour la date de fin de service */}
+                      {activeTab === 'archive' && <th>Date Fin de Service</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -81,15 +84,28 @@ const ListeMachinesIntendant = () => {
                       >
                         <td>{machine.idMachine}</td>
                         <td>{new Date(machine.dateMiseEnService).toLocaleDateString('fr-FR')}</td>
-                        <td>
-                          {machine.disponibilite === 0 ? (
-                            <span className="badge bg-success">Disponible</span>
-                          ) : machine.disponibilite === 1 ? (
-                            <span className="badge bg-danger">En intervention</span>
-                          ) : (
-                            <span className="badge bg-secondary">Réformé</span>
-                          )}
-                        </td>
+                        
+                        {/* Affichage conditionnel pour la disponibilité (non archivé) */}
+                        {activeTab === 'non-archive' && (
+                          <td>
+                            {machine.disponibilite === 0 ? (
+                              <span className="badge bg-success">Disponible</span>
+                            ) : machine.disponibilite === 1 ? (
+                              <span className="badge bg-danger">En intervention</span>
+                            ) : (
+                              <span className="badge bg-secondary">Réformé</span>
+                            )}
+                          </td>
+                        )}
+                        
+                        {/* Affichage conditionnel pour la date de fin de service (archivé) */}
+                        {activeTab === 'archive' && (
+                          <td>
+                            {machine.dateFinService 
+                              ? new Date(machine.dateFinService).toLocaleDateString('fr-FR')
+                              : 'Non définie'}
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>

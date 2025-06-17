@@ -1,4 +1,3 @@
-// src/pages/intendant/FournisseurDetailsReadOnly.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
@@ -40,6 +39,7 @@ const FournisseurDetailsReadOnly = ({ fournisseurId, onBack }) => {
             <div className="card">
               <div className="card-body">
                 <p><strong>Nom :</strong> {fournisseur.nom}</p>
+                <p><strong>Prénom :</strong> {fournisseur.prenom}</p>
                 <p><strong>Email :</strong> {fournisseur.email}</p>
                 <p><strong>Adresse :</strong> {fournisseur.adresse}</p>
                 <p><strong>Téléphone :</strong> {fournisseur.telephone}</p>

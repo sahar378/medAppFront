@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import Navbar from '../../../components/Navbar';
@@ -17,15 +17,22 @@ const PatientsList = () => {
   const [activeTab, setActiveTab] = useState('actifs');
   const { activeRole } = useAuth();
   const isMounted = useRef(true);
+  const location = useLocation();
 
-  // Cleanup on unmount to prevent state updates
   useEffect(() => {
     return () => {
       isMounted.current = false;
     };
   }, []);
 
-  // Memoize fetchPatients to prevent unnecessary re-renders
+  useEffect(() => {
+    // Restaurer l'onglet actif à partir de l'état de navigation si disponible
+    if (location.state?.tab) {
+      setActiveTab(location.state.tab);
+      setSelectedPatient([]);
+    }
+  }, [location.state?.tab]);
+
   const fetchPatients = useCallback(async () => {
     if (isMounted.current) {
       setLoading(true);
@@ -52,9 +59,7 @@ const PatientsList = () => {
         setPatients(validPatients);
         setFilteredPatients(validPatients);
         setSuggestions(validPatients);
-        // Reapply selection if a patient is selected
         if (selectedPatient.length > 0) {
-          // Skip backend search; use selectedPatient directly
           setFilteredPatients(selectedPatient);
         }
       }
@@ -73,12 +78,10 @@ const PatientsList = () => {
     }
   }, [activeTab, activeRole, selectedPatient]);
 
-  // Fetch patients when activeTab, activeRole, or fetchPatients changes
   useEffect(() => {
     fetchPatients();
   }, [activeTab, activeRole, fetchPatients]);
 
-  // Handle search input for autocompletion
   const handleSearchChange = useCallback(
     async (query) => {
       if (query.length < 2) {
@@ -102,7 +105,6 @@ const PatientsList = () => {
         }
         if (isMounted.current) {
           setSuggestions(searchResults || []);
-          // Preserve selectedPatient if search returns no results
           setFilteredPatients(
             searchResults && searchResults.length > 0 ? searchResults : selectedPatient.length > 0 ? selectedPatient : []
           );
@@ -112,7 +114,6 @@ const PatientsList = () => {
         if (isMounted.current) {
           Swal.fire('Erreur', 'Impossible de rechercher les patients', 'error');
           setSuggestions([]);
-          // Preserve selectedPatient on error
           setFilteredPatients(selectedPatient.length > 0 ? selectedPatient : []);
         }
       }
@@ -120,25 +121,22 @@ const PatientsList = () => {
     [activeTab, patients, selectedPatient]
   );
 
-  // Handle patient selection from Typeahead
   const handlePatientSelect = (selected) => {
     setSelectedPatient(selected);
     if (isMounted.current) {
       if (selected.length > 0) {
-        setFilteredPatients(selected); // Show only the selected patient
+        setFilteredPatients(selected);
       } else {
-        setFilteredPatients(patients); // Reset to all patients if cleared
+        setFilteredPatients(patients);
       }
     }
   };
 
-  // Handle tab switching
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setSelectedPatient([]);
   };
 
-  // Handle toggle active/inactive status with confirmation
   const handleToggleActif = async (patientId, isActive) => {
     const actionText = isActive ? 'désactiver' : 'activer';
     const result = await Swal.fire({
@@ -156,8 +154,8 @@ const PatientsList = () => {
       try {
         await authService.togglePatientActif(patientId);
         Swal.fire('Succès', 'Statut du patient mis à jour', 'success');
-        await fetchPatients(); // Reload the patient list
-        setSelectedPatient([]); // Clear search
+        await fetchPatients();
+        setSelectedPatient([]);
       } catch (error) {
         console.error('Erreur lors de la modification du statut:', error);
         Swal.fire('Erreur', 'Impossible de modifier le statut', 'error');
@@ -165,7 +163,6 @@ const PatientsList = () => {
     }
   };
 
-  // Handle archive/unarchive action with confirmation
   const handleArchive = async (patientId, isArchived) => {
     const actionText = isArchived ? 'désarchiver' : 'archiver';
     const result = await Swal.fire({
@@ -184,8 +181,8 @@ const PatientsList = () => {
         const action = isArchived ? 'unarchivePatient' : 'archivePatient';
         await authService[action](patientId);
         Swal.fire('Succès', `Patient ${isArchived ? 'désarchivé' : 'archivé'}`, 'success');
-        await fetchPatients(); // Reload the patient list
-        setSelectedPatient([]); // Clear search
+        await fetchPatients();
+        setSelectedPatient([]);
       } catch (error) {
         console.error(`Erreur lors de ${isArchived ? 'désarchivage' : 'archivage'}:`, error);
         Swal.fire('Erreur', `Impossible de ${isArchived ? 'désarchiver' : 'archiver'} le patient`, 'error');
@@ -290,20 +287,24 @@ const PatientsList = () => {
                                 >
                                   Consulter
                                 </Link>
-                                <button
-                                  className="btn btn-outline-warning btn-sm mr-2"
-                                  onClick={() => handleToggleActif(patient.idPatient, patient.actif)}
-                                  title="Activer/Désactiver"
-                                >
-                                  {patient.actif ? 'Désactiver' : 'Activer'}
-                                </button>
-                                <button
-                                  className={`btn btn-outline-${patient.archive ? 'success' : 'danger'} btn-sm`}
-                                  onClick={() => handleArchive(patient.idPatient, patient.archive)}
-                                  title={patient.archive ? 'Désarchiver' : 'Archiver'}
-                                >
-                                  {patient.archive ? 'Désarchiver' : 'Archiver'}
-                                </button>
+                                  {activeTab !== 'archived' && (
+                                    <>
+                                      <button
+                                        className="btn btn-outline-warning btn-sm mr-2"
+                                        onClick={() => handleToggleActif(patient.idPatient, patient.actif)}
+                                        title="Activer/Désactiver"
+                                      >
+                                        {activeTab === 'inactifs' && !patient.actif ? 'Activer' : patient.actif ? 'Désactiver' : 'Activer'}
+                                      </button>
+                                      <button
+                                        className={`btn btn-outline-${patient.archive ? 'success' : 'danger'} btn-sm`}
+                                        onClick={() => handleArchive(patient.idPatient, patient.archive)}
+                                        title={patient.archive ? 'Désarchiver' : 'Archiver'}
+                                      >
+                                        {patient.archive ? 'Désarchiver' : 'Archiver'}
+                                      </button>
+                                    </>
+                                  )}
                               </div>
                             </td>
                           )}

@@ -11,6 +11,13 @@ const EditSeanceProduits = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [seance, setSeance] = useState(null);
+  
+  // Fonction pour valider les entrées numériques
+  const validateNumericInput = (value) => {
+    return value === '' || /^[0-9]*\.?[0-9]*$/.test(value);
+  };
+
+  // États modifiés pour stocker les valeurs numériques comme chaînes
   const [produitsNonStandards, setProduitsNonStandards] = useState({
     'Sérum salé 0.5L': '0',
     'Seringue 10cc': '0',
@@ -30,11 +37,13 @@ const EditSeanceProduits = () => {
     '2 aiguilles': '0',
     'champ stérile': '0',
   });
+  
   const [produitsSansStock, setProduitsSansStock] = useState({
     'Héparine': '',
     'Ether': '',
     'Néofix': '',
   });
+  
   const [produitsHorsStock, setProduitsHorsStock] = useState([{ nom: '', qte: '' }]);
   const [produitsSpeciaux, setProduitsSpeciaux] = useState({});
   const [selectedMateriel, setSelectedMateriel] = useState([]);
@@ -83,11 +92,11 @@ const EditSeanceProduits = () => {
         produitsData.forEach((produit) => {
           if (!produit.standard) {
             if (Object.keys(newProduitsNonStandards).includes(produit.nomProduit)) {
-              newProduitsNonStandards[produit.nomProduit] = produit.qteAdministre;
+              newProduitsNonStandards[produit.nomProduit] = produit.qteAdministre.toString();
             } else if (Object.keys(newProduitsSansStock).includes(produit.nomProduit)) {
-              newProduitsSansStock[produit.nomProduit] = produit.qteAdministre;
+              newProduitsSansStock[produit.nomProduit] = produit.qteAdministre.toString();
             } else if (produit.produit && produit.produit.categorie.libelleCategorie.toLowerCase() === 'materiel') {
-              newProduitsSpeciaux[produit.nomProduit] = produit.qteAdministre;
+              newProduitsSpeciaux[produit.nomProduit] = produit.qteAdministre.toString();
               newSelectedMateriel.push({
                 value: produit.produit.idProduit,
                 label: produit.nomProduit,
@@ -96,7 +105,7 @@ const EditSeanceProduits = () => {
             } else {
               newProduitsHorsStock.push({
                 nom: produit.nomProduit,
-                qte: produit.qteAdministre,
+                qte: produit.qteAdministre.toString(),
               });
             }
           }
@@ -145,22 +154,29 @@ const EditSeanceProduits = () => {
 
   const handleCompressChange = (e) => {
     const { value } = e.target;
-    setProduitsNonStandards((prev) => ({
-      ...prev,
-      Compress: value,
-    }));
+    if (validateNumericInput(value)) {
+      setProduitsNonStandards((prev) => ({
+        ...prev,
+        Compress: value,
+      }));
+    }
   };
 
   const handleProduitSansStockChange = (e, produit) => {
     const { value } = e.target;
-    setProduitsSansStock((prev) => ({
-      ...prev,
-      [produit]: value,
-    }));
+    if (validateNumericInput(value)) {
+      setProduitsSansStock((prev) => ({
+        ...prev,
+        [produit]: value,
+      }));
+    }
   };
 
   const handleProduitHorsStockChange = (e, index, field) => {
     const { value } = e.target;
+    if (field === 'qte' && !validateNumericInput(value)) {
+      return;
+    }
     setProduitsHorsStock((prev) =>
       prev.map((item, i) =>
         i === index ? { ...item, [field]: value } : item
@@ -183,11 +199,13 @@ const EditSeanceProduits = () => {
   const handleMaterielSelect = (selectedOptions) => {
     const selected = selectedOptions || [];
     setSelectedMateriel(selected);
+    
+    // MODIFICATION CLÉ : Plus de valeur par défaut "1"
     setProduitsSpeciaux(
       selected.reduce(
         (acc, option) => ({
           ...acc,
-          [option.produit.nom]: produitsSpeciaux[option.produit.nom] || '1',
+          [option.produit.nom]: produitsSpeciaux[option.produit.nom] || '',
         }),
         {}
       )
@@ -196,10 +214,12 @@ const EditSeanceProduits = () => {
 
   const handleProduitSpecialQuantityChange = (e, produitNom) => {
     const { value } = e.target;
-    setProduitsSpeciaux((prev) => ({
-      ...prev,
-      [produitNom]: value,
-    }));
+    if (validateNumericInput(value)) {
+      setProduitsSpeciaux((prev) => ({
+        ...prev,
+        [produitNom]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -219,18 +239,27 @@ const EditSeanceProduits = () => {
 
     if (result.isConfirmed) {
       try {
-        const produitsNonStandardsFiltered = Object.fromEntries(
-          Object.entries(produitsNonStandards).filter(([_, qte]) => qte && parseInt(qte) > 0)
-        );
-        const produitsSansStockFiltered = Object.fromEntries(
-          Object.entries(produitsSansStock).filter(([_, qte]) => qte && parseInt(qte) > 0)
-        );
+        // Fonction pour convertir les valeurs en nombres et filtrer celles > 0
+        const convertAndFilter = (obj) => {
+          return Object.fromEntries(
+            Object.entries(obj)
+              .map(([key, value]) => [key, parseFloat(value)])
+              .filter(([_, value]) => !isNaN(value) && value > 0)
+          );
+        };
+
+        // Conversion et filtrage des produits
+        const produitsNonStandardsFiltered = convertAndFilter(produitsNonStandards);
+        const produitsSansStockFiltered = convertAndFilter(produitsSansStock);
+        
         const produitsHorsStockFiltered = produitsHorsStock
-          .filter((item) => item.nom && item.qte && parseInt(item.qte) > 0)
-          .reduce((acc, item) => ({ ...acc, [item.nom]: item.qte }), {});
-        const produitsSpeciauxFiltered = Object.fromEntries(
-          Object.entries(produitsSpeciaux).filter(([_, qte]) => qte && parseInt(qte) > 0)
-        );
+          .filter((item) => item.nom && item.qte && !isNaN(item.qte))
+          .reduce((acc, item) => ({ 
+            ...acc, 
+            [item.nom]: parseFloat(item.qte) 
+          }), {});
+        
+        const produitsSpeciauxFiltered = convertAndFilter(produitsSpeciaux);
 
         await authService.updateSeanceProduits(seanceId, {
           produitsNonStandards: produitsNonStandardsFiltered,
@@ -340,11 +369,11 @@ const EditSeanceProduits = () => {
                         <div className="col-md-3 form-group">
                           <label>Compress</label>
                           <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
                             className="form-control"
                             value={produitsNonStandards['Compress']}
                             onChange={handleCompressChange}
-                            min="0"
                           />
                         </div>
                       </div>
@@ -355,11 +384,11 @@ const EditSeanceProduits = () => {
                           <div key={produit} className="col-md-3 form-group">
                             <label>{produit}</label>
                             <input
-                              type="number"
+                              type="text"
+                              inputMode="decimal"
                               className="form-control"
                               value={produitsSansStock[produit]}
                               onChange={(e) => handleProduitSansStockChange(e, produit)}
-                              min="0"
                             />
                           </div>
                         ))}
@@ -379,12 +408,12 @@ const EditSeanceProduits = () => {
                           </div>
                           <div className="col-md-2">
                             <input
-                              type="number"
+                              type="text"
+                              inputMode="decimal"
                               className="form-control"
                               placeholder="Quantité"
                               value={item.qte}
                               onChange={(e) => handleProduitHorsStockChange(e, index, 'qte')}
-                              min="0"
                             />
                           </div>
                           <div className="col-md-2">
@@ -426,13 +455,14 @@ const EditSeanceProduits = () => {
                           </div>
                           <div className="col-md-2">
                             <input
-                              type="number"
+                              type="text"
+                              inputMode="decimal"
                               className="form-control"
-                              value={produitsSpeciaux[materiel.label] || '1'}
+                              value={produitsSpeciaux[materiel.label] || ''} // MODIFICATION: Plus de valeur par défaut "1"
                               onChange={(e) =>
                                 handleProduitSpecialQuantityChange(e, materiel.label)
                               }
-                              min="1"
+                              placeholder="Quantité"
                             />
                           </div>
                         </div>

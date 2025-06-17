@@ -1,4 +1,3 @@
-// src/pages/stock/FournisseurDetails.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
@@ -12,9 +11,13 @@ const FournisseurDetails = () => {
     const [fournisseur, setFournisseur] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
-        nom: '', email: '', adresse: '', telephone: '', fax: '',
+        nom: '', prenom: '', email: '', adresse: '', telephone: '', fax: '',
         matriculeFiscale: '', rib: '', rc: '', codeTva: ''
     });
+    const [errors, setErrors] = useState({ 
+        nom: '', prenom: '', email: '', telephone: '' 
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchFournisseur = async () => {
@@ -23,6 +26,7 @@ const FournisseurDetails = () => {
                 setFournisseur(data);
                 setFormData({
                     nom: data.nom || '',
+                    prenom: data.prenom || '',
                     email: data.email || '',
                     adresse: data.adresse || '',
                     telephone: data.telephone || '',
@@ -40,18 +44,92 @@ const FournisseurDetails = () => {
         fetchFournisseur();
     }, [id, navigate]);
 
+    const validateField = (name, value) => {
+        let error = '';
+        if (name === 'nom' || name === 'prenom') {
+            const nameRegex = /^[a-zA-ZÀ-ÿ\s\-']+$/;
+            if (value !== '' && !nameRegex.test(value)) {
+                error = `Le ${name === 'nom' ? 'nom' : 'prénom'} ne doit contenir que des lettres, espaces, tirets ou apostrophes`;
+            }
+        } else if (name === 'email') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (value !== '' && !emailRegex.test(value)) {
+                error = 'Veuillez entrer un email valide (ex: exemple@domaine.com)';
+            }
+        } else if (name === 'telephone') {
+            if (!/^\d{0,8}$/.test(value)) {
+                error = 'Le numéro doit contenir uniquement des chiffres';
+            } else if (value.length > 0 && value.length < 8) {
+                error = 'Le numéro doit contenir exactement 8 chiffres';
+            }
+        }
+        return error;
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+        
+        // Validation en temps réel
+        const error = validateField(name, value);
+        setErrors({ ...errors, [name]: error });
+    };
+
     const handleUpdate = async () => {
-        if (!formData.nom || !formData.email || !formData.adresse || !formData.telephone) {
+        setIsSubmitting(true);
+        
+        // Vérification des champs obligatoires
+        if (!formData.nom || !formData.prenom || !formData.email || !formData.adresse || !formData.telephone) {
             Swal.fire('Erreur', 'Veuillez remplir tous les champs obligatoires', 'error');
+            setIsSubmitting(false);
             return;
         }
+
+        // Validation finale avant soumission
+        let hasErrors = false;
+        const newErrors = { ...errors };
+
+        const fieldsToValidate = ['nom', 'prenom', 'email', 'telephone'];
+        fieldsToValidate.forEach(field => {
+            const error = validateField(field, formData[field]);
+            newErrors[field] = error;
+            if (error) hasErrors = true;
+        });
+
+        setErrors(newErrors);
+
+        if (hasErrors) {
+            Swal.fire('Erreur', 'Veuillez corriger les erreurs dans le formulaire', 'error');
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
             await authService.updateFournisseur(id, formData);
             setFournisseur({ ...fournisseur, ...formData });
             setIsEditing(false);
             Swal.fire('Succès', 'Fournisseur mis à jour', 'success');
         } catch (error) {
-            Swal.fire('Erreur', 'Erreur lors de la mise à jour', 'error');
+            let errorMessage = 'Erreur lors de la mise à jour';
+            if (error.response) {
+                if (error.response.data && error.response.data.error) {
+                    errorMessage = error.response.data.error;
+                } else if (typeof error.response.data === 'string') {
+                    errorMessage = error.response.data;
+                }
+            }
+
+            if (errorMessage.includes('existe déjà')) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Email existant',
+                    text: 'Un fournisseur avec cet email existe déjà dans le système',
+                });
+            } else {
+                Swal.fire('Erreur', errorMessage, 'error');
+            }
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -126,48 +204,68 @@ const FournisseurDetails = () => {
                                 {isEditing ? (
                                     <>
                                         <div className="form-group">
-                                            <label>Nom :</label>
+                                            <label>Nom *</label>
                                             <input
                                                 type="text"
-                                                className="form-control"
+                                                className={`form-control ${errors.nom ? 'is-invalid' : ''}`}
+                                                name="nom"
                                                 value={formData.nom}
-                                                onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
+                                                onChange={handleChange}
                                             />
+                                            {errors.nom && <div className="invalid-feedback">{errors.nom}</div>}
                                         </div>
                                         <div className="form-group">
-                                            <label>Email :</label>
+                                            <label>Prénom *</label>
+                                            <input
+                                                type="text"
+                                                className={`form-control ${errors.prenom ? 'is-invalid' : ''}`}
+                                                name="prenom"
+                                                value={formData.prenom}
+                                                onChange={handleChange}
+                                            />
+                                            {errors.prenom && <div className="invalid-feedback">{errors.prenom}</div>}
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Email *</label>
                                             <input
                                                 type="email"
-                                                className="form-control"
+                                                className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                                                name="email"
                                                 value={formData.email}
-                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                onChange={handleChange}
                                             />
+                                            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                                         </div>
                                         <div className="form-group">
-                                            <label>Adresse :</label>
+                                            <label>Adresse *</label>
                                             <input
                                                 type="text"
                                                 className="form-control"
+                                                name="adresse"
                                                 value={formData.adresse}
-                                                onChange={(e) => setFormData({ ...formData, adresse: e.target.value })}
+                                                onChange={handleChange}
                                             />
                                         </div>
                                         <div className="form-group">
-                                            <label>Téléphone :</label>
+                                            <label>Téléphone *</label>
                                             <input
                                                 type="text"
-                                                className="form-control"
+                                                className={`form-control ${errors.telephone ? 'is-invalid' : ''}`}
+                                                name="telephone"
                                                 value={formData.telephone}
-                                                onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
+                                                onChange={handleChange}
+                                                maxLength={8}
                                             />
+                                            {errors.telephone && <div className="invalid-feedback">{errors.telephone}</div>}
                                         </div>
                                         <div className="form-group">
                                             <label>Fax (optionnel) :</label>
                                             <input
                                                 type="text"
                                                 className="form-control"
+                                                name="fax"
                                                 value={formData.fax}
-                                                onChange={(e) => setFormData({ ...formData, fax: e.target.value })}
+                                                onChange={handleChange}
                                             />
                                         </div>
                                         <div className="form-group">
@@ -175,8 +273,9 @@ const FournisseurDetails = () => {
                                             <input
                                                 type="text"
                                                 className="form-control"
+                                                name="matriculeFiscale"
                                                 value={formData.matriculeFiscale}
-                                                onChange={(e) => setFormData({ ...formData, matriculeFiscale: e.target.value })}
+                                                onChange={handleChange}
                                             />
                                         </div>
                                         <div className="form-group">
@@ -184,8 +283,9 @@ const FournisseurDetails = () => {
                                             <input
                                                 type="text"
                                                 className="form-control"
+                                                name="rib"
                                                 value={formData.rib}
-                                                onChange={(e) => setFormData({ ...formData, rib: e.target.value })}
+                                                onChange={handleChange}
                                             />
                                         </div>
                                         <div className="form-group">
@@ -193,8 +293,9 @@ const FournisseurDetails = () => {
                                             <input
                                                 type="text"
                                                 className="form-control"
+                                                name="rc"
                                                 value={formData.rc}
-                                                onChange={(e) => setFormData({ ...formData, rc: e.target.value })}
+                                                onChange={handleChange}
                                             />
                                         </div>
                                         <div className="form-group">
@@ -202,20 +303,35 @@ const FournisseurDetails = () => {
                                             <input
                                                 type="text"
                                                 className="form-control"
+                                                name="codeTva"
                                                 value={formData.codeTva}
-                                                onChange={(e) => setFormData({ ...formData, codeTva: e.target.value })}
+                                                onChange={handleChange}
                                             />
                                         </div>
-                                        <button className="btn btn-success mr-2" onClick={handleUpdate}>
-                                            Sauvegarder
+                                        <button 
+                                            className="btn btn-success mr-2" 
+                                            onClick={handleUpdate}
+                                            disabled={isSubmitting}
+                                        >
+                                            {isSubmitting ? (
+                                                <>
+                                                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                    <span className="sr-only">Mise à jour...</span>
+                                                </>
+                                            ) : 'Sauvegarder'}
                                         </button>
-                                        <button className="btn btn-secondary" onClick={() => setIsEditing(false)}>
+                                        <button 
+                                            className="btn btn-secondary" 
+                                            onClick={() => setIsEditing(false)}
+                                            disabled={isSubmitting}
+                                        >
                                             Annuler
                                         </button>
                                     </>
                                 ) : (
                                     <>
                                         <p><strong>Nom :</strong> {fournisseur.nom}</p>
+                                        <p><strong>Prénom :</strong> {fournisseur.prenom}</p>
                                         <p><strong>Email :</strong> {fournisseur.email}</p>
                                         <p><strong>Adresse :</strong> {fournisseur.adresse}</p>
                                         <p><strong>Téléphone :</strong> {fournisseur.telephone}</p>
